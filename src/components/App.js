@@ -6,6 +6,7 @@ import QuizMode from './QuizMode';
 import DrawingCanvas from './DrawingCanvas';
 import ConceptMap from './ConceptMap';
 import MatchupGame from './MatchupGame';
+import TablePracticeMode from './TablePracticeMode'; // Add this import
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -39,6 +40,12 @@ const App = () => {
           >
             Loja
           </button>
+          <button 
+            className={activeTab === 'tables' ? 'active' : ''} 
+            onClick={() => setActiveTab('tables')}
+          >
+            Tabelat Praktike
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -55,6 +62,7 @@ const App = () => {
         {activeTab === 'quiz' && <QuizMode />}
         {activeTab === 'concepts' && <ConceptMap />}
         {activeTab === 'game' && <MatchupGame />}
+        {activeTab === 'tables' && <TablePracticeMode />}
       </main>
       <Footer />
     </div>

@@ -513,3 +513,115 @@ footer {
 .drawing-section .drawing-canvas {
   max-width: 100%;
 }
+
+/* Table Practice Mode */
+.table-practice-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-practice-container h2 {
+  text-align: center;
+  color: #35424a;
+  margin-bottom: 20px;
+}
+
+.theory-section {
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.theory-section h3 {
+  color: #35424a;
+  margin-top: 0;
+}
+
+.problem-description {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #fff3e0;
+  border-radius: 4px;
+}
+
+.practice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 0.9em;
+}
+
+.practice-table th, 
+.practice-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.practice-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.practice-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.practice-table input {
+  width: 80px;
+  padding: 5px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.practice-table input.correct {
+  background-color: #e8f5e9;
+  border-color: #4caf50;
+}
+
+.practice-table input.incorrect {
+  background-color: #ffebee;
+  border-color: #f44336;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.feedback {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.success-message {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.error-message {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.calculation-hint {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.calculation-hint h3 {
+  color: #35424a;
+  margin-top: 0;
+}
