@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import questions from '../data/questions';
 import { shuffleArray } from '../utils/helpers';
+import { logger } from '../utils/logger';
 
 const QuizMode = () => {
   const [score, setScore] = useState(0);
@@ -11,11 +12,16 @@ const QuizMode = () => {
   const [quizQuestions, setQuizQuestions] = useState([]);
   
   const startQuiz = (size) => {
-    setQuizSize(size);
-    setQuizQuestions(shuffleArray([...questions]).slice(0, size));
-    setQuizStarted(true);
-    setScore(0);
-    setCurrentQuestion(0);
+    try {
+      setQuizSize(size);
+      setQuizQuestions(shuffleArray([...questions]).slice(0, size));
+      setQuizStarted(true);
+      setScore(0);
+      setCurrentQuestion(0);
+    } catch (error) {
+      logger.error('Failed to start quiz', { error: error.message, quizSize: size });
+      alert('Could not start quiz. Please try again.');
+    }
   };
   
   const handleAnswer = (isCorrect) => {

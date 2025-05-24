@@ -1,12 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import ReactFlow, { 
-  Background, 
-  Controls, 
-  MiniMap,
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges
-} from 'react-flow-renderer';
+import React, { useState, useCallback, useEffect } from 'react';
+import { logger } from '../utils/logger';
+
+// Use ReactFlow dynamically to avoid SSR issues
+const ReactFlow = React.lazy(() => import('reactflow').then(module => ({ 
+  default: module.default,
+  Background: module.Background,
+  Controls: module.Controls,
+  MiniMap: module.MiniMap 
+})));
 
 // Nyjët themelore
 const marketingBasics = [
@@ -221,6 +222,18 @@ const ConceptMap = () => {
   const [nodes, setNodes] = useState(initialElements);
   const [edges, setEdges] = useState(initialEdges);
   
+  // Add error handling for ReactFlow loading
+  const [loadError, setLoadError] = useState(null);
+  
+  useEffect(() => {
+    try {
+      // Any initialization code
+    } catch (error) {
+      logger.error('ConceptMap initialization failed', { error: error.message });
+      setLoadError(error.message);
+    }
+  }, []);
+  
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
@@ -236,29 +249,40 @@ const ConceptMap = () => {
     []
   );
 
+  if (loadError) {
+    return <div className="error-message">Could not load concept map: {loadError}</div>;
+  }
+  
   return (
     <div style={{ height: 650, width: '100%' }}>
       <div className="concept-map-instructions">
-        <p>Tërhiq konceptet për t'i riorganizuar. Përdorni butonat poshtë djathtas për zmadhim/zvogëlim.</p>
-        <p>Kjo hartë tregon lidhjet midis koncepteve kryesore të marketingut.</p>
+        <p>Tërhiq konceptet për t'i riorganizuar.</p>
       </div>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        deleteKeyCode={46}
-        snapToGrid={true}
-        snapGrid={[15, 15]}
-        defaultZoom={0.6}
-        minZoom={0.2}
-        maxZoom={1.5}
+      <React.Suspense 
+        fallback={<div>Loading concept map...</div>}
+        onError={(error) => {
+          logger.error('ReactFlow failed to load', { error: error.message });
+          return <div>Failed to load concept map.</div>;
+        }}
       >
-        <Background />
-        <Controls />
-        <MiniMap />
-      </ReactFlow>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          deleteKeyCode={46}
+          snapToGrid={true}
+          snapGrid={[15, 15]}
+          defaultZoom={0.6}
+          minZoom={0.2}
+          maxZoom={1.5}
+        >
+          <Background />
+          <Controls />
+          <MiniMap />
+        </ReactFlow>
+      </React.Suspense>
     </div>
   );
 };

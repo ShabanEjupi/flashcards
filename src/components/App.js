@@ -19,19 +19,13 @@ const App = () => {
             className={activeTab === 'flashcards' ? 'active' : ''} 
             onClick={() => setActiveTab('flashcards')}
           >
-            Fletushkat
+            Fletushkat & Vizatimi
           </button>
           <button 
             className={activeTab === 'quiz' ? 'active' : ''} 
             onClick={() => setActiveTab('quiz')}
           >
             Kuizi
-          </button>
-          <button 
-            className={activeTab === 'draw' ? 'active' : ''} 
-            onClick={() => setActiveTab('draw')}
-          >
-            Vizato
           </button>
           <button 
             className={activeTab === 'concepts' ? 'active' : ''} 
@@ -47,9 +41,18 @@ const App = () => {
           </button>
         </div>
         
-        {activeTab === 'flashcards' && <FlashcardDeck />}
+        {activeTab === 'flashcards' && (
+          <div className="flashcards-drawing-container">
+            <div className="flashcards-section">
+              <h2>Fletushkat</h2>
+              <FlashcardDeck />
+            </div>
+            <div className="drawing-section">
+              <DrawingCanvas />
+            </div>
+          </div>
+        )}
         {activeTab === 'quiz' && <QuizMode />}
-        {activeTab === 'draw' && <DrawingCanvas />}
         {activeTab === 'concepts' && <ConceptMap />}
         {activeTab === 'game' && <MatchupGame />}
       </main>

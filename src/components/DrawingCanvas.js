@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { logger } from '../utils/logger';
 
 const DrawingCanvas = () => {
   const canvasRef = useRef(null);
@@ -18,15 +19,19 @@ const DrawingCanvas = () => {
   ]);
   
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    context.lineWidth = lineWidth;
-    context.lineCap = 'round';
-    
-    // Check localStorage for saved images
-    const saved = localStorage.getItem('savedDrawings');
-    if (saved) {
-      setSavedImages(JSON.parse(saved));
+    try {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      context.lineWidth = lineWidth;
+      context.lineCap = 'round';
+      
+      // Check localStorage for saved images
+      const saved = localStorage.getItem('savedDrawings');
+      if (saved) {
+        setSavedImages(JSON.parse(saved));
+      }
+    } catch (error) {
+      logger.error('DrawingCanvas initialization failed', { error: error.message });
     }
   }, []);
   
@@ -190,16 +195,21 @@ const DrawingCanvas = () => {
   };
   
   const saveDrawing = () => {
-    const canvas = canvasRef.current;
-    const dataURL = canvas.toDataURL('image/png');
-    const title = prompt('Emërto vizatimin:', `Vizatimi ${savedImages.length + 1}`);
-    
-    if (title) {
-      const newImage = { title, dataURL, date: new Date().toLocaleString() };
-      const updatedImages = [...savedImages, newImage];
-      setSavedImages(updatedImages);
-      localStorage.setItem('savedDrawings', JSON.stringify(updatedImages));
-      alert('Vizatimi u ruajt me sukses!');
+    try {
+      const canvas = canvasRef.current;
+      const dataURL = canvas.toDataURL('image/png');
+      const title = prompt('Emërto vizatimin:', `Vizatimi ${savedImages.length + 1}`);
+      
+      if (title) {
+        const newImage = { title, dataURL, date: new Date().toLocaleString() };
+        const updatedImages = [...savedImages, newImage];
+        setSavedImages(updatedImages);
+        localStorage.setItem('savedDrawings', JSON.stringify(updatedImages));
+        alert('Vizatimi u ruajt me sukses!');
+      }
+    } catch (error) {
+      logger.error('Failed to save drawing', { error: error.message });
+      alert('Nuk mund të ruhet vizatimi. Ju lutemi provoni përsëri.');
     }
   };
   
@@ -229,8 +239,8 @@ const DrawingCanvas = () => {
   return (
     <div className="drawing-container">
       <div className="drawing-header">
-        <h3>Vizato Konceptet e Marketingut</h3>
-        <p>Përdor templatet për të vizatuar koncepte të ndryshme ose krijo diçka tënden.</p>
+        <h3>Vizato ndërsa mëson</h3>
+        <p>Përdor vizatimet për të memorizuar konceptet e fletushkave.</p>
       </div>
       
       <div className="template-section">

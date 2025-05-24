@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "CI= react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -14,15 +14,15 @@
     "education",
     "react"
   ],
-  "author": "Your Name",
+  "author": "Shaban Ejupi",
   "license": "MIT",
   "dependencies": {
-    "chart.js": "^3.9.1",
+    "chart.js": "^4.2.1",
     "react": "^17.0.2",
-    "react-chartjs-2": "^4.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^17.0.2",
-    "react-flow-renderer": "^10.3.17",
-    "react-scripts": "4.0.3"
+    "reactflow": "^11.7.0",
+    "react-scripts": "5.0.1"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

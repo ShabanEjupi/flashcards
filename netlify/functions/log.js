@@ -1,0 +1,1 @@
+exports.handler = async function(event, context) {  const { message, level = 'info', data = {} } = JSON.parse(event.body);    console.log(`[${level.toUpperCase()}] ${message}`, data);    return {    statusCode: 200,    body: JSON.stringify({ received: true })  };};

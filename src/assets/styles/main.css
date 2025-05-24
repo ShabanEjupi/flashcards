@@ -463,3 +463,53 @@ footer {
   text-align: left;
   margin-left: 20px;
 }
+
+/* Shtoni këto stile në fund të skedarit CSS */
+
+.flashcards-drawing-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  gap: 30px;
+}
+
+.flashcards-section, .drawing-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.flashcards-section h2, .drawing-section h2 {
+  text-align: center;
+  color: #35424a;
+  margin-bottom: 20px;
+}
+
+/* Për ekrane më të mëdha se 992px, bëjmë layout side-by-side */
+@media (min-width: 992px) {
+  .flashcards-drawing-container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .flashcards-section {
+    width: 40%;
+  }
+  
+  .drawing-section {
+    width: 60%;
+  }
+}
+
+/* Modifikim i DrawingCanvas për t'u përshtatur me hapësirën e re */
+.drawing-section .drawing-container {
+  margin: 0;
+}
+
+.drawing-section .drawing-canvas {
+  max-width: 100%;
+}
