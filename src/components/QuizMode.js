@@ -6,7 +6,17 @@ const QuizMode = () => {
   const [score, setScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [quizQuestions, setQuizQuestions] = useState(shuffleArray([...questions]).slice(0, 10));
+  const [quizSize, setQuizSize] = useState(10);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  
+  const startQuiz = (size) => {
+    setQuizSize(size);
+    setQuizQuestions(shuffleArray([...questions]).slice(0, size));
+    setQuizStarted(true);
+    setScore(0);
+    setCurrentQuestion(0);
+  };
   
   const handleAnswer = (isCorrect) => {
     if(isCorrect) setScore(score + 1);
@@ -17,6 +27,19 @@ const QuizMode = () => {
     setShowAnswer(false);
     setCurrentQuestion(currentQuestion + 1);
   };
+  
+  if (!quizStarted) {
+    return (
+      <div className="quiz-container">
+        <h2>Zgjidhni numrin e pyetjeve:</h2>
+        <div className="quiz-options">
+          <button onClick={() => startQuiz(10)}>10 Pyetje</button>
+          <button onClick={() => startQuiz(20)}>20 Pyetje</button>
+          <button onClick={() => startQuiz(questions.length)}>Të gjitha pyetjet ({questions.length})</button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="quiz-container">
@@ -40,7 +63,7 @@ const QuizMode = () => {
       ) : (
         <div className="quiz-completion">
           <h2>Rezultati: {score} / {quizQuestions.length}</h2>
-          <button onClick={() => window.location.reload()}>Filloni përsëri</button>
+          <button onClick={() => setQuizStarted(false)}>Filloni përsëri</button>
         </div>
       )}
     </div>

@@ -67,8 +67,8 @@ footer {
     color: #ffffff;
     padding: 10px 0;
     text-align: center;
-    position: fixed;
-    bottom: 0;
+    position: relative;
+    margin-top: 40px;
     width: 100%;
 }
 
@@ -139,6 +139,22 @@ footer {
   margin-bottom: 15px;
 }
 
+.quiz-options {
+  display: flex;
+  justify-content: space-around;
+  margin: 30px 0;
+}
+
+.quiz-options button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+}
+
+.quiz-options button:hover {
+  background-color: #45a049;
+}
+
 .quiz-completion {
   text-align: center;
 }
@@ -177,10 +193,20 @@ footer {
   margin: 20px 0;
 }
 
+.concept-map-instructions {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #555;
+  border-left: 4px solid #4CAF50;
+}
+
 /* MatchupGame */
 .matchup-game {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 80px auto;
   padding: 20px;
   text-align: center;
 }
@@ -256,4 +282,154 @@ footer {
     width: 100%;
     height: 300px;
   }
+}
+
+.drawing-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.drawing-header h3 {
+  margin-bottom: 5px;
+  color: #35424a;
+}
+
+.template-section {
+  margin-bottom: 20px;
+}
+
+.template-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.template-button {
+  position: relative;
+  background-color: #e0f2f1;
+  color: #004d40;
+  border: 1px solid #80cbc4;
+}
+
+.template-button:hover .template-tooltip {
+  display: block;
+}
+
+.template-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #004d40;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 100;
+  font-size: 12px;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mode-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.mode-button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.text-input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.text-input input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.text-help {
+  font-size: 12px;
+  color: #777;
+  margin: 5px 0;
+}
+
+.saved-drawings {
+  margin-top: 30px;
+}
+
+.saved-thumbnails {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.saved-thumbnail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.saved-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.saved-thumbnail img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  object-fit: contain;
+  background-color: white;
+}
+
+.saved-thumbnail span {
+  font-size: 12px;
+  margin-top: 5px;
+  max-width: 100px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-thumbnail small {
+  font-size: 10px;
+  color: #999;
+}
+
+.drawing-tips {
+  margin-top: 30px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.drawing-tips h4 {
+  margin-top: 0;
+  color: #35424a;
+}
+
+.drawing-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.drawing-tips li {
+  margin-bottom: 5px;
 }
