@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactFlow, { 
   Background, 
   Controls, 
   MiniMap,
   addEdge,
-  removeElements
+  applyEdgeChanges,
+  applyNodeChanges
 } from 'react-flow-renderer';
 
 const initialElements = [
@@ -39,7 +40,9 @@ const initialElements = [
     data: { label: 'Distribuimi' },
     position: { x: 300, y: 200 },
   },
-  // Connections
+];
+
+const initialEdges = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
   { id: 'e2-3', source: '2', target: '3' },
   { id: 'e2-4', source: '2', target: '4' },
@@ -48,21 +51,31 @@ const initialElements = [
 ];
 
 const ConceptMap = () => {
-  const [elements, setElements] = React.useState(initialElements);
+  const [nodes, setNodes] = useState(initialElements);
+  const [edges, setEdges] = useState(initialEdges);
   
-  const onElementsRemove = (elementsToRemove) => {
-    setElements((els) => removeElements(elementsToRemove, els));
-  };
+  const onNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
   
-  const onConnect = (params) => {
-    setElements((els) => addEdge(params, els));
-  };
+  const onEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+  
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    []
+  );
 
   return (
     <div style={{ height: 500, width: '100%' }}>
       <ReactFlow
-        elements={elements}
-        onElementsRemove={onElementsRemove}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         deleteKeyCode={46}
         snapToGrid={true}
