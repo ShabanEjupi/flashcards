@@ -132,8 +132,52 @@ const questions = [
         answer: "Fazat: ideja → koncepti → zhvillimi → testimi → prodhimi → lançimi (p.sh. një bluzë me material antibakterial)."
     },
     {
-        question: "Metodat e llogaritjes së çmimit + tabela?",
-        answer: "Metodat e bazuara në kosto: kosto plus fitim, pikë kritike e rentabilitetit; Metodat e bazuara në konkurrencë: çmimi i tregut, çmimi i liderit; Metodat e bazuara në kërkesë: çmimi psikologjik, çmimi i diferencuar."
+        question: "Cilat janë metodat e llogaritjes së çmimit dhe plotëso tabelën më poshtë?",
+        answer: `
+            <div>
+                <p><strong>Metodat e llogaritjes së çmimit:</strong></p>
+                <ul>
+                    <li><strong>Bazuar në kosto:</strong> Kosto plus fitim, pikë kritike e rentabilitetit</li>
+                    <li><strong>Bazuar në konkurrencë:</strong> Çmimi i tregut, çmimi i liderit</li>
+                    <li><strong>Bazuar në kërkesë:</strong> Çmimi psikologjik, çmimi i diferencuar</li>
+                </ul>
+                <p><strong>Tabela e plotësuar:</strong></p>
+                <table border="1" style="width: 100%; border-collapse: collapse;">
+                    <tr style="background-color: #f0f0f0;">
+                        <th>Çmimi për njësi</th>
+                        <th>Kërkesa</th>
+                        <th>E hyra</th>
+                        <th>PKR</th>
+                        <th>Shpenz totale</th>
+                        <th>Rez finale</th>
+                    </tr>
+                    <tr>
+                        <td>60</td>
+                        <td>8</td>
+                        <td>480</td>
+                        <td>5</td>
+                        <td>360</td>
+                        <td>120</td>
+                    </tr>
+                    <tr>
+                        <td>100</td>
+                        <td>4</td>
+                        <td>400</td>
+                        <td>2.5</td>
+                        <td>280</td>
+                        <td>120</td>
+                    </tr>
+                </table>
+                <p><small>Supozimet: Shpenzimet fikse = 200; Kosto variabile për njësi = 20</small></p>
+                <p><strong>Shpjegim i llogaritjeve:</strong></p>
+                <ul>
+                    <li>E hyra = Çmimi × Kërkesa</li>
+                    <li>PKR = Shpenzimet fikse ÷ (Çmimi - Kosto variabile për njësi)</li>
+                    <li>Shpenz totale = Shpenzimet fikse + (Kosto variabile × Kërkesa)</li>
+                    <li>Rez finale = E hyra - Shpenz totale</li>
+                </ul>
+            </div>
+        `
     },
     {
         question: "Strategjitë alternative të distribucionit?",

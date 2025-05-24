@@ -10,7 +10,7 @@ const Flashcard = ({ question, answer }) => {
     return (
         <div className="flashcard" onClick={handleFlip}>
             {isFlipped ? (
-                <div className="flashcard-answer">{answer}</div>
+                <div className="flashcard-answer" dangerouslySetInnerHTML={{ __html: answer }}></div>
             ) : (
                 <div className="flashcard-question">{question}</div>
             )}

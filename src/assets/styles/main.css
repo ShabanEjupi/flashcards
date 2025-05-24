@@ -433,3 +433,33 @@ footer {
 .drawing-tips li {
   margin-bottom: 5px;
 }
+
+/* Add these styles at the end of your CSS file */
+
+.flashcard-answer table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+  font-size: 0.9em;
+}
+
+.flashcard-answer th, 
+.flashcard-answer td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.flashcard-answer th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.flashcard-answer tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.flashcard-answer ul {
+  text-align: left;
+  margin-left: 20px;
+}
