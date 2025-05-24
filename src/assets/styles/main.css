@@ -24,17 +24,42 @@ h1 {
     margin: 20px auto;
     padding: 20px;
     width: 300px;
+    height: 200px;
     text-align: center;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.flashcard .question {
+.flashcard-question, .flashcard-answer {
     font-size: 1.2em;
-    margin-bottom: 10px;
+    width: 100%;
 }
 
-.flashcard .answer {
-    font-size: 1em;
+.flashcard-answer {
     color: #555555;
+}
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 8px 16px;
+    background: #35424a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
 }
 
 footer {
@@ -42,7 +67,7 @@ footer {
     color: #ffffff;
     padding: 10px 0;
     text-align: center;
-    position: relative;
+    position: fixed;
     bottom: 0;
     width: 100%;
 }

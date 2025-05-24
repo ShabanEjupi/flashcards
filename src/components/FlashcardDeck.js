@@ -20,12 +20,15 @@ const FlashcardDeck = () => {
                 answer={questions[currentIndex].answer} 
             />
             <div className="navigation">
-                <button onClick={handlePrevious} disabled={currentIndex === 0}>
+                <button onClick={handlePrevious}>
                     Previous
                 </button>
-                <button onClick={handleNext} disabled={currentIndex === questions.length - 1}>
+                <button onClick={handleNext}>
                     Next
                 </button>
+            </div>
+            <div className="counter">
+                Card {currentIndex + 1} of {questions.length}
             </div>
         </div>
     );
