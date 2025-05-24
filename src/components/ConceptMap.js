@@ -1,15 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import ReactFlow, { 
+  Background, 
+  Controls, 
+  MiniMap,
+  applyNodeChanges,
+  applyEdgeChanges,
+  addEdge 
+} from 'reactflow';
+import 'reactflow/dist/style.css'; // This import is crucial
 import { logger } from '../utils/logger';
-
-// Modify this dynamic import
-const ReactFlowModule = React.lazy(() => import('reactflow'));
-
-// Import the utility functions separately
-const ReactFlowUtils = React.lazy(() => import('reactflow').then(module => ({
-  applyNodeChanges: module.applyNodeChanges,
-  applyEdgeChanges: module.applyEdgeChanges,
-  addEdge: module.addEdge
-})));
 
 // Nyjët themelore
 const marketingBasics = [
@@ -223,79 +222,44 @@ const initialEdges = [
 const ConceptMap = () => {
   const [nodes, setNodes] = useState(initialElements);
   const [edges, setEdges] = useState(initialEdges);
-  const [loadError, setLoadError] = useState(null);
-  
-  useEffect(() => {
-    try {
-      // Any initialization code
-    } catch (error) {
-      logger.error('ConceptMap initialization failed', { error: error.message });
-      setLoadError(error.message);
-    }
-  }, []);
   
   const onNodesChange = useCallback(
-    (changes) => {
-      ReactFlowUtils.then(utils => {
-        setNodes((nds) => utils.applyNodeChanges(changes, nds));
-      });
-    },
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
   );
   
   const onEdgesChange = useCallback(
-    (changes) => {
-      ReactFlowUtils.then(utils => {
-        setEdges((eds) => utils.applyEdgeChanges(changes, eds));
-      });
-    },
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
   
   const onConnect = useCallback(
-    (params) => {
-      ReactFlowUtils.then(utils => {
-        setEdges((eds) => utils.addEdge(params, eds));
-      });
-    },
+    (params) => setEdges((eds) => addEdge(params, eds)),
     []
   );
-
-  if (loadError) {
-    return <div className="error-message">Could not load concept map: {loadError}</div>;
-  }
   
   return (
     <div style={{ height: 650, width: '100%' }}>
       <div className="concept-map-instructions">
         <p>Tërhiq konceptet për t'i riorganizuar.</p>
       </div>
-      <React.Suspense 
-        fallback={<div>Loading concept map...</div>}
-        onError={(error) => {
-          logger.error('ReactFlow failed to load', { error: error.message });
-          return <div>Failed to load concept map.</div>;
-        }}
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        deleteKeyCode={46}
+        snapToGrid={true}
+        snapGrid={[15, 15]}
+        defaultZoom={0.6}
+        minZoom={0.2}
+        maxZoom={1.5}
       >
-        <ReactFlowModule
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          deleteKeyCode={46}
-          snapToGrid={true}
-          snapGrid={[15, 15]}
-          defaultZoom={0.6}
-          minZoom={0.2}
-          maxZoom={1.5}
-        >
-          {/* The components will be available as properties on the default export */}
-          <ReactFlowModule.Background />
-          <ReactFlowModule.Controls />
-          <ReactFlowModule.MiniMap />
-        </ReactFlowModule>
-      </React.Suspense>
+        <Background />
+        <Controls />
+        <MiniMap />
+      </ReactFlow>
     </div>
   );
 };
