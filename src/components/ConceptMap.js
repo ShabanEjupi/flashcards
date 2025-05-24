@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { logger } from '../utils/logger';
 
-// Use ReactFlow dynamically to avoid SSR issues
-const ReactFlow = React.lazy(() => import('reactflow').then(module => ({ 
-  default: module.default,
-  Background: module.Background,
-  Controls: module.Controls,
-  MiniMap: module.MiniMap 
+// Modify this dynamic import
+const ReactFlowModule = React.lazy(() => import('reactflow'));
+
+// Import the utility functions separately
+const ReactFlowUtils = React.lazy(() => import('reactflow').then(module => ({
+  applyNodeChanges: module.applyNodeChanges,
+  applyEdgeChanges: module.applyEdgeChanges,
+  addEdge: module.addEdge
 })));
 
 // Nyjët themelore
@@ -221,8 +223,6 @@ const initialEdges = [
 const ConceptMap = () => {
   const [nodes, setNodes] = useState(initialElements);
   const [edges, setEdges] = useState(initialEdges);
-  
-  // Add error handling for ReactFlow loading
   const [loadError, setLoadError] = useState(null);
   
   useEffect(() => {
@@ -235,17 +235,29 @@ const ConceptMap = () => {
   }, []);
   
   const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes) => {
+      ReactFlowUtils.then(utils => {
+        setNodes((nds) => utils.applyNodeChanges(changes, nds));
+      });
+    },
     []
   );
   
   const onEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes) => {
+      ReactFlowUtils.then(utils => {
+        setEdges((eds) => utils.applyEdgeChanges(changes, eds));
+      });
+    },
     []
   );
   
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (params) => {
+      ReactFlowUtils.then(utils => {
+        setEdges((eds) => utils.addEdge(params, eds));
+      });
+    },
     []
   );
 
@@ -265,7 +277,7 @@ const ConceptMap = () => {
           return <div>Failed to load concept map.</div>;
         }}
       >
-        <ReactFlow
+        <ReactFlowModule
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -278,10 +290,11 @@ const ConceptMap = () => {
           minZoom={0.2}
           maxZoom={1.5}
         >
-          <Background />
-          <Controls />
-          <MiniMap />
-        </ReactFlow>
+          {/* The components will be available as properties on the default export */}
+          <ReactFlowModule.Background />
+          <ReactFlowModule.Controls />
+          <ReactFlowModule.MiniMap />
+        </ReactFlowModule>
       </React.Suspense>
     </div>
   );
