@@ -3,16 +3,16 @@ import { logger } from '../utils/logger';
 
 const IoTSecuritySimulator = () => {
   const [simulationMode, setSimulationMode] = useState('insecure');
-  const [protocol, setProtocol] = useState('mqtt'); // Add protocol state: 'mqtt' or 'coap'
+  const [protocol, setProtocol] = useState('mqtt');
   const [running, setRunning] = useState(false);
   const [messages, setMessages] = useState([]);
   const [capturedData, setCapturedData] = useState([]);
   const [temperature, setTemperature] = useState(22.5);
   const [humidity, setHumidity] = useState(45);
   const [brokerStatus, setBrokerStatus] = useState('disconnected');
-  const [attackMode, setAttackMode] = useState(null); // null, 'mitm', 'replay', 'dos'
+  const [attackMode, setAttackMode] = useState(null);
   const [showCertificates, setShowCertificates] = useState(false);
-  const [authFlow, setAuthFlow] = useState(null); // null, 'requesting', 'authenticated'
+  const [authFlow, setAuthFlow] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const simulationRef = useRef(null);
   

@@ -250,125 +250,6 @@ const NetworkSecurityScanner = () => {
     return 'low';
   };
   
-  // Add a realistic packet capture visualization
-const PacketCaptureVisualization = ({ scanning, devices }) => {
-  const [packets, setPackets] = useState([]);
-  const [protocolFilter, setProtocolFilter] = useState('all');
-  const [activeFilters, setActiveFilters] = useState({
-    tcp: true, udp: true, mqtt: true, coap: true, http: true, other: true
-  });
-
-  // Generate simulated network packets every second when scanning
-  useEffect(() => {
-    if (!scanning) return;
-    
-    const packetInterval = setInterval(() => {
-      const newPacket = generateSimulatedPacket();
-      setPackets(prev => [...prev.slice(-50), newPacket]); // Keep last 50 packets
-    }, 200);
-    
-    return () => clearInterval(packetInterval);
-  }, [scanning]);
-  
-  const generateSimulatedPacket = () => {
-    // Use discovered devices for more realistic traffic patterns
-    if (devices && devices.length > 0) {
-      // 70% chance of having a discovered device as source or destination
-      if (Math.random() < 0.7) {
-        const device = devices[Math.floor(Math.random() * devices.length)];
-        const isSource = Math.random() < 0.5;
-        
-        // Generate protocol based on device services
-        let protocol = 'TCP';
-        if (device.services.includes('mqtt')) protocol = 'MQTT';
-        else if (device.services.includes('coap')) protocol = 'CoAP';
-        else if (device.services.includes('http')) protocol = 'HTTP';
-        else if (device.services.includes('telnet')) protocol = 'TELNET';
-        
-        // Generate appropriate port based on the service
-        let port = Math.floor(Math.random() * 1000) + 1;
-        if (device.ports.length > 0) {
-          port = device.ports[Math.floor(Math.random() * device.ports.length)];
-        }
-        
-        return {
-          id: Date.now() + Math.random(),
-          timestamp: new Date().toISOString(),
-          protocol,
-          sourceIP: isSource ? device.ipAddress : `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
-          destIP: !isSource ? device.ipAddress : `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
-          sourcePort: isSource ? port : Math.floor(Math.random() * 65535) + 1,
-          destPort: !isSource ? port : Math.floor(Math.random() * 65535) + 1,
-          size: Math.floor(Math.random() * 1000) + 64,
-          flags: protocol === 'TCP' ? ['SYN', 'ACK', 'PSH', 'FIN'][Math.floor(Math.random() * 4)] : '',
-        };
-      }
-    }
-    
-    // Fall back to random packet generation
-    const protocols = ['TCP', 'UDP', 'ICMP', 'ARP', 'MQTT', 'CoAP', 'HTTP'];
-    const protocol = protocols[Math.floor(Math.random() * protocols.length)];
-    const sourceIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
-    const destIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
-    const sourcePort = Math.floor(Math.random() * 65535) + 1;
-    const destPort = [80, 443, 22, 23, 1883, 8883, 5683][Math.floor(Math.random() * 7)];
-    const packetSize = Math.floor(Math.random() * 1000) + 64;
-    
-    return {
-      id: Date.now() + Math.random(),
-      timestamp: new Date().toISOString(),
-      protocol,
-      sourceIP,
-      destIP,
-      sourcePort,
-      destPort,
-      size: packetSize,
-      flags: protocol === 'TCP' ? ['SYN', 'ACK', 'PSH', 'FIN'][Math.floor(Math.random() * 4)] : '',
-    };
-  };
-  
-  const getDeviceName = (ip) => {
-    // Look up known devices
-    const knownDevice = devices.find(device => device.ipAddress === ip);
-    if (knownDevice) {
-      return `${knownDevice.name} (${ip})`;
-    }
-    
-    // Common network devices
-    if (ip.endsWith('.1')) return `Gateway Router (${ip})`;
-    if (ip.endsWith('.255')) return `Broadcast (${ip})`;
-    
-    return ip; // Return just the IP if no name is found
-  };
-  
-  const getProtocolClass = (protocol) => {
-    const protocolLower = protocol.toLowerCase();
-    
-    // Enhanced protocol classification
-    if (['mqtt', 'coap'].includes(protocolLower)) return 'protocol-iot';
-    if (['http', 'https'].includes(protocolLower)) return 'protocol-web';
-    if (['telnet', 'ssh'].includes(protocolLower)) return 'protocol-shell';
-    if (['dns', 'dhcp'].includes(protocolLower)) return 'protocol-service';
-    if (['icmp', 'arp'].includes(protocolLower)) return 'protocol-network';
-    
-    return `protocol-${protocolLower}`;
-  };
-  
-  const toggleFilter = (protocol) => {
-    if (protocol === 'all') {
-      setActiveFilters({
-        tcp: true, udp: true, mqtt: true, coap: true, http: true, other: true
-      });
-      setProtocolFilter('all');
-    } else {
-      setActiveFilters(prev => ({
-        ...prev,
-        [protocol]: !prev[protocol]
-      }));
-      setProtocolFilter('custom');
-    }
-  };
-  
   // Attempt to use real network capabilities where possible
   const attemptRealNetworkCapabilities = async () => {
     // Check if running as a desktop app with more permissions
@@ -403,58 +284,266 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
       return false;
     }
   };
+  
+  // Add a realistic packet capture visualization
+  const PacketCaptureVisualization = ({ scanning, devices }) => {
+    const [packets, setPackets] = useState([]);
+    const [protocolFilter, setProtocolFilter] = useState('all');
+    const [activeFilters, setActiveFilters] = useState({
+      tcp: true, udp: true, mqtt: true, coap: true, http: true, other: true
+    });
 
-// Add a visual donut chart to represent risk scores
-const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
-  const percentage = Math.min((score / maxScore) * 100, 100);
-  const strokeWidth = 8;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-  
-  let color = '#4caf50'; // Low risk (green)
-  if (score >= 4) color = '#ffeb3b'; // Medium risk (yellow)
-  if (score >= 7) color = '#ff9800'; // High risk (orange)
-  if (score >= 10) color = '#f44336'; // Critical risk (red)
-  
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* Background circle */}
-      <circle 
-        cx={size/2} 
-        cy={size/2} 
-        r={radius}
-        fill="transparent"
-        stroke="#e0e0e0"
-        strokeWidth={strokeWidth}
-      />
-      {/* Foreground circle */}
-      <circle 
-        cx={size/2} 
-        cy={size/2} 
-        r={radius}
-        fill="transparent"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
-        transform={`rotate(-90 ${size/2} ${size/2})`}
-      />
-      {/* Score text */}
-      <text 
-        x="50%" 
-        y="50%" 
-        textAnchor="middle" 
-        dominantBaseline="middle"
-        fill={color}
-        fontSize="20"
-        fontWeight="bold"
-      >
-        {score}
-      </text>
-    </svg>
-  );
-};
+    // Generate simulated network packets every second when scanning
+    useEffect(() => {
+      if (!scanning) return;
+      
+      const packetInterval = setInterval(() => {
+        const newPacket = generateSimulatedPacket();
+        setPackets(prev => [...prev.slice(-50), newPacket]); // Keep last 50 packets
+      }, 200);
+      
+      return () => clearInterval(packetInterval);
+    }, [scanning]);
+    
+    const generateSimulatedPacket = () => {
+      // Use discovered devices for more realistic traffic patterns
+      if (devices && devices.length > 0) {
+        // 70% chance of having a discovered device as source or destination
+        if (Math.random() < 0.7) {
+          const device = devices[Math.floor(Math.random() * devices.length)];
+          const isSource = Math.random() < 0.5;
+          
+          // Generate protocol based on device services
+          let protocol = 'TCP';
+          if (device.services.includes('mqtt')) protocol = 'MQTT';
+          else if (device.services.includes('coap')) protocol = 'CoAP';
+          else if (device.services.includes('http')) protocol = 'HTTP';
+          else if (device.services.includes('telnet')) protocol = 'TELNET';
+          
+          // Generate appropriate port based on the service
+          let port = Math.floor(Math.random() * 1000) + 1;
+          if (device.ports.length > 0) {
+            port = device.ports[Math.floor(Math.random() * device.ports.length)];
+          }
+          
+          return {
+            id: Date.now() + Math.random(),
+            timestamp: new Date().toISOString(),
+            protocol,
+            sourceIP: isSource ? device.ipAddress : `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
+            destIP: !isSource ? device.ipAddress : `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
+            sourcePort: isSource ? port : Math.floor(Math.random() * 65535) + 1,
+            destPort: !isSource ? port : Math.floor(Math.random() * 65535) + 1,
+            size: Math.floor(Math.random() * 1000) + 64,
+            flags: protocol === 'TCP' ? ['SYN', 'ACK', 'PSH', 'FIN'][Math.floor(Math.random() * 4)] : '',
+          };
+        }
+      }
+      
+      // Fall back to random packet generation
+      const protocols = ['TCP', 'UDP', 'ICMP', 'ARP', 'MQTT', 'CoAP', 'HTTP'];
+      const protocol = protocols[Math.floor(Math.random() * protocols.length)];
+      const sourceIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
+      const destIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
+      const sourcePort = Math.floor(Math.random() * 65535) + 1;
+      const destPort = [80, 443, 22, 23, 1883, 8883, 5683][Math.floor(Math.random() * 7)];
+      const packetSize = Math.floor(Math.random() * 1000) + 64;
+      
+      return {
+        id: Date.now() + Math.random(),
+        timestamp: new Date().toISOString(),
+        protocol,
+        sourceIP,
+        destIP,
+        sourcePort,
+        destPort,
+        size: packetSize,
+        flags: protocol === 'TCP' ? ['SYN', 'ACK', 'PSH', 'FIN'][Math.floor(Math.random() * 4)] : '',
+      };
+    };
+    
+    const getDeviceName = (ip) => {
+      // Look up known devices
+      const knownDevice = devices.find(device => device.ipAddress === ip);
+      if (knownDevice) {
+        return `${knownDevice.name} (${ip})`;
+      }
+      
+      // Common network devices
+      if (ip.endsWith('.1')) return `Gateway Router (${ip})`;
+      if (ip.endsWith('.255')) return `Broadcast (${ip})`;
+      
+      return ip; // Return just the IP if no name is found
+    };
+    
+    const getProtocolClass = (protocol) => {
+      const protocolLower = protocol.toLowerCase();
+      
+      // Enhanced protocol classification
+      if (['mqtt', 'coap'].includes(protocolLower)) return 'protocol-iot';
+      if (['http', 'https'].includes(protocolLower)) return 'protocol-web';
+      if (['telnet', 'ssh'].includes(protocolLower)) return 'protocol-shell';
+      if (['dns', 'dhcp'].includes(protocolLower)) return 'protocol-service';
+      if (['icmp', 'arp'].includes(protocolLower)) return 'protocol-network';
+      
+      return `protocol-${protocolLower}`;
+    };
+    
+    const toggleFilter = (protocol) => {
+      if (protocol === 'all') {
+        setActiveFilters({
+          tcp: true, udp: true, mqtt: true, coap: true, http: true, other: true
+        });
+        setProtocolFilter('all');
+      } else {
+        setActiveFilters(prev => ({
+          ...prev,
+          [protocol]: !prev[protocol]
+        }));
+        setProtocolFilter('custom');
+      }
+    };
+    
+    return (
+      <div className="packet-capture">
+        <h3>Live Packet Capture</h3>
+        <div className="packet-filters">
+          <button 
+            className={protocolFilter === 'all' ? 'active' : ''}
+            onClick={() => setProtocolFilter('all')}
+          >
+            All Protocols
+          </button>
+          <button 
+            className={protocolFilter === 'tcp' ? 'active' : ''}
+            onClick={() => setProtocolFilter('tcp')}
+          >
+            TCP
+          </button>
+          <button 
+            className={protocolFilter === 'udp' ? 'active' : ''}
+            onClick={() => setProtocolFilter('udp')}
+          >
+            UDP
+          </button>
+          <button 
+            className={protocolFilter === 'iot' ? 'active' : ''}
+            onClick={() => setProtocolFilter('iot')}
+          >
+            IoT Protocols
+          </button>
+        </div>
+        
+        <div className="packet-table-container">
+          <table className="packet-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Protocol</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Size</th>
+                <th>Info</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!scanning && packets.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="no-packets">
+                    Start a scan to begin capturing network traffic
+                  </td>
+                </tr>
+              ) : packets.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="no-packets">
+                    Capturing packets...
+                  </td>
+                </tr>
+              ) : (
+                packets
+                  .filter(packet => {
+                    const protocolLower = packet.protocol.toLowerCase();
+                    
+                    if (protocolFilter === 'all') return true;
+                    if (protocolFilter === 'tcp') return protocolLower === 'tcp';
+                    if (protocolFilter === 'udp') return protocolLower === 'udp';
+                    if (protocolFilter === 'iot') return ['mqtt', 'coap'].includes(protocolLower);
+                    
+                    return true;
+                  })
+                  .map(packet => (
+                    <tr key={packet.id} className={getProtocolClass(packet.protocol)}>
+                      <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
+                      <td>{packet.protocol}</td>
+                      <td>{getDeviceName(packet.sourceIP)}:{packet.sourcePort}</td>
+                      <td>{getDeviceName(packet.destIP)}:{packet.destPort}</td>
+                      <td>{packet.size} bytes</td>
+                      <td>
+                        {packet.protocol === 'TCP' && packet.flags ? `Flags: ${packet.flags}` : ''}
+                        {packet.protocol === 'MQTT' ? 'QoS: 1, Retain: false' : ''}
+                        {packet.protocol === 'CoAP' ? 'Type: Confirmable' : ''}
+                      </td>
+                    </tr>
+                  ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  // Add a visual donut chart to represent risk scores
+  const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
+    const percentage = Math.min((score / maxScore) * 100, 100);
+    const strokeWidth = 8;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (percentage / 100) * circumference;
+    
+    let color = '#4caf50'; // Low risk (green)
+    if (score >= 4) color = '#ffeb3b'; // Medium risk (yellow)
+    if (score >= 7) color = '#ff9800'; // High risk (orange)
+    if (score >= 10) color = '#f44336'; // Critical risk (red)
+    
+    return (
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* Background circle */}
+        <circle 
+          cx={size/2} 
+          cy={size/2} 
+          r={radius}
+          fill="transparent"
+          stroke="#e0e0e0"
+          strokeWidth={strokeWidth}
+        />
+        {/* Foreground circle */}
+        <circle 
+          cx={size/2} 
+          cy={size/2} 
+          r={radius}
+          fill="transparent"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          transform={`rotate(-90 ${size/2} ${size/2})`}
+        />
+        {/* Score text */}
+        <text 
+          x="50%" 
+          y="50%" 
+          textAnchor="middle" 
+          dominantBaseline="middle"
+          fill={color}
+          fontSize="20"
+          fontWeight="bold"
+        >
+          {score}
+        </text>
+      </svg>
+    );
+  };
 
   // Render the component
   return (
@@ -584,7 +673,6 @@ const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
         </div>
       </div>
       
-      {/* New Risk Summary Dashboard Section */}
       <div className="risk-summary-dashboard">
         <h3>Risk Summary</h3>
         <div className="summary-grid">
