@@ -10,6 +10,7 @@ const NetworkSecurityScanner = () => {
   const [vulnerabilities, setVulnerabilities] = useState([]);
   const [customRange, setCustomRange] = useState('');
   const [scanLog, setScanLog] = useState([]);
+  const [scanMode, setScanMode] = useState('basic');
   const scannerRef = useRef(null);
 
   // Available networks for scanning
@@ -202,6 +203,13 @@ const NetworkSecurityScanner = () => {
   return (
     <div className="network-scanner-container">
       <h2>IoT Network Security Scanner</h2>
+      <div className="simulator-badge">
+        <span className="badge">Educational Simulator</span>
+        <span className="badge-info">
+          This is a simulated tool for educational purposes. For real network scanning, 
+          consider tools like Nmap, Wireshark, or dedicated IoT security platforms.
+        </span>
+      </div>
       
       <div className="scanner-controls">
         <div className="network-selector">
@@ -339,8 +347,226 @@ const NetworkSecurityScanner = () => {
           </li>
         </ul>
       </div>
+      
+      <ScanOptions setScanMode={setScanMode} scanMode={scanMode} disabled={scanning} />
+      
+      {/* Add the new network topology visualization */}
+      <NetworkTopologyMap devices={devices} />
+      
+      {/* Add the packet capture visualization */}
+      <PacketCaptureVisualization />
+      
+      {/* Add educational resources */}
+      <div className="educational-resources">
+        <h3>Real-World Scanning Tools</h3>
+        <div className="tools-grid">
+          <div className="tool-card">
+            <h4>Nmap</h4>
+            <p>The industry standard for network discovery and security auditing</p>
+            <a href="https://nmap.org/" target="_blank" rel="noopener noreferrer">Learn More</a>
+          </div>
+          <div className="tool-card">
+            <h4>Wireshark</h4>
+            <p>The world's foremost network protocol analyzer</p>
+            <a href="https://www.wireshark.org/" target="_blank" rel="noopener noreferrer">Learn More</a>
+          </div>
+          <div className="tool-card">
+            <h4>OWASP IoT Security Testing Guide</h4>
+            <p>Comprehensive methodology for IoT security testing</p>
+            <a href="https://owasp.org/www-project-iot-security-testing-guide/" target="_blank" rel="noopener noreferrer">Learn More</a>
+          </div>
+        </div>
+      </div>
     </div>
   );
+};
+
+// Add a realistic packet capture visualization
+const PacketCaptureVisualization = () => {
+  const [packets, setPackets] = useState([]);
+  
+  // Generate simulated network packets every second when scanning
+  useEffect(() => {
+    if (!scanning) return;
+    
+    const packetInterval = setInterval(() => {
+      const newPacket = generateSimulatedPacket();
+      setPackets(prev => [...prev.slice(-50), newPacket]); // Keep last 50 packets
+    }, 200);
+    
+    return () => clearInterval(packetInterval);
+  }, [scanning]);
+  
+  const generateSimulatedPacket = () => {
+    const protocols = ['TCP', 'UDP', 'ICMP', 'ARP', 'MQTT', 'CoAP', 'HTTP'];
+    const protocol = protocols[Math.floor(Math.random() * protocols.length)];
+    const sourceIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
+    const destIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
+    const sourcePort = Math.floor(Math.random() * 65535) + 1;
+    const destPort = [80, 443, 22, 23, 1883, 8883, 5683][Math.floor(Math.random() * 7)];
+    const packetSize = Math.floor(Math.random() * 1000) + 64;
+    
+    return {
+      id: Date.now() + Math.random(),
+      timestamp: new Date().toISOString(),
+      protocol,
+      sourceIP,
+      destIP,
+      sourcePort,
+      destPort,
+      size: packetSize,
+      flags: protocol === 'TCP' ? ['SYN', 'ACK', 'PSH', 'FIN'][Math.floor(Math.random() * 4)] : '',
+    };
+  };
+  
+  return (
+    <div className="packet-capture">
+      <h3>Live Packet Capture</h3>
+      <div className="packet-list">
+        {packets.length === 0 ? (
+          <p>No packets captured. Start scanning to see network traffic.</p>
+        ) : (
+          <table className="packet-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Protocol</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Size</th>
+                <th>Flags</th>
+              </tr>
+            </thead>
+            <tbody>
+              {packets.map(packet => (
+                <tr key={packet.id} className={`protocol-${packet.protocol.toLowerCase()}`}>
+                  <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
+                  <td>{packet.protocol}</td>
+                  <td>{packet.sourceIP}:{packet.sourcePort}</td>
+                  <td>{packet.destIP}:{packet.destPort}</td>
+                  <td>{packet.size} bytes</td>
+                  <td>{packet.flags}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Add a network topology visualization that updates as devices are discovered
+const NetworkTopologyMap = ({ devices }) => {
+  return (
+    <div className="network-topology-map">
+      <h3>Network Topology</h3>
+      <svg width="100%" height="300" className="topology-svg">
+        {/* Router/Gateway */}
+        <g className="gateway-node">
+          <rect x="300" y="50" width="100" height="60" rx="5" fill="#f0f0f0" stroke="#333" />
+          <text x="350" y="85" textAnchor="middle">Gateway Router</text>
+          <text x="350" y="100" textAnchor="middle" fontSize="12">192.168.1.1</text>
+        </g>
+        
+        {/* Connection lines to devices */}
+        {devices.map((device, index) => {
+          // Calculate position in a semi-circle around the gateway
+          const angle = (Math.PI * (index + 1)) / (devices.length + 1);
+          const x = 350 + Math.cos(angle) * 200;
+          const y = 200 + Math.sin(angle) * 100;
+          
+          return (
+            <g key={device.id} className="device-node">
+              {/* Connection line */}
+              <line 
+                x1="350" y1="110" 
+                x2={x} y2={y - 30} 
+                stroke={vulnerabilities.some(v => v.deviceId === device.id) ? "#f44336" : "#666"} 
+                strokeWidth="2" 
+                strokeDasharray={vulnerabilities.some(v => v.deviceId === device.id) ? "5,5" : ""} 
+              />
+              
+              {/* Device icon */}
+              <rect x={x - 40} y={y - 30} width="80" height="60" rx="5" fill="#e3f2fd" stroke="#333" />
+              <text x={x} y={y} textAnchor="middle">{device.name}</text>
+              <text x={x} y={y + 15} textAnchor="middle" fontSize="12">{device.ipAddress}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+// Add options for educational scan modes with detailed explanations
+const ScanOptions = ({ setScanMode, scanMode, disabled }) => {
+  const scanModes = [
+    { id: 'basic', name: 'Basic Scan', description: 'Identifies devices and open ports' },
+    { id: 'security', name: 'Security Audit', description: 'Checks for common IoT vulnerabilities' },
+    { id: 'protocol', name: 'Protocol Analysis', description: 'Analyzes communication protocols used' },
+    { id: 'traffic', name: 'Traffic Analysis', description: 'Examines network traffic patterns' }
+  ];
+  
+  return (
+    <div className="scan-options">
+      <h3>Scan Mode</h3>
+      <div className="scan-mode-options">
+        {scanModes.map(mode => (
+          <div key={mode.id} className="scan-mode-option">
+            <input 
+              type="radio" 
+              id={`mode-${mode.id}`} 
+              name="scanMode" 
+              value={mode.id}
+              checked={scanMode === mode.id}
+              onChange={() => setScanMode(mode.id)}
+              disabled={disabled}
+            />
+            <label htmlFor={`mode-${mode.id}`}>
+              <strong>{mode.name}</strong>
+              <span className="scan-mode-description">{mode.description}</span>
+            </label>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Attempt to use real network capabilities where possible
+const attemptRealNetworkCapabilities = async () => {
+  // Check if running as a desktop app with more permissions
+  if (window.electron) {
+    addLogMessage("Detected Electron environment - enhanced scanning capabilities available");
+    return true;
+  }
+  
+  // Check for WebRTC local IP detection (limited but can detect local IP)
+  try {
+    const pc = new RTCPeerConnection({iceServers: []});
+    pc.createDataChannel("");
+    let localIP = null;
+    
+    pc.onicecandidate = (event) => {
+      if (!event.candidate) return;
+      
+      // Extract IP from candidate string
+      const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+      const match = ipRegex.exec(event.candidate.candidate);
+      if (match) {
+        localIP = match[1];
+        addLogMessage(`Detected local network: ${localIP}`);
+      }
+    };
+    
+    await pc.createOffer().then(offer => pc.setLocalDescription(offer));
+    
+    return !!localIP;
+  } catch (error) {
+    console.error("WebRTC detection failed:", error);
+    return false;
+  }
 };
 
 export default NetworkSecurityScanner;

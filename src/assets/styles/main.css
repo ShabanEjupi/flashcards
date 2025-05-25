@@ -1255,12 +1255,126 @@ footer {
   margin-bottom: 10px;
 }
 
-@media (max-width: 992px) {
-  .scanner-results {
-    grid-template-columns: 1fr;
-  }
-  
-  .discovered-devices, .vulnerabilities, .scan-log {
-    grid-column: span 1;
-  }
+/* Add to your main.css file */
+.simulator-badge {
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  background-color: #ff9800;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-right: 15px;
+}
+
+.badge-info {
+  font-style: italic;
+  color: #555;
+}
+
+.packet-capture {
+  margin-top: 30px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.packet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.packet-table th,
+.packet-table td {
+  padding: 6px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.protocol-tcp { background-color: #e3f2fd; }
+.protocol-udp { background-color: #e8f5e9; }
+.protocol-mqtt { background-color: #fff8e1; }
+.protocol-coap { background-color: #f3e5f5; }
+.protocol-http { background-color: #e8eaf6; }
+
+.network-topology-map {
+  margin-top: 30px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.topology-svg {
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.educational-resources {
+  margin-top: 30px;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.tool-card {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card h4 {
+  margin-top: 0;
+  color: #2196f3;
+}
+
+.tool-card a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #2196f3;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.scan-options {
+  margin-top: 20px;
+}
+
+.scan-mode-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.scan-mode-option {
+  display: flex;
+  align-items: flex-start;
+}
+
+.scan-mode-option label {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
+
+.scan-mode-description {
+  font-size: 12px;
+  color: #666;
+  margin-top: 3px;
 }
