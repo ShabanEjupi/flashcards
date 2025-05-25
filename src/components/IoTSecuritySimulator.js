@@ -10,6 +10,10 @@ const IoTSecuritySimulator = () => {
   const [temperature, setTemperature] = useState(22.5);
   const [humidity, setHumidity] = useState(45);
   const [brokerStatus, setBrokerStatus] = useState('disconnected');
+  const [attackMode, setAttackMode] = useState(null); // null, 'mitm', 'replay', 'dos'
+  const [showCertificates, setShowCertificates] = useState(false);
+  const [authFlow, setAuthFlow] = useState(null); // null, 'requesting', 'authenticated'
+  const [authToken, setAuthToken] = useState(null);
   const simulationRef = useRef(null);
   
   // Generate random sensor data
@@ -204,6 +208,33 @@ const IoTSecuritySimulator = () => {
           <div className="broker-status">
             Broker Status: <span className={`status-${brokerStatus}`}>{brokerStatus}</span>
           </div>
+        </div>
+      </div>
+      
+      <div className="attack-controls">
+        <h3>Attack Simulation</h3>
+        <div className="attack-buttons">
+          <button 
+            className={attackMode === 'mitm' ? 'active' : ''} 
+            onClick={() => setAttackMode(attackMode === 'mitm' ? null : 'mitm')}
+            disabled={!running || simulationMode === 'secure'}
+          >
+            Man-in-the-Middle
+          </button>
+          <button 
+            className={attackMode === 'replay' ? 'active' : ''} 
+            onClick={() => setAttackMode(attackMode === 'replay' ? null : 'replay')}
+            disabled={!running}
+          >
+            Replay Attack
+          </button>
+          <button 
+            className={attackMode === 'dos' ? 'active' : ''} 
+            onClick={() => setAttackMode(attackMode === 'dos' ? null : 'dos')}
+            disabled={!running}
+          >
+            Denial of Service
+          </button>
         </div>
       </div>
       
@@ -496,8 +527,180 @@ sniff(filter="udp port 5683", prn=packet_callback)`
         </div>
       </div>
       
+      <div className="certificate-manager">
+        <button onClick={() => setShowCertificates(!showCertificates)}>
+          {showCertificates ? 'Hide Certificates' : 'Show Certificates'}
+        </button>
+        
+        {showCertificates && (
+          <div className="certificate-view">
+            <div className="certificate">
+              <h4>CA Certificate</h4>
+              <pre>
+                -----BEGIN CERTIFICATE-----
+                MIIDFTCCAf2gAwIBAgIJAK5X2yZ5Tu6pMA0GCSqGSIb3DQEBCwUAMB0xGzAZBgNV
+                BAMMEnRlc3QubW9zcXVpdHRvLm9yZzAeFw0yMDAyMTcxMzMzMDFaFw0yNTAyMTUx
+                ...
+                -----END CERTIFICATE-----
+              </pre>
+            </div>
+            <div className="certificate">
+              <h4>Device Certificate</h4>
+              <pre>
+                -----BEGIN CERTIFICATE-----
+                MIIDDzCCAfegAwIBAgIUBY0JziYfZcJZtNRQHFsSdIgUqY8wDQYJKoZIhvcNAQEL
+                BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIzMDUyNTA2MDk0M1oXDTI0MDUy
+                ...
+                -----END CERTIFICATE-----
+              </pre>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <NetworkTopology />
+      
       {/* Add the STRIDE model visualization component */}
       <StrideModelVisualization protocol={protocol} securityMode={simulationMode} />
+      
+      <div className="auth-flow">
+        <h3>Authentication Flow</h3>
+        <div className="auth-visualization">
+          <div className={`auth-step ${authFlow === 'requesting' ? 'active' : ''}`}>
+            <h4>1. Request Token</h4>
+            <pre>
+              POST /oauth/token
+              {JSON.stringify({
+                "client_id": "sensor001",
+                "client_secret": "******",
+                "grant_type": "client_credentials",
+                "scope": "publish"
+              }, null, 2)}
+            </pre>
+            {!authFlow && (
+              <button onClick={() => {
+                setAuthFlow('requesting');
+                setTimeout(() => {
+                  setAuthToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
+                  setAuthFlow('authenticated');
+                }, 2000);
+              }}>
+                Request Token
+              </button>
+            )}
+          </div>
+          
+          <div className={`auth-step ${authFlow === 'authenticated' ? 'active' : ''}`}>
+            <h4>2. Receive Token</h4>
+            {authToken && (
+              <pre>
+                {JSON.stringify({
+                  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "token_type": "Bearer",
+                  "expires_in": 3600,
+                  "scope": "publish"
+                }, null, 2)}
+              </pre>
+            )}
+          </div>
+          
+          <div className={`auth-step ${authFlow === 'authenticated' ? 'active' : ''}`}>
+            <h4>3. Connect with Token</h4>
+            {authToken && (
+              <pre>
+                client.username_pw_set(
+                  username="unused", 
+                  password="{authToken}"
+                )
+              </pre>
+            )}
+          </div>
+        </div>
+        
+        {authFlow === 'authenticated' && (
+          <button onClick={() => {
+            setAuthFlow(null);
+            setAuthToken(null);
+          }}>
+            Reset Flow
+          </button>
+        )}
+      </div>
+      
+      <SecurityDashboard />
+    </div>
+  );
+};
+
+const SecurityDashboard = () => {
+  return (
+    <div className="security-dashboard">
+      <h3>Security Monitoring</h3>
+      
+      <div className="metrics-grid">
+        <div className="metric-card">
+          <h4>Message Encryption</h4>
+          <div className={`metric-value ${simulationMode === 'secure' ? 'secure' : 'insecure'}`}>
+            {simulationMode === 'secure' ? 'Encrypted (TLS)' : 'Plaintext'}
+          </div>
+        </div>
+        
+        <div className="metric-card">
+          <div className="metric-gauge">
+            <svg width="100" height="100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#ddd" strokeWidth="10" />
+              <circle 
+                cx="50" 
+                cy="50" 
+                r="45" 
+                fill="none" 
+                stroke={simulationMode === 'secure' ? '#4caf50' : '#f44336'} 
+                strokeWidth="10" 
+                strokeDasharray={`${simulationMode === 'secure' ? 283 : 141} 283`} 
+                transform="rotate(-90 50 50)"
+              />
+              <text x="50" y="55" textAnchor="middle" fontSize="20">
+                {simulationMode === 'secure' ? '100%' : '50%'}
+              </text>
+            </svg>
+          </div>
+          <h4>Security Score</h4>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NetworkTopology = () => {
+  return (
+    <div className="network-topology">
+      <h3>Network Architecture</h3>
+      <svg width="600" height="300" className="topology-diagram">
+        {/* IoT Device */}
+        <rect x="50" y="120" width="80" height="60" rx="5" className="device-node" />
+        <text x="90" y="150" textAnchor="middle">IoT Device</text>
+        
+        {/* Edge Gateway */}
+        <rect x="260" y="120" width="80" height="60" rx="5" className="gateway-node" />
+        <text x="300" y="150" textAnchor="middle">Edge Gateway</text>
+        
+        {/* Cloud Server */}
+        <rect x="470" y="120" width="80" height="60" rx="5" className="cloud-node" />
+        <text x="510" y="150" textAnchor="middle">Cloud Server</text>
+        
+        {/* Connection Lines */}
+        <line x1="130" y1="150" x2="260" y2="150" className={`connection ${simulationMode === 'secure' ? 'secure' : 'insecure'}`} />
+        <line x1="340" y1="150" x2="470" y2="150" className={`connection ${simulationMode === 'secure' ? 'secure' : 'insecure'}`} />
+        
+        {/* Attacker */}
+        {simulationMode === 'insecure' && (
+          <>
+            <rect x="190" y="50" width="60" height="40" rx="5" className="attacker-node" />
+            <text x="220" y="75" textAnchor="middle">Attacker</text>
+            <line x1="220" y1="90" x2="220" y2="150" className="attack-vector" strokeDasharray="5,5" />
+          </>
+        )}
+      </svg>
     </div>
   );
 };

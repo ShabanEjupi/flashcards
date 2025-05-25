@@ -868,13 +868,164 @@ footer {
   color: white;
 }
 
-/* Add different colors for CoAP traffic */
-.message.insecure[data-protocol="coap"] {
-  background-color: #fff8e1;
-  border-left: 4px solid #ffc107;
+/* Attack Simulation Styles */
+.attack-controls {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff5f5;
+  border-radius: 8px;
+  border-left: 4px solid #f44336;
 }
 
-.message.secure[data-protocol="coap"] {
+.attack-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.attack-buttons button.active {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Certificate Manager Styles */
+.certificate-manager {
+  margin-top: 20px;
+}
+
+.certificate-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.certificate {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  border-left: 3px solid #4caf50;
+}
+
+.certificate pre {
+  font-size: 10px;
+  max-height: 100px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+/* Network Topology Styles */
+.network-topology {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.topology-diagram {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 15px;
+}
+
+.device-node, .gateway-node, .cloud-node {
+  fill: white;
+  stroke: #333;
+  stroke-width: 2;
+}
+
+.attacker-node {
+  fill: #ffcdd2;
+  stroke: #f44336;
+  stroke-width: 2;
+}
+
+.connection {
+  stroke-width: 2;
+  stroke: #666;
+}
+
+.connection.secure {
+  stroke: #4caf50;
+  stroke-width: 3;
+}
+
+.connection.insecure {
+  stroke: #f44336;
+  stroke-dasharray: 5,5;
+}
+
+.attack-vector {
+  stroke: #f44336;
+  stroke-width: 2;
+}
+
+/* Authentication Flow Styles */
+.auth-flow {
+  margin-top: 20px;
+  padding: 15px;
   background-color: #e3f2fd;
+  border-radius: 8px;
   border-left: 4px solid #2196f3;
+}
+
+.auth-visualization {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.auth-step {
+  flex: 1;
+  padding: 10px;
+  background-color: white;
+  border-radius: 5px;
+  opacity: 0.7;
+  border: 1px solid #ddd;
+}
+
+.auth-step.active {
+  opacity: 1;
+  border-color: #2196f3;
+  box-shadow: 0 2px 5px rgba(33, 150, 243, 0.2);
+}
+
+/* Security Dashboard Styles */
+.security-dashboard {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.metric-card {
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.metric-value.secure {
+  color: #4caf50;
+}
+
+.metric-value.insecure {
+  color: #f44336;
 }
