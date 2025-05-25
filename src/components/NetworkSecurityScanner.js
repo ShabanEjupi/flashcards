@@ -367,167 +367,6 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
     }
   };
   
-  return (
-    <div className="packet-capture">
-      <h3>Live Packet Capture</h3>
-      <div className="packet-filters">
-        <h4>Filter Packets:</h4>
-        <div className="filter-buttons">
-          <button 
-            className={protocolFilter === 'all' ? 'active' : ''} 
-            onClick={() => setProtocolFilter('all')}
-          >
-            All
-          </button>
-          <button 
-            className={protocolFilter === 'tcp' ? 'active' : ''} 
-            onClick={() => setProtocolFilter('tcp')}
-          >
-            TCP
-          </button>
-          <button 
-            className={protocolFilter === 'udp' ? 'active' : ''} 
-            onClick={() => setProtocolFilter('udp')}
-          >
-            UDP
-          </button>
-          <button 
-            className={protocolFilter === 'iot' ? 'active' : ''} 
-            onClick={() => setProtocolFilter('iot')}
-          >
-            IoT (MQTT/CoAP)
-          </button>
-        </div>
-      </div>
-      <div className="packet-list">
-        {packets.length === 0 ? (
-          <p>No packets captured. Start scanning to see network traffic.</p>
-        ) : (
-          <table className="packet-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Protocol</th>
-                <th>Source</th>
-                <th>Destination</th>
-                <th>Size</th>
-                <th>Flags</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packets
-                .filter(packet => {
-                  if (protocolFilter === 'all') return true;
-                  if (protocolFilter === 'custom') {
-                    const protocolLower = packet.protocol.toLowerCase();
-                    if (protocolLower === 'tcp' && activeFilters.tcp) return true;
-                    if (protocolLower === 'udp' && activeFilters.udp) return true;
-                    if (['mqtt', 'coap'].includes(protocolLower) && activeFilters.mqtt) return true;
-                    // Add more protocol checks as needed
-                    return false;
-                  }
-                  // Existing code for single filter selection
-                  if (protocolFilter === 'tcp') return packet.protocol === 'TCP';
-                  if (protocolFilter === 'udp') return packet.protocol === 'UDP';
-                  if (protocolFilter === 'iot') return ['MQTT', 'CoAP'].includes(packet.protocol);
-                  return true;
-                })
-                .map(packet => (
-                  <tr key={packet.id} className={getProtocolClass(packet.protocol)}>
-                    <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
-                    <td>{packet.protocol}</td>
-                    <td>{getDeviceName(packet.sourceIP)}:{packet.sourcePort}</td>
-                    <td>{getDeviceName(packet.destIP)}:{packet.destPort}</td>
-                    <td>{packet.size} bytes</td>
-                    <td>{packet.flags}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Add a network topology visualization that updates as devices are discovered
-const NetworkTopologyMap = ({ devices, vulnerabilities }) => {
-  return (
-    <div className="network-topology-map">
-      <h3>Network Topology</h3>
-      <svg width="100%" height="300" className="topology-svg">
-        {/* Router/Gateway */}
-        <g className="gateway-node">
-          <rect x="300" y="50" width="100" height="60" rx="5" fill="#f0f0f0" stroke="#333" />
-          <text x="350" y="85" textAnchor="middle">Gateway Router</text>
-          <text x="350" y="100" textAnchor="middle" fontSize="12">192.168.1.1</text>
-        </g>
-        
-        {/* Connection lines to devices */}
-        {devices.map((device, index) => {
-          // Calculate position in a semi-circle around the gateway
-          const angle = (Math.PI * (index + 1)) / (devices.length + 1);
-          const x = 350 + Math.cos(angle) * 200;
-          const y = 200 + Math.sin(angle) * 100;
-          
-          return (
-            <g key={device.id} className="device-node">
-              {/* Connection line */}
-              <line 
-                x1="350" y1="110" 
-                x2={x} y2={y - 30} 
-                stroke={vulnerabilities.some(v => v.deviceId === device.id) ? "#f44336" : "#666"} 
-                strokeWidth="2" 
-                strokeDasharray={vulnerabilities.some(v => v.deviceId === device.id) ? "5,5" : ""} 
-              />
-              
-              {/* Device icon */}
-              <rect x={x - 40} y={y - 30} width="80" height="60" rx="5" fill="#e3f2fd" stroke="#333" />
-              <text x={x} y={y} textAnchor="middle">{device.name}</text>
-              <text x={x} y={y + 15} textAnchor="middle" fontSize="12">{device.ipAddress}</text>
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-};
-
-// Add options for educational scan modes with detailed explanations
-const ScanOptions = ({ setScanMode, scanMode, disabled }) => {
-  const scanModes = [
-    { id: 'basic', name: 'Basic Scan', description: 'Identifies devices and open ports' },
-    { id: 'security', name: 'Security Audit', description: 'Checks for common IoT vulnerabilities' },
-    { id: 'protocol', name: 'Protocol Analysis', description: 'Analyzes communication protocols used' },
-    { id: 'traffic', name: 'Traffic Analysis', description: 'Examines network traffic patterns' }
-  ];
-  
-  return (
-    <div className="scan-options">
-      <h3>Scan Mode</h3>
-      <div className="scan-mode-options">
-        {scanModes.map(mode => (
-          <div key={mode.id} className="scan-mode-option">
-            <input 
-              type="radio" 
-              id={`mode-${mode.id}`} 
-              name="scanMode" 
-              value={mode.id}
-              checked={scanMode === mode.id}
-              onChange={() => setScanMode(mode.id)}
-              disabled={disabled}
-            />
-            <label htmlFor={`mode-${mode.id}`}>
-              <strong>{mode.name}</strong>
-              <span className="scan-mode-description">{mode.description}</span>
-            </label>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
   // Attempt to use real network capabilities where possible
   const attemptRealNetworkCapabilities = async () => {
     // Check if running as a desktop app with more permissions
@@ -750,10 +589,14 @@ const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
           <div className="summary-card">
             <h4>Vulnerable Devices</h4>
             <div className="summary-counts">
-              <div className="count-item critical" title="Critical Risk Devices - Score 10+">
+              <div className="count-item critical" 
+                   title="Critical Risk Devices - Score 10+"
+                   data-count={devices.filter(d => getDeviceRiskLevel(d) === 'critical').length}>
                 {devices.filter(d => getDeviceRiskLevel(d) === 'critical').length}
               </div>
-              <div className="count-item high" title="High Risk Devices - Score 7-9">
+              <div className="count-item high" 
+                   title="High Risk Devices - Score 7-9"
+                   data-count={devices.filter(d => getDeviceRiskLevel(d) === 'high').length}>
                 {devices.filter(d => getDeviceRiskLevel(d) === 'high').length}
               </div>
               <div className="count-item medium" title="Medium Risk Devices">

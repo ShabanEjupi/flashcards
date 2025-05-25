@@ -2,8 +2,10 @@ import React from 'react';
 
 const Footer = () => {
     return (
-        <footer>
-            <p>&copy; {new Date().getFullYear()} Flashcards Website. All rights reserved.</p>
+        <footer className="main-footer">
+            <div className="container">
+                <p>&copy; {new Date().getFullYear()} Network Security Tools - Educational Platform</p>
+            </div>
         </footer>
     );
 };
