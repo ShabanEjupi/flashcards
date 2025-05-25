@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { logger } from '../utils/logger';
+import ScanOptions from './ScanOptions';
+import NetworkTopologyMap from './NetworkTopologyMap';
 
 const NetworkSecurityScanner = () => {
   const [scanning, setScanning] = useState(false);
