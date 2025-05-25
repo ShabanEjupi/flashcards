@@ -558,7 +558,7 @@ sniff(filter="udp port 5683", prn=packet_callback)`
         )}
       </div>
       
-      <NetworkTopology />
+      <NetworkTopology simulationMode={simulationMode} />
       
       {/* Add the STRIDE model visualization component */}
       <StrideModelVisualization protocol={protocol} securityMode={simulationMode} />
@@ -627,12 +627,12 @@ sniff(filter="udp port 5683", prn=packet_callback)`
         )}
       </div>
       
-      <SecurityDashboard />
+      <SecurityDashboard simulationMode={simulationMode} />
     </div>
   );
 };
 
-const SecurityDashboard = () => {
+const SecurityDashboard = ({ simulationMode }) => {
   return (
     <div className="security-dashboard">
       <h3>Security Monitoring</h3>
@@ -671,7 +671,7 @@ const SecurityDashboard = () => {
   );
 };
 
-const NetworkTopology = () => {
+const NetworkTopology = ({ simulationMode }) => {
   return (
     <div className="network-topology">
       <h3>Network Architecture</h3>
