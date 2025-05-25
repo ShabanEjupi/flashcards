@@ -7,7 +7,8 @@ import DrawingCanvas from './DrawingCanvas';
 import ConceptMap from './ConceptMap';
 import MatchupGame from './MatchupGame';
 import TablePracticeMode from './TablePracticeMode';
-import IoTSecuritySimulator from './IoTSecuritySimulator'; // Add this import
+import IoTSecuritySimulator from './IoTSecuritySimulator';
+import NetworkSecurityScanner from './NetworkSecurityScanner';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -53,6 +54,12 @@ const App = () => {
           >
             IoT Security
           </button>
+          <button 
+            className={activeTab === 'networkscan' ? 'active' : ''} 
+            onClick={() => setActiveTab('networkscan')}
+          >
+            Network Scanner
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -71,6 +78,7 @@ const App = () => {
         {activeTab === 'game' && <MatchupGame />}
         {activeTab === 'tables' && <TablePracticeMode />}
         {activeTab === 'iotsecurity' && <IoTSecuritySimulator />}
+        {activeTab === 'networkscan' && <NetworkSecurityScanner />}
       </main>
       <Footer />
     </div>
