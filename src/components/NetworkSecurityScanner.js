@@ -341,7 +341,14 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
   
   const getProtocolClass = (protocol) => {
     const protocolLower = protocol.toLowerCase();
+    
+    // Enhanced protocol classification
     if (['mqtt', 'coap'].includes(protocolLower)) return 'protocol-iot';
+    if (['http', 'https'].includes(protocolLower)) return 'protocol-web';
+    if (['telnet', 'ssh'].includes(protocolLower)) return 'protocol-shell';
+    if (['dns', 'dhcp'].includes(protocolLower)) return 'protocol-service';
+    if (['icmp', 'arp'].includes(protocolLower)) return 'protocol-network';
+    
     return `protocol-${protocolLower}`;
   };
   
@@ -497,40 +504,40 @@ const ScanOptions = ({ setScanMode, scanMode, disabled }) => {
   );
 };
 
-// Attempt to use real network capabilities where possible
-const attemptRealNetworkCapabilities = async () => {
-  // Check if running as a desktop app with more permissions
-  if (window.electron) {
-    addLogMessage("Detected Electron environment - enhanced scanning capabilities available");
-    return true;
-  }
-  
-  // Check for WebRTC local IP detection (limited but can detect local IP)
-  try {
-    const pc = new RTCPeerConnection({iceServers: []});
-    pc.createDataChannel("");
-    let localIP = null;
+  // Attempt to use real network capabilities where possible
+  const attemptRealNetworkCapabilities = async () => {
+    // Check if running as a desktop app with more permissions
+    if (window.electron) {
+      addLogMessage("Detected Electron environment - enhanced scanning capabilities available");
+      return true;
+    }
     
-    pc.onicecandidate = (event) => {
-      if (!event.candidate) return;
+    // Check for WebRTC local IP detection (limited but can detect local IP)
+    try {
+      const pc = new RTCPeerConnection({iceServers: []});
+      pc.createDataChannel("");
+      let localIP = null;
       
-      // Extract IP from candidate string
-      const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-      const match = ipRegex.exec(event.candidate.candidate);
-      if (match) {
-        localIP = match[1];
-        addLogMessage(`Detected local network: ${localIP}`);
-      }
-    };
-    
-    await pc.createOffer().then(offer => pc.setLocalDescription(offer));
-    
-    return !!localIP;
-  } catch (error) {
-    console.error("WebRTC detection failed:", error);
-    return false;
-  }
-};
+      pc.onicecandidate = (event) => {
+        if (!event.candidate) return;
+        
+        // Extract IP from candidate string
+        const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+        const match = ipRegex.exec(event.candidate.candidate);
+        if (match) {
+          localIP = match[1];
+          addLogMessage(`Detected local network: ${localIP}`);
+        }
+      };
+      
+      await pc.createOffer().then(offer => pc.setLocalDescription(offer));
+      
+      return !!localIP;
+    } catch (error) {
+      console.error("WebRTC detection failed:", error);
+      return false;
+    }
+  };
 
 // Add a visual donut chart to represent risk scores
 const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
@@ -709,6 +716,31 @@ const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
           {scanLog.map((log, index) => (
             <div key={index} className="log-entry">{log}</div>
           ))}
+        </div>
+      </div>
+      
+      {/* New Risk Summary Dashboard Section */}
+      <div className="risk-summary-dashboard">
+        <h3>Risk Summary</h3>
+        <div className="summary-grid">
+          <div className="summary-card">
+            <h4>Vulnerable Devices</h4>
+            <div className="summary-counts">
+              <div className="count-item critical">{devices.filter(d => getDeviceRiskLevel(d) === 'critical').length}</div>
+              <div className="count-item high">{devices.filter(d => getDeviceRiskLevel(d) === 'high').length}</div>
+              <div className="count-item medium">{devices.filter(d => getDeviceRiskLevel(d) === 'medium').length}</div>
+              <div className="count-item low">{devices.filter(d => getDeviceRiskLevel(d) === 'low').length}</div>
+            </div>
+          </div>
+          <div className="summary-card">
+            <h4>Vulnerability Types</h4>
+            <div className="summary-counts">
+              <div className="count-item critical">{vulnerabilities.filter(v => v.severity === 'critical').length}</div>
+              <div className="count-item high">{vulnerabilities.filter(v => v.severity === 'high').length}</div>
+              <div className="count-item medium">{vulnerabilities.filter(v => v.severity === 'medium').length}</div>
+              <div className="count-item low">{vulnerabilities.filter(v => v.severity === 'low').length}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
