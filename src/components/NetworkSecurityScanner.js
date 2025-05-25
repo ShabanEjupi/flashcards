@@ -11,6 +11,13 @@ const NetworkSecurityScanner = () => {
   const [customRange, setCustomRange] = useState('');
   const [scanLog, setScanLog] = useState([]);
   const [scanMode, setScanMode] = useState('basic');
+  const [customDevices, setCustomDevices] = useState([]);
+  const [newCustomDevice, setNewCustomDevice] = useState({
+    name: '',
+    ipAddress: '',
+    ports: '',
+    services: ''
+  });
   const scannerRef = useRef(null);
 
   // Available networks for scanning
@@ -68,16 +75,33 @@ const NetworkSecurityScanner = () => {
       }
       
       // Generate a simulated device discovery at certain points
-      if (progress === 20) {
-        discoverDevice('Smart Camera', '192.168.1.101', ['80', '443', '8080'], ['http', 'https', 'rtsp']);
-      } else if (progress === 30) {
-        discoverDevice('Smart Thermostat', '192.168.1.102', ['80', '1883'], ['http', 'mqtt']);
-      } else if (progress === 40) {
-        discoverDevice('Smart Light Hub', '192.168.1.103', ['80', '23'], ['http', 'telnet']);
-      } else if (progress === 60) {
-        discoverDevice('Voice Assistant', '192.168.1.104', ['80', '443', '5683'], ['http', 'https', 'coap']);
-      } else if (progress === 80) {
-        discoverDevice('Security System', '192.168.1.105', ['80', '443', '1883', '5683'], ['http', 'https', 'mqtt', 'coap']);
+      if (customDevices.length > 0) {
+        // Use custom devices if available
+        let discoveryProgress = 20;
+        customDevices.forEach((device, index) => {
+          if (progress === discoveryProgress) {
+            discoverDevice(
+              device.name, 
+              device.ipAddress, 
+              device.ports.split(',').map(p => p.trim()), 
+              device.services.split(',').map(s => s.trim())
+            );
+          }
+          discoveryProgress += 15; // Space out discoveries
+        });
+      } else {
+        // Use default random device types if no custom devices
+        if (progress === 20) {
+          const randomDevices = [
+            { name: 'Smart TV', ports: ['80', '443', '8008'], services: ['http', 'https', 'upnp'] },
+            { name: 'Gaming Console', ports: ['80', '443', '3074'], services: ['http', 'https', 'gaming'] },
+            { name: 'Network Printer', ports: ['80', '443', '631'], services: ['http', 'https', 'ipp'] }
+          ];
+          const randomDevice = randomDevices[Math.floor(Math.random() * randomDevices.length)];
+          const randomIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
+          discoverDevice(randomDevice.name, randomIP, randomDevice.ports, randomDevice.services);
+        } 
+        // Continue with more random devices at other progress points
       }
       
       setScanProgress(progress);
@@ -376,6 +400,81 @@ const NetworkSecurityScanner = () => {
             <a href="https://owasp.org/www-project-iot-security-testing-guide/" target="_blank" rel="noopener noreferrer">Learn More</a>
           </div>
         </div>
+      </div>
+      
+      {/* New section for adding custom devices */}
+      <div className="custom-devices-section">
+        <h3>Add Your Own Devices (Optional)</h3>
+        <p>Add devices you actually have for a more personalized simulation</p>
+        
+        <div className="custom-device-form">
+          <input 
+            type="text" 
+            placeholder="Device Name (e.g. My Router)"
+            value={newCustomDevice.name}
+            onChange={(e) => setNewCustomDevice({...newCustomDevice, name: e.target.value})}
+            disabled={scanning}
+          />
+          <input 
+            type="text" 
+            placeholder="IP Address (e.g. 192.168.1.1)"
+            value={newCustomDevice.ipAddress}
+            onChange={(e) => setNewCustomDevice({...newCustomDevice, ipAddress: e.target.value})}
+            disabled={scanning}
+          />
+          <input 
+            type="text" 
+            placeholder="Ports (e.g. 80, 443, 22)"
+            value={newCustomDevice.ports}
+            onChange={(e) => setNewCustomDevice({...newCustomDevice, ports: e.target.value})}
+            disabled={scanning}
+          />
+          <input 
+            type="text" 
+            placeholder="Services (e.g. http, https, ssh)"
+            value={newCustomDevice.services}
+            onChange={(e) => setNewCustomDevice({...newCustomDevice, services: e.target.value})}
+            disabled={scanning}
+          />
+          <button 
+            onClick={() => {
+              if (newCustomDevice.name && newCustomDevice.ipAddress) {
+                setCustomDevices([...customDevices, newCustomDevice]);
+                setNewCustomDevice({name: '', ipAddress: '', ports: '', services: ''});
+              }
+            }}
+            disabled={scanning || !newCustomDevice.name || !newCustomDevice.ipAddress}
+          >
+            Add Device
+          </button>
+        </div>
+        
+        {customDevices.length > 0 && (
+          <div className="custom-devices-list">
+            <h4>Your Custom Devices:</h4>
+            <ul>
+              {customDevices.map((device, index) => (
+                <li key={index}>
+                  {device.name} ({device.ipAddress}) - 
+                  Ports: {device.ports || 'Not specified'} - 
+                  Services: {device.services || 'Not specified'}
+                  <button 
+                    onClick={() => setCustomDevices(customDevices.filter((_, i) => i !== index))}
+                    disabled={scanning}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button 
+              onClick={() => setCustomDevices([])}
+              disabled={scanning}
+            >
+              Clear All
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
