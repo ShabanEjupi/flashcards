@@ -151,6 +151,82 @@ const IoTSecuritySimulator = () => {
   
   const protocolInfo = getProtocolInfo();
   
+  // Handle attack effects
+  useEffect(() => {
+    if (!running || !attackMode) return;
+    
+    let attackInterval;
+    
+    // Different behavior based on attack type
+    if (attackMode === 'mitm') {
+      // Man in the Middle attack - modifies the data
+      attackInterval = setInterval(() => {
+        const modifiedData = {
+          temperature: Math.floor(Math.random() * 100),
+          humidity: Math.floor(Math.random() * 100),
+          timestamp: new Date().toISOString(),
+          deviceId: 'sensor001',
+          batteryLevel: Math.floor(Math.random() * 100),
+          warning: 'MANIPULATED DATA',
+        };
+        
+        // Add a modified message with warning
+        setMessages(prev => [...prev, {
+          id: 'mitm-' + Date.now(),
+          topic: protocol === 'mqtt' ? 'sensors/environment' : '/sensors/environment',
+          payload: JSON.stringify(modifiedData),
+          qos: protocol === 'mqtt' ? 1 : null,
+          protocol: protocol,
+          timestamp: new Date().toISOString(),
+          secure: simulationMode === 'secure',
+          attacked: true
+        }]);
+      }, 5000);
+    } 
+    else if (attackMode === 'replay') {
+      // Replay attack - sends previous messages again
+      attackInterval = setInterval(() => {
+        if (messages.length > 0) {
+          // Get a random message from history
+          const randomIndex = Math.floor(Math.random() * Math.min(messages.length, 5));
+          const messageToReplay = {...messages[messages.length - 1 - randomIndex]};
+          
+          // Mark it as replayed
+          messageToReplay.id = 'replay-' + Date.now();
+          messageToReplay.timestamp = new Date().toISOString();
+          messageToReplay.attacked = true;
+          messageToReplay.replayed = true;
+          
+          setMessages(prev => [...prev, messageToReplay]);
+        }
+      }, 4000);
+    }
+    else if (attackMode === 'dos') {
+      // DoS attack - floods with messages
+      attackInterval = setInterval(() => {
+        const dosMessages = [];
+        // Create 5 bogus messages at once - simulating flood
+        for (let i = 0; i < 5; i++) {
+          dosMessages.push({
+            id: 'dos-' + Date.now() + '-' + i,
+            topic: protocol === 'mqtt' ? 'sensors/flood' : '/sensors/flood',
+            payload: JSON.stringify({ type: 'DOS_ATTACK', seq: i }),
+            protocol: protocol,
+            timestamp: new Date().toISOString(),
+            secure: simulationMode === 'secure',
+            attacked: true,
+            dos: true
+          });
+        }
+        setMessages(prev => [...prev, ...dosMessages]);
+      }, 3000);
+    }
+    
+    return () => {
+      if (attackInterval) clearInterval(attackInterval);
+    };
+  }, [attackMode, running, protocol, simulationMode, messages]);
+  
   return (
     <div className="iot-simulator-container">
       <h2>IoT Security Simulator</h2>
@@ -397,10 +473,15 @@ if __name__ == "__main__":
               <p className="no-messages">No messages sent yet. Start the simulation to see {protocolInfo.name} traffic.</p>
             ) : (
               messages.map(message => (
-                <div key={message.id} className={`message ${message.secure ? 'secure' : 'insecure'}`}>
+                <div key={message.id} className={`message ${message.secure ? 'secure' : 'insecure'} ${message.attacked ? 'attacked' : ''} ${message.dos ? 'dos' : ''} ${message.replayed ? 'replayed' : ''}`}>
                   <div className="message-header">
                     <span className="message-topic">{message.topic}</span>
                     <span className="message-time">{new Date(message.timestamp).toLocaleTimeString()}</span>
+                    {message.attacked && (
+                      <span className="attack-indicator">
+                        {message.replayed ? '⚠️ REPLAYED' : message.dos ? '⚠️ DOS ATTACK' : '⚠️ MITM'}
+                      </span>
+                    )}
                   </div>
                   <div className="message-content">
                     {displayMessagePayload(message)}

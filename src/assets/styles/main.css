@@ -1029,3 +1029,29 @@ footer {
 .metric-value.insecure {
   color: #f44336;
 }
+
+/* Add these styles for attack visualization */
+
+.message.attacked {
+  border-left: 4px solid #ff9800;
+  background-color: #fff3e0;
+}
+
+.message.dos {
+  border-left: 4px solid #f44336;
+  background-color: #ffebee;
+}
+
+.message.replayed {
+  border-left: 4px solid #9c27b0;
+  background-color: #f3e5f5;
+}
+
+.attack-indicator {
+  background-color: #ff9800;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
