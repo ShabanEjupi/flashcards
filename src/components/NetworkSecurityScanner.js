@@ -223,8 +223,23 @@ const NetworkSecurityScanner = () => {
       }
     };
   }, []);
-  
-  // Add this function to the NetworkSecurityScanner component
+
+  // Define severity weights for risk calculation
+  const severityWeights = {
+    'critical': 10,
+    'high': 7,
+    'medium': 4,
+    'low': 1
+  };
+
+  // Calculate risk score using the defined weights
+  const calculateRiskScore = (vulnerabilities, device) => {
+    return vulnerabilities
+      .filter(v => v.deviceId === device.id)
+      .reduce((score, vuln) => score + severityWeights[vuln.severity], 0);
+  };
+
+  // Determine risk level based on score
   const getDeviceRiskLevel = (device) => {
     const score = calculateRiskScore(vulnerabilities, device);
     if (score >= 10) return 'critical';
@@ -233,290 +248,7 @@ const NetworkSecurityScanner = () => {
     return 'low';
   };
   
-  return (
-    <div className="network-scanner-container">
-      <h2>IoT Network Security Scanner</h2>
-      <div className="simulator-badge">
-        <span className="badge">Educational Simulator</span>
-        <span className="badge-info">
-          This is a simulated tool for educational purposes. For real network scanning, 
-          consider tools like Nmap, Wireshark, or dedicated IoT security platforms.
-        </span>
-      </div>
-      
-      <div className="scanner-controls">
-        <div className="network-selector">
-          <h3>Target Network</h3>
-          <select value={selectedNetwork} onChange={handleNetworkChange} disabled={scanning}>
-            {availableNetworks.map(network => (
-              <option key={network.id} value={network.cidr}>{network.name} ({network.cidr})</option>
-            ))}
-          </select>
-          
-          {selectedNetwork === 'custom' && (
-            <div className="custom-range">
-              <input 
-                type="text" 
-                placeholder="e.g. 192.168.0.1-20 or 10.0.0.0/24" 
-                value={customRange}
-                onChange={(e) => setCustomRange(e.target.value)}
-                disabled={scanning}
-              />
-            </div>
-          )}
-        </div>
-        
-        <div className="scan-actions">
-          {!scanning ? (
-            <button className="start-scan" onClick={startScan}>Start Scan</button>
-          ) : (
-            <button className="stop-scan" onClick={stopScan}>Stop Scan</button>
-          )}
-        </div>
-      </div>
-      
-      <div className="scan-progress">
-        <h3>Scan Progress: {scanProgress}%</h3>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{width: `${scanProgress}%`}}
-          ></div>
-        </div>
-      </div>
-      
-      <div className="scanner-results">
-        <div className="discovered-devices">
-          <h3>Discovered Devices ({devices.length})</h3>
-          <div className="device-list">
-            {devices.length === 0 ? (
-              <p className="no-devices">No devices discovered yet. Start a scan to detect IoT devices.</p>
-            ) : (
-              <table className="devices-table">
-                <thead>
-                  <tr>
-                    <th>Device</th>
-                    <th>IP Address</th>
-                    <th>MAC Address</th>
-                    <th>Open Ports</th>
-                    <th>Services</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {devices.map(device => (
-                    <tr key={device.id} className={vulnerabilities.some(v => v.deviceId === device.id) ? 'device-vulnerable' : ''}>
-                      <td>{device.name}</td>
-                      <td>{device.ipAddress}</td>
-                      <td>{device.mac}</td>
-                      <td>{device.ports.join(', ')}</td>
-                      <td>{device.services.join(', ')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-        
-        <div className="vulnerabilities">
-          <h3>Detected Vulnerabilities ({vulnerabilities.length})</h3>
-          <div className="vulnerability-list">
-            {vulnerabilities.length === 0 ? (
-              <p className="no-vulnerabilities">No vulnerabilities detected yet.</p>
-            ) : (
-              <table className="vuln-table">
-                <thead>
-                  <tr>
-                    <th>Device</th>
-                    <th>Vulnerability</th>
-                    <th>Severity</th>
-                    <th>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vulnerabilities.map((vuln, index) => (
-                    <tr key={index} className={`severity-${vuln.severity}`}>
-                      <td>{vuln.deviceName} ({vuln.ipAddress})</td>
-                      <td>{vuln.name}</td>
-                      <td className={`severity-tag ${vuln.severity}`}>
-                        {vuln.severity.toUpperCase()}
-                      </td>
-                      <td>{vuln.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-        
-        <div className="scan-log">
-          <h3>Scan Log</h3>
-          <div className="log-container">
-            {scanLog.map((log, index) => (
-              <div key={index} className="log-entry">{log}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      <div className="security-recommendations">
-        <h3>Security Recommendations</h3>
-        <ul className="recommendation-list">
-          <li>
-            <strong>Default Credentials:</strong> Change default passwords on all IoT devices
-          </li>
-          <li>
-            <strong>Firmware Updates:</strong> Ensure all devices have the latest firmware installed
-          </li>
-          <li>
-            <strong>Network Segmentation:</strong> Place IoT devices on a separate VLAN
-          </li>
-          <li>
-            <strong>Disable Unused Services:</strong> Turn off telnet, UPnP, and other unnecessary services
-          </li>
-          <li>
-            <strong>Encrypted Protocols:</strong> Use HTTPS instead of HTTP, MQTTS instead of MQTT
-          </li>
-        </ul>
-      </div>
-      
-      <div className="risk-dashboard">
-        <h3>Security Risk Assessment</h3>
-        <div className="risk-grid">
-          {devices.map(device => {
-            const riskScore = calculateRiskScore(vulnerabilities, device);
-            const riskLevel = getDeviceRiskLevel(device);
-            return (
-              <div key={device.id} className={`risk-card risk-${riskLevel}`}>
-                <h4>{device.name}</h4>
-                <div className="risk-details">
-                  <RiskDonutChart score={riskScore} />
-                  <div className="risk-label">{riskLevel.toUpperCase()}</div>
-                </div>
-                <div className="risk-description">
-                  <p>{vulnerabilities.filter(v => v.deviceId === device.id).length} vulnerabilities detected</p>
-                  <p>Most severe: {vulnerabilities.filter(v => v.deviceId === device.id)
-                    .sort((a, b) => severityWeights[b.severity] - severityWeights[a.severity])[0]?.name || 'None'}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      
-      <ScanOptions setScanMode={setScanMode} scanMode={scanMode} disabled={scanning} />
-      
-      {/* Add the new network topology visualization */}
-      <NetworkTopologyMap devices={devices} vulnerabilities={vulnerabilities} />
-      
-      {/* Pass the scanning state as a prop */}
-      <PacketCaptureVisualization 
-        scanning={scanning} 
-        devices={devices} // Pass devices as prop
-      />
-      
-      {/* Add educational resources */}
-      <div className="educational-resources">
-        <h3>Real-World Scanning Tools</h3>
-        <div className="tools-grid">
-          <div className="tool-card">
-            <h4>Nmap</h4>
-            <p>The industry standard for network discovery and security auditing</p>
-            <a href="https://nmap.org/" target="_blank" rel="noopener noreferrer">Learn More</a>
-          </div>
-          <div className="tool-card">
-            <h4>Wireshark</h4>
-            <p>The world's foremost network protocol analyzer</p>
-            <a href="https://www.wireshark.org/" target="_blank" rel="noopener noreferrer">Learn More</a>
-          </div>
-          <div className="tool-card">
-            <h4>OWASP IoT Security Testing Guide</h4>
-            <p>Comprehensive methodology for IoT security testing</p>
-            <a href="https://owasp.org/www-project-iot-security-testing-guide/" target="_blank" rel="noopener noreferrer">Learn More</a>
-          </div>
-        </div>
-      </div>
-      
-      {/* New section for adding custom devices */}
-      <div className="custom-devices-section">
-        <h3>Add Your Own Devices (Optional)</h3>
-        <p>Add devices you actually have for a more personalized simulation</p>
-        
-        <div className="custom-device-form">
-          <input 
-            type="text" 
-            placeholder="Device Name (e.g. My Router)"
-            value={newCustomDevice.name}
-            onChange={(e) => setNewCustomDevice({...newCustomDevice, name: e.target.value})}
-            disabled={scanning}
-          />
-          <input 
-            type="text" 
-            placeholder="IP Address (e.g. 192.168.1.1)"
-            value={newCustomDevice.ipAddress}
-            onChange={(e) => setNewCustomDevice({...newCustomDevice, ipAddress: e.target.value})}
-            disabled={scanning}
-          />
-          <input 
-            type="text" 
-            placeholder="Ports (e.g. 80, 443, 22)"
-            value={newCustomDevice.ports}
-            onChange={(e) => setNewCustomDevice({...newCustomDevice, ports: e.target.value})}
-            disabled={scanning}
-          />
-          <input 
-            type="text" 
-            placeholder="Services (e.g. http, https, ssh)"
-            value={newCustomDevice.services}
-            onChange={(e) => setNewCustomDevice({...newCustomDevice, services: e.target.value})}
-            disabled={scanning}
-          />
-          <button 
-            onClick={() => {
-              if (newCustomDevice.name && newCustomDevice.ipAddress) {
-                setCustomDevices([...customDevices, newCustomDevice]);
-                setNewCustomDevice({name: '', ipAddress: '', ports: '', services: ''});
-              }
-            }}
-            disabled={scanning || !newCustomDevice.name || !newCustomDevice.ipAddress}
-          >
-            Add Device
-          </button>
-        </div>
-        
-        {customDevices.length > 0 && (
-          <div className="custom-devices-list">
-            <h4>Your Custom Devices:</h4>
-            <ul>
-              {customDevices.map((device, index) => (
-                <li key={index}>
-                  {device.name} ({device.ipAddress}) - 
-                  Ports: {device.ports || 'Not specified'} - 
-                  Services: {device.services || 'Not specified'}
-                  <button 
-                    onClick={() => setCustomDevices(customDevices.filter((_, i) => i !== index))}
-                    disabled={scanning}
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <button 
-              onClick={() => setCustomDevices([])}
-              disabled={scanning}
-            >
-              Clear All
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Add a realistic packet capture visualization
+  // Add a realistic packet capture visualization
 const PacketCaptureVisualization = ({ scanning, devices }) => {
   const [packets, setPackets] = useState([]);
   const [protocolFilter, setProtocolFilter] = useState('all');
@@ -538,7 +270,7 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
   
   const generateSimulatedPacket = () => {
     // Use discovered devices for more realistic traffic patterns
-    if (devices.length > 0) {
+    if (devices && devices.length > 0) {
       // 70% chance of having a discovered device as source or destination
       if (Math.random() < 0.7) {
         const device = devices[Math.floor(Math.random() * devices.length)];
@@ -607,6 +339,12 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
     return ip; // Return just the IP if no name is found
   };
   
+  const getProtocolClass = (protocol) => {
+    const protocolLower = protocol.toLowerCase();
+    if (['mqtt', 'coap'].includes(protocolLower)) return 'protocol-iot';
+    return `protocol-${protocolLower}`;
+  };
+  
   return (
     <div className="packet-capture">
       <h3>Live Packet Capture</h3>
@@ -664,7 +402,7 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
                   return true;
                 })
                 .map(packet => (
-                  <tr key={packet.id} className={`protocol-${packet.protocol.toLowerCase()}`}>
+                  <tr key={packet.id} className={getProtocolClass(packet.protocol)}>
                     <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
                     <td>{packet.protocol}</td>
                     <td>{getDeviceName(packet.sourceIP)}:{packet.sourcePort}</td>
@@ -794,22 +532,6 @@ const attemptRealNetworkCapabilities = async () => {
   }
 };
 
-// Enhanced vulnerability detection with severity calculation
-const calculateRiskScore = (vulnerabilities, device) => {
-  // Create a weighted scoring system
-  const severityWeights = {
-    'critical': 10,
-    'high': 7,
-    'medium': 4,
-    'low': 1
-  };
-  
-  // Calculate aggregate risk score
-  return vulnerabilities
-    .filter(v => v.deviceId === device.id)
-    .reduce((score, vuln) => score + severityWeights[vuln.severity], 0);
-};
-
 // Add a visual donut chart to represent risk scores
 const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
   const percentage = Math.min((score / maxScore) * 100, 100);
@@ -859,6 +581,137 @@ const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
         {score}
       </text>
     </svg>
+  );
+};
+
+  // Render the component
+  return (
+    <div className="network-security-scanner">
+      <h2>Network Security Scanner</h2>
+      
+      <div className="scanner-controls">
+        <div className="network-selector">
+          <label htmlFor="network-select">Select Network:</label>
+          <select 
+            id="network-select" 
+            value={selectedNetwork} 
+            onChange={handleNetworkChange}
+            disabled={scanning}
+          >
+            {availableNetworks.map(network => (
+              <option key={network.id} value={network.id === 'custom' ? 'custom' : network.cidr}>
+                {network.name} {network.id !== 'custom' && `(${network.cidr})`}
+              </option>
+            ))}
+          </select>
+          
+          {selectedNetwork === 'custom' && (
+            <div className="custom-range-input">
+              <input
+                type="text"
+                placeholder="192.168.1.0/24"
+                value={customRange}
+                onChange={(e) => setCustomRange(e.target.value)}
+                disabled={scanning}
+              />
+            </div>
+          )}
+        </div>
+        
+        <ScanOptions 
+          setScanMode={setScanMode} 
+          scanMode={scanMode}
+          disabled={scanning}
+        />
+        
+        <div className="scan-actions">
+          {!scanning ? (
+            <button className="start-scan-button" onClick={startScan}>
+              Start Scan
+            </button>
+          ) : (
+            <button className="stop-scan-button" onClick={stopScan}>
+              Stop Scan
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {scanning && (
+        <div className="scan-progress">
+          <progress value={scanProgress} max="100"></progress>
+          <span>{scanProgress}% Complete</span>
+        </div>
+      )}
+      
+      <div className="scanner-results">
+        <div className="scanner-column">
+          <NetworkTopologyMap devices={devices} vulnerabilities={vulnerabilities} />
+          
+          <div className="discovered-devices">
+            <h3>Discovered Devices ({devices.length})</h3>
+            {devices.length === 0 ? (
+              <p>No devices discovered yet. Start a scan to find devices.</p>
+            ) : (
+              <div className="device-list">
+                {devices.map(device => {
+                  const riskScore = calculateRiskScore(vulnerabilities, device);
+                  const riskLevel = getDeviceRiskLevel(device);
+                  
+                  return (
+                    <div key={device.id} className={`device-card risk-${riskLevel}`}>
+                      <div className="device-header">
+                        <h4>{device.name}</h4>
+                        <RiskDonutChart score={riskScore} />
+                      </div>
+                      <div className="device-details">
+                        <p>IP: {device.ipAddress}</p>
+                        <p>MAC: {device.mac}</p>
+                        <p>Services: {device.services.join(', ')}</p>
+                        <p>Ports: {device.ports.join(', ')}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="scanner-column">
+          <div className="vulnerabilities-section">
+            <h3>Detected Vulnerabilities ({vulnerabilities.length})</h3>
+            {vulnerabilities.length === 0 ? (
+              <p>No vulnerabilities detected yet.</p>
+            ) : (
+              <div className="vulnerability-list">
+                {vulnerabilities.map((vuln, index) => (
+                  <div key={index} className={`vulnerability-card severity-${vuln.severity}`}>
+                    <div className="vuln-header">
+                      <h4>{vuln.name}</h4>
+                      <span className="severity-badge">{vuln.severity}</span>
+                    </div>
+                    <p className="vuln-description">{vuln.description}</p>
+                    <p>Affected device: {vuln.deviceName} ({vuln.ipAddress})</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <PacketCaptureVisualization scanning={scanning} devices={devices} />
+        </div>
+      </div>
+      
+      <div className="scan-log-section">
+        <h3>Scan Log</h3>
+        <div className="scan-log">
+          {scanLog.map((log, index) => (
+            <div key={index} className="log-entry">{log}</div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
