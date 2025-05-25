@@ -352,6 +352,21 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
     return `protocol-${protocolLower}`;
   };
   
+  const toggleFilter = (protocol) => {
+    if (protocol === 'all') {
+      setActiveFilters({
+        tcp: true, udp: true, mqtt: true, coap: true, http: true, other: true
+      });
+      setProtocolFilter('all');
+    } else {
+      setActiveFilters(prev => ({
+        ...prev,
+        [protocol]: !prev[protocol]
+      }));
+      setProtocolFilter('custom');
+    }
+  };
+  
   return (
     <div className="packet-capture">
       <h3>Live Packet Capture</h3>
@@ -403,6 +418,15 @@ const PacketCaptureVisualization = ({ scanning, devices }) => {
               {packets
                 .filter(packet => {
                   if (protocolFilter === 'all') return true;
+                  if (protocolFilter === 'custom') {
+                    const protocolLower = packet.protocol.toLowerCase();
+                    if (protocolLower === 'tcp' && activeFilters.tcp) return true;
+                    if (protocolLower === 'udp' && activeFilters.udp) return true;
+                    if (['mqtt', 'coap'].includes(protocolLower) && activeFilters.mqtt) return true;
+                    // Add more protocol checks as needed
+                    return false;
+                  }
+                  // Existing code for single filter selection
                   if (protocolFilter === 'tcp') return packet.protocol === 'TCP';
                   if (protocolFilter === 'udp') return packet.protocol === 'UDP';
                   if (protocolFilter === 'iot') return ['MQTT', 'CoAP'].includes(packet.protocol);
@@ -726,10 +750,18 @@ const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
           <div className="summary-card">
             <h4>Vulnerable Devices</h4>
             <div className="summary-counts">
-              <div className="count-item critical">{devices.filter(d => getDeviceRiskLevel(d) === 'critical').length}</div>
-              <div className="count-item high">{devices.filter(d => getDeviceRiskLevel(d) === 'high').length}</div>
-              <div className="count-item medium">{devices.filter(d => getDeviceRiskLevel(d) === 'medium').length}</div>
-              <div className="count-item low">{devices.filter(d => getDeviceRiskLevel(d) === 'low').length}</div>
+              <div className="count-item critical" title="Critical Risk Devices - Score 10+">
+                {devices.filter(d => getDeviceRiskLevel(d) === 'critical').length}
+              </div>
+              <div className="count-item high" title="High Risk Devices - Score 7-9">
+                {devices.filter(d => getDeviceRiskLevel(d) === 'high').length}
+              </div>
+              <div className="count-item medium" title="Medium Risk Devices">
+                {devices.filter(d => getDeviceRiskLevel(d) === 'medium').length}
+              </div>
+              <div className="count-item low" title="Low Risk Devices">
+                {devices.filter(d => getDeviceRiskLevel(d) === 'low').length}
+              </div>
             </div>
           </div>
           <div className="summary-card">
