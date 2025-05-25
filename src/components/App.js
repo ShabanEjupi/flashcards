@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import FlashcardDeck from './FlashcardDeck';
-import QuizMode from './QuizMode';
 import DrawingCanvas from './DrawingCanvas';
-import ConceptMap from './ConceptMap';
-import MatchupGame from './MatchupGame';
-import TablePracticeMode from './TablePracticeMode';
 import IoTSecuritySimulator from './IoTSecuritySimulator';
 import NetworkSecurityScanner from './NetworkSecurityScanner';
 
@@ -22,31 +18,7 @@ const App = () => {
             className={activeTab === 'flashcards' ? 'active' : ''} 
             onClick={() => setActiveTab('flashcards')}
           >
-            Fletushkat & Vizatimi
-          </button>
-          <button 
-            className={activeTab === 'quiz' ? 'active' : ''} 
-            onClick={() => setActiveTab('quiz')}
-          >
-            Kuizi
-          </button>
-          <button 
-            className={activeTab === 'concepts' ? 'active' : ''} 
-            onClick={() => setActiveTab('concepts')}
-          >
-            Harta e Koncepteve
-          </button>
-          <button 
-            className={activeTab === 'game' ? 'active' : ''} 
-            onClick={() => setActiveTab('game')}
-          >
-            Loja
-          </button>
-          <button 
-            className={activeTab === 'tables' ? 'active' : ''} 
-            onClick={() => setActiveTab('tables')}
-          >
-            Tabelat Praktike
+            Flashcards & Drawing
           </button>
           <button 
             className={activeTab === 'iotsecurity' ? 'active' : ''} 
@@ -65,7 +37,7 @@ const App = () => {
         {activeTab === 'flashcards' && (
           <div className="flashcards-drawing-container">
             <div className="flashcards-section">
-              <h2>Fletushkat</h2>
+              <h2>Flashcards</h2>
               <FlashcardDeck />
             </div>
             <div className="drawing-section">
@@ -73,10 +45,6 @@ const App = () => {
             </div>
           </div>
         )}
-        {activeTab === 'quiz' && <QuizMode />}
-        {activeTab === 'concepts' && <ConceptMap />}
-        {activeTab === 'game' && <MatchupGame />}
-        {activeTab === 'tables' && <TablePracticeMode />}
         {activeTab === 'iotsecurity' && <IoTSecuritySimulator />}
         {activeTab === 'networkscan' && <NetworkSecurityScanner />}
       </main>

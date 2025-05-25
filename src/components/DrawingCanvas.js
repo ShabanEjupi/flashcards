@@ -12,10 +12,9 @@ const DrawingCanvas = () => {
   const [notePosition, setNotePosition] = useState({ x: 0, y: 0 });
   const [savedImages, setSavedImages] = useState([]);
   const [templates, setTemplates] = useState([
-    { id: 1, name: 'Diagramë 4P', description: 'Shëno 4 elementet e Marketing Mix' },
-    { id: 2, name: 'Matrica Ansoff', description: 'Vizato matricën me 4 kuadratat' },
-    { id: 3, name: 'Segmentimi', description: 'Skico grupin tuaj të targetuar' },
-    { id: 4, name: 'Marketing Holistik', description: 'Vizato komponentët e marketingut holistik' }
+    { id: 1, name: 'Network Diagram', description: 'Draw a basic network topology' },
+    { id: 2, name: 'Firewall Setup', description: 'Illustrate firewall configuration' },
+    { id: 3, name: 'Threat Model', description: 'Map potential security threats' }
   ]);
   
   useEffect(() => {
@@ -44,84 +43,97 @@ const DrawingCanvas = () => {
     context.fillStyle = '#888';
     
     if (template.id === 1) {
-      // 4Ps Template
-      context.strokeRect(50, 50, 500, 300);
+      // Network Diagram Template
+      // Draw a simple network layout with router, switch, and endpoints
       context.beginPath();
-      context.moveTo(300, 50);
-      context.lineTo(300, 350);
-      context.moveTo(50, 200);
-      context.lineTo(550, 200);
-      context.stroke();
       
-      context.fillText('Produkti', 150, 125);
-      context.fillText('Çmimi', 425, 125);
-      context.fillText('Vendi/Distribuimi', 150, 275);
-      context.fillText('Promocioni', 425, 275);
-    } else if (template.id === 2) {
-      // Ansoff Matrix
-      context.strokeRect(100, 50, 400, 300);
-      context.beginPath();
-      context.moveTo(300, 50);
-      context.lineTo(300, 350);
-      context.moveTo(100, 200);
-      context.lineTo(500, 200);
-      context.stroke();
+      // Router (top center)
+      context.rect(250, 50, 100, 50);
+      context.fillText("Router", 275, 75);
       
-      context.fillText('Pushtimi i Tregut', 150, 125);
-      context.fillText('Zhvillimi i Tregut', 350, 125);
-      context.fillText('Zhvillimi i Produktit', 150, 275);
-      context.fillText('Diversifikimi', 350, 275);
+      // Switch (middle)
+      context.rect(250, 175, 100, 50);
+      context.fillText("Switch", 275, 200);
       
-      context.fillText('Produkte Ekzistuese', 120, 50);
-      context.fillText('Produkte të Reja', 120, 350);
-      context.fillText('Tregje Ekzistuese', 50, 180);
-      context.fillText('Tregje të Reja', 50, 220);
-    } else if (template.id === 3) {
-      // Segmentation
-      context.beginPath();
-      context.arc(300, 200, 150, 0, 2 * Math.PI);
-      context.stroke();
-      
-      // Draw segments
-      context.beginPath();
-      context.moveTo(300, 200);
-      context.lineTo(450, 200);
-      context.moveTo(300, 200);
-      context.lineTo(300, 50);
-      context.moveTo(300, 200);
-      context.lineTo(150, 200);
-      context.moveTo(300, 200);
-      context.lineTo(300, 350);
-      context.stroke();
-      
-      context.fillText('Gjeografike', 370, 150);
-      context.fillText('Demografike', 230, 150);
-      context.fillText('Psikografike', 230, 250);
-      context.fillText('Bihevioristike', 370, 250);
-    } else if (template.id === 4) {
-      // Holistic Marketing
-      context.beginPath();
-      context.arc(300, 200, 100, 0, 2 * Math.PI);
-      context.stroke();
-      
-      context.fillText('Marketingu Holistik', 250, 200);
-      
-      // Draw connections
-      context.beginPath();
+      // Connection line
       context.moveTo(300, 100);
-      context.lineTo(300, 50);
-      context.moveTo(400, 200);
-      context.lineTo(450, 200);
-      context.moveTo(300, 300);
-      context.lineTo(300, 350);
-      context.moveTo(200, 200);
-      context.lineTo(150, 200);
-      context.stroke();
+      context.lineTo(300, 175);
       
-      context.fillText('Marketingu i Marrëdhënieve', 230, 40);
-      context.fillText('Marketingu i Integruar', 460, 200);
-      context.fillText('Marketingu i Brendshëm', 40, 200);
-      context.fillText('Marketingu Përgjegjës Social', 230, 360);
+      // Endpoints (computers, servers)
+      // Left endpoint
+      context.rect(100, 275, 75, 50);
+      context.fillText("PC", 125, 300);
+      context.moveTo(175, 300);
+      context.lineTo(250, 200);
+      
+      // Middle endpoint
+      context.rect(262, 275, 75, 50);
+      context.fillText("Server", 275, 300);
+      context.moveTo(300, 275);
+      context.lineTo(300, 225);
+      
+      // Right endpoint
+      context.rect(425, 275, 75, 50);
+      context.fillText("PC", 450, 300);
+      context.moveTo(425, 300);
+      context.lineTo(350, 200);
+      
+      context.stroke();
+    } else if (template.id === 2) {
+      // Firewall Setup Template
+      context.beginPath();
+      
+      // Internet cloud
+      context.ellipse(300, 75, 100, 50, 0, 0, 2 * Math.PI);
+      context.fillText("Internet", 275, 75);
+      
+      // Firewall
+      context.rect(250, 150, 100, 50);
+      context.fillText("Firewall", 275, 175);
+      
+      // Internal network
+      context.rect(150, 250, 300, 100);
+      context.fillText("Protected Network", 240, 300);
+      
+      // Connections
+      context.moveTo(300, 125);
+      context.lineTo(300, 150);
+      context.moveTo(300, 200);
+      context.lineTo(300, 250);
+      
+      context.stroke();
+    } else if (template.id === 3) {
+      // Threat Model Template
+      context.beginPath();
+      
+      // Central asset
+      context.rect(250, 150, 100, 100);
+      context.fillText("Protected", 270, 190);
+      context.fillText("Asset", 280, 210);
+      
+      // Threat vectors (arrows pointing to asset)
+      // Top threat
+      context.moveTo(300, 100);
+      context.lineTo(300, 150);
+      context.fillText("Malware", 310, 125);
+      
+      // Right threat
+      context.moveTo(400, 200);
+      context.lineTo(350, 200);
+      context.fillText("Data Theft", 360, 180);
+      
+      // Bottom threat
+      context.moveTo(300, 300);
+      context.lineTo(300, 250);
+      context.fillText("Unauthorized", 310, 275);
+      context.fillText("Access", 310, 290);
+      
+      // Left threat
+      context.moveTo(200, 200);
+      context.lineTo(250, 200);
+      context.fillText("DoS Attack", 160, 180);
+      
+      context.stroke();
     }
   };
   
@@ -198,18 +210,18 @@ const DrawingCanvas = () => {
     try {
       const canvas = canvasRef.current;
       const dataURL = canvas.toDataURL('image/png');
-      const title = prompt('Emërto vizatimin:', `Vizatimi ${savedImages.length + 1}`);
+      const title = prompt('Name your drawing:', `Drawing ${savedImages.length + 1}`);
       
       if (title) {
         const newImage = { title, dataURL, date: new Date().toLocaleString() };
         const updatedImages = [...savedImages, newImage];
         setSavedImages(updatedImages);
         localStorage.setItem('savedDrawings', JSON.stringify(updatedImages));
-        alert('Vizatimi u ruajt me sukses!');
+        alert('Drawing saved successfully!');
       }
     } catch (error) {
       logger.error('Failed to save drawing', { error: error.message });
-      alert('Nuk mund të ruhet vizatimi. Ju lutemi provoni përsëri.');
+      alert('Could not save drawing. Please try again.');
     }
   };
   
@@ -230,7 +242,7 @@ const DrawingCanvas = () => {
     const dataURL = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataURL;
-    a.download = 'vizatimi-im.png';
+    a.download = 'network-diagram.png';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -239,12 +251,12 @@ const DrawingCanvas = () => {
   return (
     <div className="drawing-container">
       <div className="drawing-header">
-        <h3>Vizato ndërsa mëson</h3>
-        <p>Përdor vizatimet për të memorizuar konceptet e fletushkave.</p>
+        <h3>Draw While You Learn</h3>
+        <p>Use drawings to visualize network security concepts.</p>
       </div>
       
       <div className="template-section">
-        <h4>Zgjidhni një template:</h4>
+        <h4>Choose a template:</h4>
         <div className="template-buttons">
           {templates.map(template => (
             <button 
@@ -261,12 +273,12 @@ const DrawingCanvas = () => {
       
       <div className="tools">
         <div className="tool-group">
-          <label>Ngjyra:</label>
+          <label>Color:</label>
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
         </div>
         
         <div className="tool-group">
-          <label>Trashësia:</label>
+          <label>Width:</label>
           <input 
             type="range" 
             min="1" 
@@ -281,32 +293,32 @@ const DrawingCanvas = () => {
             className={`mode-button ${mode === 'pen' ? 'active' : ''}`}
             onClick={() => setMode('pen')}
           >
-            Lapsi
+            Pen
           </button>
           <button 
             className={`mode-button ${mode === 'text' ? 'active' : ''}`}
             onClick={() => setMode('text')}
           >
-            Teksti
+            Text
           </button>
         </div>
         
-        <button onClick={clearCanvas}>Pastro</button>
-        <button onClick={saveDrawing}>Ruaj</button>
-        <button onClick={downloadDrawing}>Shkarko</button>
+        <button onClick={clearCanvas}>Clear</button>
+        <button onClick={saveDrawing}>Save</button>
+        <button onClick={downloadDrawing}>Download</button>
       </div>
       
       {mode === 'text' && (
         <div className="text-input">
           <input 
             type="text" 
-            placeholder="Shkruaj shënimin..." 
+            placeholder="Type your note..." 
             value={currentNote}
             onChange={(e) => setCurrentNote(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addNote()}
           />
-          <button onClick={addNote}>Shto</button>
-          <p className="text-help">Kliko në canvas për të vendosur tekstin, pastaj shkruaje tekstin.</p>
+          <button onClick={addNote}>Add</button>
+          <p className="text-help">Click on canvas to place text, then type your note.</p>
         </div>
       )}
       
@@ -324,7 +336,7 @@ const DrawingCanvas = () => {
       
       {savedImages.length > 0 && (
         <div className="saved-drawings">
-          <h4>Vizatimet e Ruajtura:</h4>
+          <h4>Saved Drawings:</h4>
           <div className="saved-thumbnails">
             {savedImages.map((img, index) => (
               <div key={index} className="saved-thumbnail" onClick={() => loadDrawing(img.dataURL)}>
@@ -338,12 +350,12 @@ const DrawingCanvas = () => {
       )}
       
       <div className="drawing-tips">
-        <h4>Këshilla për Vizatime Efektive:</h4>
+        <h4>Tips for Effective Network Diagrams:</h4>
         <ul>
-          <li>Përdor ngjyra të ndryshme për të dalluar kategoritë.</li>
-          <li>Shto tekst për të shpjeguar konceptet.</li>
-          <li>Ruaj vizatimet tuaja për t'i përdorur më vonë.</li>
-          <li>Shkarko vizatimet për t'i përdorur në prezantime.</li>
+          <li>Use different colors to distinguish between network zones.</li>
+          <li>Add text labels to identify components.</li>
+          <li>Save your drawings for later reference.</li>
+          <li>Download diagrams for use in documentation.</li>
         </ul>
       </div>
     </div>
