@@ -351,10 +351,10 @@ const NetworkSecurityScanner = () => {
       <ScanOptions setScanMode={setScanMode} scanMode={scanMode} disabled={scanning} />
       
       {/* Add the new network topology visualization */}
-      <NetworkTopologyMap devices={devices} />
+      <NetworkTopologyMap devices={devices} vulnerabilities={vulnerabilities} />
       
-      {/* Add the packet capture visualization */}
-      <PacketCaptureVisualization />
+      {/* Pass the scanning state as a prop */}
+      <PacketCaptureVisualization scanning={scanning} />
       
       {/* Add educational resources */}
       <div className="educational-resources">
@@ -382,7 +382,7 @@ const NetworkSecurityScanner = () => {
 };
 
 // Add a realistic packet capture visualization
-const PacketCaptureVisualization = () => {
+const PacketCaptureVisualization = ({ scanning }) => {
   const [packets, setPackets] = useState([]);
   
   // Generate simulated network packets every second when scanning
@@ -457,7 +457,7 @@ const PacketCaptureVisualization = () => {
 };
 
 // Add a network topology visualization that updates as devices are discovered
-const NetworkTopologyMap = ({ devices }) => {
+const NetworkTopologyMap = ({ devices, vulnerabilities }) => {
   return (
     <div className="network-topology-map">
       <h3>Network Topology</h3>
