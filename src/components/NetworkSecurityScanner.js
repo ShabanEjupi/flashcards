@@ -224,6 +224,15 @@ const NetworkSecurityScanner = () => {
     };
   }, []);
   
+  // Add this function to the NetworkSecurityScanner component
+  const getDeviceRiskLevel = (device) => {
+    const score = calculateRiskScore(vulnerabilities, device);
+    if (score >= 10) return 'critical';
+    if (score >= 7) return 'high';
+    if (score >= 4) return 'medium';
+    return 'low';
+  };
+  
   return (
     <div className="network-scanner-container">
       <h2>IoT Network Security Scanner</h2>
@@ -372,13 +381,40 @@ const NetworkSecurityScanner = () => {
         </ul>
       </div>
       
+      <div className="risk-dashboard">
+        <h3>Security Risk Assessment</h3>
+        <div className="risk-grid">
+          {devices.map(device => {
+            const riskScore = calculateRiskScore(vulnerabilities, device);
+            const riskLevel = getDeviceRiskLevel(device);
+            return (
+              <div key={device.id} className={`risk-card risk-${riskLevel}`}>
+                <h4>{device.name}</h4>
+                <div className="risk-details">
+                  <RiskDonutChart score={riskScore} />
+                  <div className="risk-label">{riskLevel.toUpperCase()}</div>
+                </div>
+                <div className="risk-description">
+                  <p>{vulnerabilities.filter(v => v.deviceId === device.id).length} vulnerabilities detected</p>
+                  <p>Most severe: {vulnerabilities.filter(v => v.deviceId === device.id)
+                    .sort((a, b) => severityWeights[b.severity] - severityWeights[a.severity])[0]?.name || 'None'}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      
       <ScanOptions setScanMode={setScanMode} scanMode={scanMode} disabled={scanning} />
       
       {/* Add the new network topology visualization */}
       <NetworkTopologyMap devices={devices} vulnerabilities={vulnerabilities} />
       
       {/* Pass the scanning state as a prop */}
-      <PacketCaptureVisualization scanning={scanning} />
+      <PacketCaptureVisualization 
+        scanning={scanning} 
+        devices={devices} // Pass devices as prop
+      />
       
       {/* Add educational resources */}
       <div className="educational-resources">
@@ -481,9 +517,13 @@ const NetworkSecurityScanner = () => {
 };
 
 // Add a realistic packet capture visualization
-const PacketCaptureVisualization = ({ scanning }) => {
+const PacketCaptureVisualization = ({ scanning, devices }) => {
   const [packets, setPackets] = useState([]);
-  
+  const [protocolFilter, setProtocolFilter] = useState('all');
+  const [activeFilters, setActiveFilters] = useState({
+    tcp: true, udp: true, mqtt: true, coap: true, http: true, other: true
+  });
+
   // Generate simulated network packets every second when scanning
   useEffect(() => {
     if (!scanning) return;
@@ -497,6 +537,41 @@ const PacketCaptureVisualization = ({ scanning }) => {
   }, [scanning]);
   
   const generateSimulatedPacket = () => {
+    // Use discovered devices for more realistic traffic patterns
+    if (devices.length > 0) {
+      // 70% chance of having a discovered device as source or destination
+      if (Math.random() < 0.7) {
+        const device = devices[Math.floor(Math.random() * devices.length)];
+        const isSource = Math.random() < 0.5;
+        
+        // Generate protocol based on device services
+        let protocol = 'TCP';
+        if (device.services.includes('mqtt')) protocol = 'MQTT';
+        else if (device.services.includes('coap')) protocol = 'CoAP';
+        else if (device.services.includes('http')) protocol = 'HTTP';
+        else if (device.services.includes('telnet')) protocol = 'TELNET';
+        
+        // Generate appropriate port based on the service
+        let port = Math.floor(Math.random() * 1000) + 1;
+        if (device.ports.length > 0) {
+          port = device.ports[Math.floor(Math.random() * device.ports.length)];
+        }
+        
+        return {
+          id: Date.now() + Math.random(),
+          timestamp: new Date().toISOString(),
+          protocol,
+          sourceIP: isSource ? device.ipAddress : `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
+          destIP: !isSource ? device.ipAddress : `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
+          sourcePort: isSource ? port : Math.floor(Math.random() * 65535) + 1,
+          destPort: !isSource ? port : Math.floor(Math.random() * 65535) + 1,
+          size: Math.floor(Math.random() * 1000) + 64,
+          flags: protocol === 'TCP' ? ['SYN', 'ACK', 'PSH', 'FIN'][Math.floor(Math.random() * 4)] : '',
+        };
+      }
+    }
+    
+    // Fall back to random packet generation
     const protocols = ['TCP', 'UDP', 'ICMP', 'ARP', 'MQTT', 'CoAP', 'HTTP'];
     const protocol = protocols[Math.floor(Math.random() * protocols.length)];
     const sourceIP = `192.168.1.${Math.floor(Math.random() * 254) + 1}`;
@@ -535,6 +610,35 @@ const PacketCaptureVisualization = ({ scanning }) => {
   return (
     <div className="packet-capture">
       <h3>Live Packet Capture</h3>
+      <div className="packet-filters">
+        <h4>Filter Packets:</h4>
+        <div className="filter-buttons">
+          <button 
+            className={protocolFilter === 'all' ? 'active' : ''} 
+            onClick={() => setProtocolFilter('all')}
+          >
+            All
+          </button>
+          <button 
+            className={protocolFilter === 'tcp' ? 'active' : ''} 
+            onClick={() => setProtocolFilter('tcp')}
+          >
+            TCP
+          </button>
+          <button 
+            className={protocolFilter === 'udp' ? 'active' : ''} 
+            onClick={() => setProtocolFilter('udp')}
+          >
+            UDP
+          </button>
+          <button 
+            className={protocolFilter === 'iot' ? 'active' : ''} 
+            onClick={() => setProtocolFilter('iot')}
+          >
+            IoT (MQTT/CoAP)
+          </button>
+        </div>
+      </div>
       <div className="packet-list">
         {packets.length === 0 ? (
           <p>No packets captured. Start scanning to see network traffic.</p>
@@ -551,16 +655,24 @@ const PacketCaptureVisualization = ({ scanning }) => {
               </tr>
             </thead>
             <tbody>
-              {packets.map(packet => (
-                <tr key={packet.id} className={`protocol-${packet.protocol.toLowerCase()}`}>
-                  <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
-                  <td>{packet.protocol}</td>
-                  <td>{getDeviceName(packet.sourceIP)}:{packet.sourcePort}</td>
-                  <td>{getDeviceName(packet.destIP)}:{packet.destPort}</td>
-                  <td>{packet.size} bytes</td>
-                  <td>{packet.flags}</td>
-                </tr>
-              ))}
+              {packets
+                .filter(packet => {
+                  if (protocolFilter === 'all') return true;
+                  if (protocolFilter === 'tcp') return packet.protocol === 'TCP';
+                  if (protocolFilter === 'udp') return packet.protocol === 'UDP';
+                  if (protocolFilter === 'iot') return ['MQTT', 'CoAP'].includes(packet.protocol);
+                  return true;
+                })
+                .map(packet => (
+                  <tr key={packet.id} className={`protocol-${packet.protocol.toLowerCase()}`}>
+                    <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
+                    <td>{packet.protocol}</td>
+                    <td>{getDeviceName(packet.sourceIP)}:{packet.sourcePort}</td>
+                    <td>{getDeviceName(packet.destIP)}:{packet.destPort}</td>
+                    <td>{packet.size} bytes</td>
+                    <td>{packet.flags}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         )}
@@ -680,6 +792,74 @@ const attemptRealNetworkCapabilities = async () => {
     console.error("WebRTC detection failed:", error);
     return false;
   }
+};
+
+// Enhanced vulnerability detection with severity calculation
+const calculateRiskScore = (vulnerabilities, device) => {
+  // Create a weighted scoring system
+  const severityWeights = {
+    'critical': 10,
+    'high': 7,
+    'medium': 4,
+    'low': 1
+  };
+  
+  // Calculate aggregate risk score
+  return vulnerabilities
+    .filter(v => v.deviceId === device.id)
+    .reduce((score, vuln) => score + severityWeights[vuln.severity], 0);
+};
+
+// Add a visual donut chart to represent risk scores
+const RiskDonutChart = ({ score, maxScore = 20, size = 80 }) => {
+  const percentage = Math.min((score / maxScore) * 100, 100);
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  
+  let color = '#4caf50'; // Low risk (green)
+  if (score >= 4) color = '#ffeb3b'; // Medium risk (yellow)
+  if (score >= 7) color = '#ff9800'; // High risk (orange)
+  if (score >= 10) color = '#f44336'; // Critical risk (red)
+  
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {/* Background circle */}
+      <circle 
+        cx={size/2} 
+        cy={size/2} 
+        r={radius}
+        fill="transparent"
+        stroke="#e0e0e0"
+        strokeWidth={strokeWidth}
+      />
+      {/* Foreground circle */}
+      <circle 
+        cx={size/2} 
+        cy={size/2} 
+        r={radius}
+        fill="transparent"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        transform={`rotate(-90 ${size/2} ${size/2})`}
+      />
+      {/* Score text */}
+      <text 
+        x="50%" 
+        y="50%" 
+        textAnchor="middle" 
+        dominantBaseline="middle"
+        fill={color}
+        fontSize="20"
+        fontWeight="bold"
+      >
+        {score}
+      </text>
+    </svg>
+  );
 };
 
 export default NetworkSecurityScanner;
