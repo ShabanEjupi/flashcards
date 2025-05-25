@@ -518,6 +518,20 @@ const PacketCaptureVisualization = ({ scanning }) => {
     };
   };
   
+  const getDeviceName = (ip) => {
+    // Look up known devices
+    const knownDevice = devices.find(device => device.ipAddress === ip);
+    if (knownDevice) {
+      return `${knownDevice.name} (${ip})`;
+    }
+    
+    // Common network devices
+    if (ip.endsWith('.1')) return `Gateway Router (${ip})`;
+    if (ip.endsWith('.255')) return `Broadcast (${ip})`;
+    
+    return ip; // Return just the IP if no name is found
+  };
+  
   return (
     <div className="packet-capture">
       <h3>Live Packet Capture</h3>
@@ -541,8 +555,8 @@ const PacketCaptureVisualization = ({ scanning }) => {
                 <tr key={packet.id} className={`protocol-${packet.protocol.toLowerCase()}`}>
                   <td>{new Date(packet.timestamp).toLocaleTimeString()}</td>
                   <td>{packet.protocol}</td>
-                  <td>{packet.sourceIP}:{packet.sourcePort}</td>
-                  <td>{packet.destIP}:{packet.destPort}</td>
+                  <td>{getDeviceName(packet.sourceIP)}:{packet.sourcePort}</td>
+                  <td>{getDeviceName(packet.destIP)}:{packet.destPort}</td>
                   <td>{packet.size} bytes</td>
                   <td>{packet.flags}</td>
                 </tr>
