@@ -849,3 +849,32 @@ footer {
 .explanation-content li {
   margin-bottom: 5px;
 }
+
+/* Add this to your existing IoT Security Simulator styles */
+.protocol-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.protocol-selector button {
+  flex: 1;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.protocol-selector button.active {
+  background-color: #2196f3;
+  color: white;
+}
+
+/* Add different colors for CoAP traffic */
+.message.insecure[data-protocol="coap"] {
+  background-color: #fff8e1;
+  border-left: 4px solid #ffc107;
+}
+
+.message.secure[data-protocol="coap"] {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
