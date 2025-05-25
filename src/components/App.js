@@ -6,7 +6,8 @@ import QuizMode from './QuizMode';
 import DrawingCanvas from './DrawingCanvas';
 import ConceptMap from './ConceptMap';
 import MatchupGame from './MatchupGame';
-import TablePracticeMode from './TablePracticeMode'; // Add this import
+import TablePracticeMode from './TablePracticeMode';
+import IoTSecuritySimulator from './IoTSecuritySimulator'; // Add this import
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -46,6 +47,12 @@ const App = () => {
           >
             Tabelat Praktike
           </button>
+          <button 
+            className={activeTab === 'iotsecurity' ? 'active' : ''} 
+            onClick={() => setActiveTab('iotsecurity')}
+          >
+            IoT Security
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -63,6 +70,7 @@ const App = () => {
         {activeTab === 'concepts' && <ConceptMap />}
         {activeTab === 'game' && <MatchupGame />}
         {activeTab === 'tables' && <TablePracticeMode />}
+        {activeTab === 'iotsecurity' && <IoTSecuritySimulator />}
       </main>
       <Footer />
     </div>
