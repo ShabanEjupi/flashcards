@@ -6,6 +6,7 @@ import DrawingCanvas from './DrawingCanvas';
 import IoTSecuritySimulator from './IoTSecuritySimulator';
 import NetworkSecurityScanner from './NetworkSecurityScanner';
 import FileConverter from './FileConverter';
+import ImageEditor from './ImageEditor';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -39,6 +40,12 @@ const App = () => {
           >
             File Converter
           </button>
+          <button 
+            className={activeTab === 'imageeditor' ? 'active' : ''} 
+            onClick={() => setActiveTab('imageeditor')}
+          >
+            Image Editor
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -55,6 +62,7 @@ const App = () => {
         {activeTab === 'iotsecurity' && <IoTSecuritySimulator />}
         {activeTab === 'networkscan' && <NetworkSecurityScanner />}
         {activeTab === 'fileconverter' && <FileConverter />}
+        {activeTab === 'imageeditor' && <ImageEditor />}
       </main>
       <Footer />
     </div>

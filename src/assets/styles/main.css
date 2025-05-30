@@ -1555,8 +1555,146 @@ footer {
   border-left: 4px solid #ffc107;
 }
 
-@media (max-width: 768px) {
-  .formats-grid {
-    grid-template-columns: 1fr;
+/* Image Editor Styles */
+.image-editor-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.image-editor-container h2 {
+  text-align: center;
+  color: #35424a;
+  margin-bottom: 20px;
+}
+
+.editor-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.editor-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.tool-section {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tool-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #35424a;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.slider-control {
+  margin-bottom: 10px;
+}
+
+.slider-control label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.slider-control input[type="range"] {
+  width: 100%;
+}
+
+.filter-buttons, .transform-buttons, .history-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.filter-buttons button, .transform-buttons button, .history-buttons button {
+  flex: 1;
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.editor-canvas-container {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  overflow: hidden;
+}
+
+.editor-canvas {
+  max-width: 100%;
+  max-height: 600px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.upload-prompt {
+  color: #888;
+  text-align: center;
+  padding: 40px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.editor-tips {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.editor-tips h3 {
+  margin-top: 0;
+  color: #2e7d32;
+}
+
+.editor-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.editor-tips li {
+  margin-bottom: 5px;
+}
+
+@media (min-width: 992px) {
+  .editor-workspace {
+    flex-direction: row;
+  }
+  
+  .editor-tools {
+    width: 300px;
+    flex-direction: column;
+  }
+  
+  .editor-canvas-container {
+    flex: 1;
   }
 }
