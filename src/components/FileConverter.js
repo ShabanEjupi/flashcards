@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { logger } from '../utils/logger';
-import { convertPptxToPdf } from 'pptx-to-pdf';
 
 const FileConverter = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -43,26 +42,14 @@ const FileConverter = () => {
     setError(null);
 
     try {
-      let mockConvertedFile;
-
-      // Handle PPTX to PDF conversion
-      if (targetFormat === 'pdf' && selectedFile.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-        const pdfBlob = await convertPptxToPdf(selectedFile);
-        const url = URL.createObjectURL(pdfBlob);
-
-        mockConvertedFile = {
-          name: `${selectedFile.name.split('.')[0]}.pdf`,
-          url,
-          size: pdfBlob.size,
-        };
-      } else {
-        // This is just a simulation - in reality you'd have real conversion logic
-        mockConvertedFile = {
-          name: `${selectedFile.name.split('.')[0]}.${targetFormat}`,
-          url: URL.createObjectURL(selectedFile), // Just using the original file for demonstration
-          size: selectedFile.size,
-        };
-      }
+      // For now, we'll use a simple mockup of file conversion
+      // In a real application, you would implement actual conversion logic
+      // or use a backend service for conversion
+      const mockConvertedFile = {
+        name: `${selectedFile.name.split('.')[0]}.${targetFormat}`,
+        url: URL.createObjectURL(selectedFile), // Just using the original file for demonstration
+        size: selectedFile.size,
+      };
 
       setConvertedFile(mockConvertedFile);
       logger.info(`Converted ${selectedFile.name} to ${targetFormat}`);
