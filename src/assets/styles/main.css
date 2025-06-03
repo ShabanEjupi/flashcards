@@ -1739,3 +1739,191 @@ button.active {
   display: flex;
   justify-content: center;
 }
+
+/* Styles for matrix exercises */
+.matrix-exercises-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.category-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.category-navigation button {
+  padding: 10px 15px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-navigation button.active {
+  background-color: #35424a;
+  color: white;
+  border-color: #35424a;
+}
+
+.category-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.exercise {
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.show-solution {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 15px 0;
+  transition: background-color 0.3s;
+}
+
+.show-solution:hover {
+  background-color: #45a049;
+}
+
+.solution {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-radius: 5px;
+  border-left: 3px solid #4CAF50;
+}
+
+/* Mobile Matrix Exercises Styles */
+.matrix-exercises-mobile {
+  max-width: 100%;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+.category-navigation-mobile {
+  margin-bottom: 20px;
+}
+
+.category-navigation-mobile select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.exercise-container-mobile {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.exercise-counter {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.exercise-content-mobile h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.exercise-context, .exercise-matrix, .exercise-initial-state {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.answer-options {
+  margin: 20px 0;
+}
+
+.answer-option {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.answer-option input[type="radio"] {
+  margin-top: 5px;
+  margin-right: 10px;
+}
+
+.exercise-actions {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.exercise-actions button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.feedback {
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.feedback.correct {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.feedback.incorrect {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.solution-mobile {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-radius: 5px;
+  border-left: 3px solid #4CAF50;
+  overflow-x: auto;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.navigation-buttons button {
+  padding: 12px;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}

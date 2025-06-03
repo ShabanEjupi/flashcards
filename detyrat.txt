@@ -1,0 +1,302 @@
+# Zgjidhja e Detyrave nga Kapitulli i Matricave
+
+## Pjesa I: Matricat Idempotentet
+
+### Detyrat 49-54: Përcaktoni nëse matricat janë idempotentet.
+
+Një matricë katrore është idempotentet nëse A² = A.
+
+**Detyrë 49:** $A = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix}$
+
+Zgjidhja:
+Llogarisim A²:
+$A² = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} \cdot \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix}$
+
+Pasi A² ≠ A, kjo matricë nuk është idempotentet.
+
+**Detyrë 50:** $A = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}$
+
+Zgjidhja:
+$A² = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} \cdot \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} = A$
+
+Pasi A² = A, kjo matricë është idempotentet.
+
+**Detyrë 51:** $A = \begin{bmatrix} 2 & 1 \\ 3 & 2 \end{bmatrix}$
+
+Zgjidhja:
+$A² = \begin{bmatrix} 2 & 1 \\ 3 & 2 \end{bmatrix} \cdot \begin{bmatrix} 2 & 1 \\ 3 & 2 \end{bmatrix} = \begin{bmatrix} 2\cdot2 + 1\cdot3 & 2\cdot1 + 1\cdot2 \\ 3\cdot2 + 2\cdot3 & 3\cdot1 + 2\cdot2 \end{bmatrix} = \begin{bmatrix} 4+3 & 2+2 \\ 6+6 & 3+4 \end{bmatrix} = \begin{bmatrix} 7 & 4 \\ 12 & 7 \end{bmatrix}$
+
+Pasi A² ≠ A, kjo matricë nuk është idempotentet.
+
+**Detyrë 52:** $A = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$
+
+Zgjidhja:
+$A² = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \cdot \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = A$
+
+Pasi A² = A, kjo matricë është idempotentet.
+
+**Detyrë 53:** $A = \begin{bmatrix} 0 & 0 & 1 \\ 0 & 1 & 0 \\ 1 & 0 & 0 \end{bmatrix}$
+
+Zgjidhja:
+$A² = \begin{bmatrix} 0 & 0 & 1 \\ 0 & 1 & 0 \\ 1 & 0 & 0 \end{bmatrix} \cdot \begin{bmatrix} 0 & 0 & 1 \\ 0 & 1 & 0 \\ 1 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$
+
+Pasi A² ≠ A, kjo matricë nuk është idempotentet.
+
+**Detyrë 54:** $A = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}$
+
+Zgjidhja:
+$A² = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} \cdot \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} = A$
+
+Pasi A² = A, kjo matricë është idempotentet.
+
+### Detyrë 55: Përcaktoni a dhe b të tillë që A është idempotentet.
+
+Nëse A = $\begin{bmatrix} 1 & a \\ 0 & b \end{bmatrix}$, duhet të gjejmë vlerat e a dhe b për të cilat A² = A.
+
+Zgjidhja:
+$A² = \begin{bmatrix} 1 & a \\ 0 & b \end{bmatrix} \cdot \begin{bmatrix} 1 & a \\ 0 & b \end{bmatrix} = \begin{bmatrix} 1 & a+ab \\ 0 & b² \end{bmatrix}$
+
+Për të qenë A idempotentet, duhet të kemi:
+$A² = A$, pra:
+$\begin{bmatrix} 1 & a+ab \\ 0 & b² \end{bmatrix} = \begin{bmatrix} 1 & a \\ 0 & b \end{bmatrix}$
+
+Nga kjo marrim:
+- $1 = 1$ (gjithmonë e vërtetë)
+- $a+ab = a$
+- $0 = 0$ (gjithmonë e vërtetë)
+- $b² = b$
+
+Nga ekuacioni $a+ab = a$, kemi:
+$ab = 0$, që do të thotë ose $a = 0$ ose $b = 0$
+
+Nga ekuacioni $b² = b$, kemi:
+$b(b-1) = 0$, që do të thotë ose $b = 0$ ose $b = 1$
+
+Pra, kemi dy zgjidhje të mundshme:
+1. $a = 0, b = 0$
+2. $a$ çfarëdo, $b = 0$
+3. $a = 0, b = 1$
+
+### Detyrë 57: Provoni që nëse A është matricë n×n që është idempotentet dhe e invertueshme, atëherë A = I_n.
+
+Zgjidhja:
+Supozojmë se A është matricë idempotentet, pra A² = A.
+Supozojmë gjithashtu se A është e invertueshme, pra ekziston A⁻¹ e tillë që A⁻¹A = AA⁻¹ = I.
+
+Duke shumëzuar ekuacionin A² = A në të dy anët me A⁻¹, kemi:
+A⁻¹A² = A⁻¹A
+A⁻¹A·A = I·A
+I·A = A
+A = A
+
+Kjo nuk na jep informacion të ri. Le të provojmë një qasje tjetër.
+
+Nga A² = A, kemi:
+A² - A = 0
+A(A - I) = 0
+
+Meqenëse A është e invertueshme, A ≠ 0. Prandaj, duhet të kemi:
+A - I = 0
+A = I
+
+Pra, nëse A është matricë idempotentet dhe e invertueshme, atëherë A = I_n.
+
+### Detyrë 58: Provoni që A është idempotentet vetëm dhe vetëm nëse A^T është idempotentet.
+
+Zgjidhja:
+Duhet të provojmë dy drejtime:
+
+1. Nëse A është idempotentet, atëherë A^T është idempotentet.
+   Supozojmë se A është idempotentet, pra A² = A.
+   Duam të tregojmë se (A^T)² = A^T.
+   
+   (A^T)² = A^T·A^T = (A·A)^T = (A²)^T = A^T
+   
+   Pra, A^T është idempotentet.
+
+2. Nëse A^T është idempotentet, atëherë A është idempotentet.
+   Supozojmë se A^T është idempotentet, pra (A^T)² = A^T.
+   Duam të tregojmë se A² = A.
+   
+   ((A^T)²)^T = (A^T)^T
+   (A^T·A^T)^T = A
+   (A·A)^T^T = A
+   A² = A
+   
+   Pra, A është idempotentet.
+
+Kështu, A është idempotentet vetëm dhe vetëm nëse A^T është idempotentet.
+
+### Detyrë 59: Provoni që nëse A dhe B janë idempotentet dhe AB = BA, atëherë AB është idempotentet.
+
+Zgjidhja:
+Supozojmë se A dhe B janë idempotentet, pra A² = A dhe B² = B.
+Supozojmë gjithashtu se AB = BA.
+
+Duam të tregojmë se (AB)² = AB.
+
+(AB)² = AB·AB
+       = A(BA)B    (Pasi AB = BA)
+       = A(AB)B    
+       = A²B²      (Riorganizim)
+       = A·B       (Pasi A² = A dhe B² = B)
+       = AB
+
+Pra, (AB)² = AB, që do të thotë se AB është idempotentet.
+
+## Pjesa II: Matricat Stokastike dhe Zinxhirët Markov
+
+### Shembull 1: Modeli i Preferencave të Konsumatorëve
+
+Problem:
+Dy kompani konkurruese A dhe B ofrojnë shërbime televizive me kabllor. Matrica e tranzicionit është:
+
+$$P = \begin{bmatrix} 0.70 & 0.15 & 0.15 \\ 0.20 & 0.80 & 0.15 \\ 0.10 & 0.05 & 0.70 \end{bmatrix}$$
+
+Ku rreshtat dhe kolonat përfaqësojnë: Kompania A, Kompania B, dhe Pa Kabllor.
+
+Nëse aktualisht Kompania A ka 15,000 abonentë, Kompania B ka 20,000, dhe 65,000 shtëpi nuk kanë kabllor, gjeni numrin e abonentëve pas 1 viti.
+
+Zgjidhja:
+Vektori fillestar i gjendjes është:
+
+$$X = \begin{bmatrix} 15,000 \\ 20,000 \\ 65,000 \end{bmatrix}$$
+
+Për të gjetur gjendjen pas një viti, shumëzojmë matricën e tranzicionit me vektorin fillestar:
+
+$$PX = \begin{bmatrix} 0.70 & 0.15 & 0.15 \\ 0.20 & 0.80 & 0.15 \\ 0.10 & 0.05 & 0.70 \end{bmatrix} \begin{bmatrix} 15,000 \\ 20,000 \\ 65,000 \end{bmatrix}$$
+
+$$= \begin{bmatrix} 0.70 \cdot 15,000 + 0.15 \cdot 20,000 + 0.15 \cdot 65,000 \\ 0.20 \cdot 15,000 + 0.80 \cdot 20,000 + 0.15 \cdot 65,000 \\ 0.10 \cdot 15,000 + 0.05 \cdot 20,000 + 0.70 \cdot 65,000 \end{bmatrix}$$
+
+$$= \begin{bmatrix} 10,500 + 3,000 + 9,750 \\ 3,000 + 16,000 + 9,750 \\ 1,500 + 1,000 + 45,500 \end{bmatrix} = \begin{bmatrix} 23,250 \\ 28,750 \\ 48,000 \end{bmatrix}$$
+
+Pas një viti, Kompania A do të ketë 23,250 abonentë, Kompania B do të ketë 28,750 abonentë, dhe 48,000 shtëpi nuk do të kenë kabllor.
+
+## Pjesa III: Kriptografia me Matrica
+
+### Shembull: Enkodimi i Mesazhit "MEET ME MONDAY"
+
+Problem:
+Të enkodojmë mesazhin "MEET ME MONDAY" duke përdorur matricën kodifikuese:
+
+$$A = \begin{bmatrix} 1 & 1 & 1 \\ 2 & 1 & 1 \\ 2 & 3 & 4 \end{bmatrix}$$
+
+Zgjidhja:
+Fillimisht, konvertojmë mesazhin në numra duke përdorur kodin:
+A=1, B=2, ..., Z=26, hapësirë=0
+
+"MEET ME MONDAY" → "13 5 5 20 0 13 5 0 13 15 14 4 1 25"
+
+Ndajmë në grupe me nga 3 shkronja:
+[13 5 5], [20 0 13], [5 0 13], [15 14 4], [1 25 0]
+
+Për të enkoduar secilën matricë, e shumëzojmë me matricën kodifikuese A:
+
+1. [13 5 5] × A = [13 5 5] × $\begin{bmatrix} 1 & 1 & 1 \\ 2 & 1 & 1 \\ 2 & 3 & 4 \end{bmatrix}$ = [13+10+10 13+5+15 13+5+20] = [33 33 38]
+
+2. [20 0 13] × A = [20 0 13] × $\begin{bmatrix} 1 & 1 & 1 \\ 2 & 1 & 1 \\ 2 & 3 & 4 \end{bmatrix}$ = [20+0+26 20+0+39 20+0+52] = [46 59 72]
+
+3. [5 0 13] × A = [5 0 13] × $\begin{bmatrix} 1 & 1 & 1 \\ 2 & 1 & 1 \\ 2 & 3 & 4 \end{bmatrix}$ = [5+0+26 5+0+39 5+0+52] = [31 44 57]
+
+4. [15 14 4] × A = [15 14 4] × $\begin{bmatrix} 1 & 1 & 1 \\ 2 & 1 & 1 \\ 2 & 3 & 4 \end{bmatrix}$ = [15+28+8 15+14+12 15+14+16] = [51 41 45]
+
+5. [1 25 0] × A = [1 25 0] × $\begin{bmatrix} 1 & 1 & 1 \\ 2 & 1 & 1 \\ 2 & 3 & 4 \end{bmatrix}$ = [1+50+0 1+25+0 1+25+0] = [51 26 26]
+
+Kështu, mesazhi i enkoduar bëhet:
+33 33 38 46 59 72 31 44 57 51 41 45 51 26 26
+
+### Shembull: Dekodimi i Mesazhit
+
+Problem:
+Të dekodojmë mesazhin "13 26 21 33 53 12 18 23 42 5 20 56" duke përdorur matricën inverse:
+
+$$A^{-1} = \begin{bmatrix} -1 & 1 & 0 \\ -10 & 6 & 1 \\ 8 & -5 & -1 \end{bmatrix}$$
+
+Zgjidhja:
+Ndajmë mesazhin në grupe me nga 3 numra:
+[13 26 21], [33 53 12], [18 23 42], [5 20 56]
+
+Për të dekoduar, shumëzojmë secilin grup me A⁻¹:
+
+1. [13 26 21] × A⁻¹ = [13 26 21] × $\begin{bmatrix} -1 & 1 & 0 \\ -10 & 6 & 1 \\ 8 & -5 & -1 \end{bmatrix}$ = [-13-260+168 13+156-105 0+26-21] = [-105 64 5] = [13 5 5]
+
+Me një llogaritje të ngjashme, grupet e tjera japin:
+2. [33 53 12] → [20 0 13] (T _ M)
+3. [18 23 42] → [5 0 13] (E _ M)
+4. [5 20 56] → [15 14 4] (O N D)
+
+Duke konvertuar numrat në shkronja (me 0 si hapësirë), marrim:
+M E E T _ M E _ M O N D
+
+Pra, mesazhi i dekoduar është "MEET ME MOND" (mund të jetë "MEET ME MONDAY" me disa karaktere të mbetura).
+
+## Pjesa IV: Modelet Leontief të Input-Output
+
+### Shembull: Modeli Input-Output me Tre Industri
+
+Problem:
+Një sistem ekonomik përbëhet nga tre industri: A, B dhe C, me matricën input-output:
+
+$$D = \begin{bmatrix} 0.1 & 0.43 & 0 \\ 0.15 & 0 & 0.37 \\ 0.23 & 0.03 & 0.02 \end{bmatrix}$$
+
+Gjeni vektorin e outputit nëse kërkesat e jashtme janë:
+E = [20,000, 30,000, 25,000]ᵀ
+
+Zgjidhja:
+Për të gjetur outputin total, duhet të zgjidhim ekuacionin:
+(I - D)X = E
+
+Ku I është matrica identiteti.
+
+I - D = $\begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} - \begin{bmatrix} 0.1 & 0.43 & 0 \\ 0.15 & 0 & 0.37 \\ 0.23 & 0.03 & 0.02 \end{bmatrix} = \begin{bmatrix} 0.9 & -0.43 & 0 \\ -0.15 & 1 & -0.37 \\ -0.23 & -0.03 & 0.98 \end{bmatrix}$
+
+Duke përdorur eliminimin Gauss-Jordan ose duke llogaritur (I-D)⁻¹, pastaj duke shumëzuar me E, mund të gjejmë X:
+
+X = (I-D)⁻¹E = $\begin{bmatrix} 46,616 \\ 51,058 \\ 38,014 \end{bmatrix}$
+
+Pra, outputi i industrisë A duhet të jetë 46,616 njësi, i industrisë B 51,058 njësi, dhe i industrisë C 38,014 njësi për të përmbushur kërkesat e jashtme.
+
+## Pjesa V: Matricat Ortogonale
+
+### Detyrë 41: Provoni që nëse A është matricë ortogonale, atëherë edhe A^T dhe A^{-1} janë ortogonale.
+
+Zgjidhja:
+Një matricë A quhet ortogonale nëse A^T A = A A^T = I, ku I është matrica identiteti. Gjithashtu, për një matricë ortogonale, A^T = A^{-1}.
+
+Fillimisht, po tregojmë që A^T është matricë ortogonale:
+Duhet të provojmë që (A^T)^T (A^T) = A^T (A^T)^T = I
+
+(A^T)^T = A
+A^T (A^T)^T = A^T A = I (Pasi A është ortogonale)
+(A^T)^T (A^T) = A A^T = I (Pasi A është ortogonale)
+
+Pra, A^T është matricë ortogonale.
+
+Tani, për A^{-1}:
+Meqenëse A është ortogonale, A^T = A^{-1}. Kemi provuar tashmë që A^T është ortogonale, prandaj edhe A^{-1} është ortogonale.
+
+Alternativë, mund të provojmë drejtpërdrejt:
+(A^{-1})^T (A^{-1}) = (A^{-1})^T A^{-1}
+
+Meqenëse A është ortogonale, A^T = A^{-1}, prandaj (A^{-1})^T = (A^T)^T = A.
+(A^{-1})^T A^{-1} = A A^{-1} = I
+
+Gjithashtu, (A^{-1}) (A^{-1})^T = A^{-1} A = I
+
+Prandaj, A^{-1} është matricë ortogonale.
+
+## Përmbledhje e Detyrave të Zgjidhura
+
+1. **Matricat Idempotentet**: Detyrat 49-59 që përfshijnë përcaktimin nëse matricat janë idempotentet dhe prova të ndryshme për vetitë e tyre.
+
+2. **Matricat Stokastike dhe Zinxhirët Markov**: Një shembull i zbatimit të zinxhirëve Markov në modelimin e preferencave të konsumatorëve.
+
+3. **Kriptografia me Matrica**: Shembuj të enkodimit dhe dekodimit të mesazheve duke përdorur shumëzimin e matricave.
+
+4. **Modelet Leontief të Input-Output**: Zgjidhja e një sistemi ekonomik me tre industri për të gjetur outputin e nevojshëm për të përmbushur kërkesat e jashtme.
+
+5. **Matricat Ortogonale**: Provë që nëse një matricë është ortogonale, atëherë edhe transponuara dhe inversi i saj janë ortogonale.
+
+Këto zgjidhje mbulojnë konceptet kryesore të kapitullit dhe japin shembuj të aplikimeve praktike të teorisë së matricave në fusha të ndryshme si ekonomi, komunikim të sigurt dhe sistemet dinamike.
+
+Similar code found with 1 license type

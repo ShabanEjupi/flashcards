@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import FlashcardDeck from './FlashcardDeck';
@@ -8,9 +8,23 @@ import NetworkSecurityScanner from './NetworkSecurityScanner';
 import FileConverter from './FileConverter';
 import ImageEditor from './ImageEditor';
 import MathModule from './MathModule';
+// Importoni komponentin e ri
+import MatrixExercises from './MatrixExercises';
+import MatrixExercisesMobile from './MatrixExercisesMobile';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Shtoni një efekt për të detektuar ndryshimin e madhësisë së dritares
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="app">
@@ -53,6 +67,13 @@ const App = () => {
           >
             Math Module
           </button>
+          {/* Shtoni butonin e ri në navigimin me tabs */}
+          <button 
+            className={activeTab === 'matrixexercises' ? 'active' : ''} 
+            onClick={() => setActiveTab('matrixexercises')}
+          >
+            Detyra Matricash
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -71,6 +92,10 @@ const App = () => {
         {activeTab === 'fileconverter' && <FileConverter />}
         {activeTab === 'imageeditor' && <ImageEditor />}
         {activeTab === 'mathmodule' && <MathModule />}
+        {/* Shtoni seksionin për të shfaqur përmbajtjen */}
+        {activeTab === 'matrixexercises' && (
+          isMobile ? <MatrixExercisesMobile /> : <MatrixExercises />
+        )}
       </main>
       <Footer />
     </div>

@@ -5,6 +5,11 @@ import MatrixVisualization from './MatrixVisualization';
 
 const MathModule = () => {
   const [activeChapter, setActiveChapter] = useState(1);
+  const [showSolutions, setShowSolutions] = useState({});
+  
+  const toggleSolution = (exerciseId) => {
+    setShowSolutions(prev => ({ ...prev, [exerciseId]: !prev[exerciseId] }));
+  };
   
   const chapters = [
     {
@@ -230,6 +235,30 @@ const MathModule = () => {
           <div className="example-box">
             <h4>Shembull i një aplikimi:</h4>
             <p>Në regresionin linear, matrica "hat matrix" <InlineMath math="H = X(X^TX)^{-1}X^T" /> është idempotentet dhe përdoret për të projektuar vektorin e vlerave të vëzhguara në hapësirën e vlerave të parashikuara.</p>
+          </div>
+          
+          <div className="exercises-section">
+            <h3>Detyra për Zgjidhje</h3>
+            <div className="exercise">
+              <h4>Detyrë 49:</h4>
+              <p>Përcaktoni nëse matrica është idempotentet:</p>
+              <BlockMath math={`A = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}`} />
+              
+              <button className="show-solution" onClick={() => toggleSolution(49)}>
+                {showSolutions[49] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+              </button>
+              
+              {showSolutions[49] && (
+                <div className="solution">
+                  <p>Zgjidhja:</p>
+                  <p>Llogarisim A²:</p>
+                  <BlockMath math={`A^2 = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix} \\cdot \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix} = \\begin{bmatrix} 0 & 0 \\\\ 0 & 0 \\end{bmatrix}`} />
+                  <p>Pasi A² ≠ A, kjo matricë nuk është idempotentet.</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Vazhdoni me detyrat e tjera në të njëjtën mënyrë */}
           </div>
         </>
       )
