@@ -7,6 +7,7 @@ import IoTSecuritySimulator from './IoTSecuritySimulator';
 import NetworkSecurityScanner from './NetworkSecurityScanner';
 import FileConverter from './FileConverter';
 import ImageEditor from './ImageEditor';
+import MathModule from './MathModule';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -46,6 +47,12 @@ const App = () => {
           >
             Image Editor
           </button>
+          <button 
+            className={activeTab === 'mathmodule' ? 'active' : ''} 
+            onClick={() => setActiveTab('mathmodule')}
+          >
+            Math Module
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -63,6 +70,7 @@ const App = () => {
         {activeTab === 'networkscan' && <NetworkSecurityScanner />}
         {activeTab === 'fileconverter' && <FileConverter />}
         {activeTab === 'imageeditor' && <ImageEditor />}
+        {activeTab === 'mathmodule' && <MathModule />}
       </main>
       <Footer />
     </div>
