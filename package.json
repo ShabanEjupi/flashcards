@@ -19,6 +19,8 @@
   "license": "MIT",
   "dependencies": {
     "chart.js": "^4.2.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "katex": "^0.16.22",
     "loglevel": "^1.8.1",
     "react": "^17.0.2",
