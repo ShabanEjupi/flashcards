@@ -289,6 +289,82 @@ const MatrixExercisesMobile = () => {
         answer: "Ruajnë gjatësitë dhe këndet ndërmjet vektorëve",
         solution: "Një veti e rëndësishme e matricave ortogonale është se transformimet ortogonale ruajnë gjatësitë dhe këndet ndërmjet vektorëve. Kjo ndodh sepse ||A\\vec{x}||^2 = (A\\vec{x})^T(A\\vec{x}) = \\vec{x}^T A^T A \\vec{x} = \\vec{x}^T \\vec{x} = ||\\vec{x}||^2."
       }
+    ],
+    coordinates: [
+      {
+        id: "coord1",
+        question: "Gjeni koordinatat e vektorit x në bazën standarde kur:",
+        matrix: "B = \\{[2,1], [0,1]\\} \\text{ dhe } x_B = \\begin{bmatrix} 4 \\\\ 1 \\end{bmatrix}",
+        options: [
+          "[8, 5]",
+          "[9, 4]",
+          "[7, 5]",
+          "[8, 4]"
+        ],
+        answer: "[8, 5]",
+        solution: "Shprehim vektorin x si kombinim linear i vektorëve të bazës B: x = 4[2,1] + 1[0,1] = [8,4] + [0,1] = [8,5]"
+      },
+      {
+        id: "coord2",
+        question: "Gjeni koordinatat e vektorit x në bazën standarde kur:",
+        matrix: "B = \\{[1,0], [4,1]\\} \\text{ dhe } x_B = \\begin{bmatrix} 2 \\\\ 3 \\end{bmatrix}",
+        options: [
+          "[14, 3]",
+          "[10, 3]",
+          "[14, 2]",
+          "[12, 3]"
+        ],
+        answer: "[14, 3]",
+        solution: "Shprehim vektorin x si kombinim linear i vektorëve të bazës B: x = 2[1,0] + 3[4,1] = [2,0] + [12,3] = [14,3]"
+      },
+      {
+        id: "coord7",
+        question: "Gjeni matricën e koordinatave të vektorit x = [3, 1] në lidhje me bazën:",
+        matrix: "B = \\{[2, 4], [1, 3]\\}",
+        options: [
+          "\\begin{bmatrix} 4 \\\\ -5 \\end{bmatrix}",
+          "\\begin{bmatrix} 3 \\\\ -4 \\end{bmatrix}",
+          "\\begin{bmatrix} 5 \\\\ -5 \\end{bmatrix}",
+          "\\begin{bmatrix} 4 \\\\ -4 \\end{bmatrix}"
+        ],
+        answer: "\\begin{bmatrix} 4 \\\\ -5 \\end{bmatrix}",
+        solution: "Duhet të gjejmë c₁ dhe c₂ të tillë që x = c₁[2,4] + c₂[1,3]. Kjo na jep sistemin: 2c_1 + c_2 = 3 dhe 4c_1 + 3c_2 = 1. Nga ekuacioni i parë: c₂ = 3 - 2c₁. Duke zëvendësuar në ekuacionin e dytë: 4c_1 + 3(3 - 2c_1) = 1 ⟹ 4c_1 + 9 - 6c_1 = 1 ⟹ -2c_1 = -8 ⟹ c_1 = 4. Pastaj c₂ = 3 - 2(4) = -5. Pra, koordinatat janë [4, -5]."
+      },
+      {
+        id: "coord13",
+        question: "Gjeni matricën e tranzicionit nga B në B':",
+        matrix: "B = \\{[1,0], [0,1]\\}, B' = \\{[1,1], [5,6]\\}",
+        options: [
+          "\\begin{bmatrix} 1 & 5 \\\\ 1 & 6 \\end{bmatrix}",
+          "\\begin{bmatrix} 1 & 5 \\\\ 2 & 6 \\end{bmatrix}",
+          "\\begin{bmatrix} 1 & 6 \\\\ 1 & 5 \\end{bmatrix}",
+          "\\begin{bmatrix} 5 & 1 \\\\ 6 & 1 \\end{bmatrix}"
+        ],
+        answer: "\\begin{bmatrix} 1 & 5 \\\\ 1 & 6 \\end{bmatrix}",
+        solution: "Shprehim çdo vektor në B' si kombinim linear i vektorëve në B: [1, 1] = c₁₁[1, 0] + c₂₁[0, 1] ⟹ c₁₁ = 1, c₂₁ = 1 dhe [5, 6] = c₁₂[1, 0] + c₂₂[0, 1] ⟹ c₁₂ = 5, c₂₂ = 6. Matrica e tranzicionit P formohet me këta koeficientë si kolona: P = [[1, 5], [1, 6]]."
+      },
+      {
+        id: "coord43",
+        question: "A është e vërtetë deklarata: 'Nëse P është matrica e tranzicionit nga baza B në B', atëherë ekuacioni PxB = xB' përfaqëson ndryshimin e bazës nga B në B'.'",
+        options: [
+          "E vërtetë",
+          "E gabuar"
+        ],
+        answer: "E vërtetë",
+        solution: "E vërtetë. Sipas përkufizimit të matricës së tranzicionit, P transformon koordinatat e një vektori në bazën B në koordinatat e tij në bazën B'. Kështu që ekuacioni PxB = xB' përshkruan saktësisht ndryshimin e bazës nga B në B'."
+      },
+      {
+        id: "coord48",
+        question: "A është e mundur që një matricë tranzicioni të jetë e barabartë me matricën identitet?",
+        options: [
+          "Po, kur bazat janë identike",
+          "Jo, kurrë nuk mund të jetë matricë identiteti",
+          "Po, por vetëm në raste të veçanta të vektorëve ortogonalë",
+          "Jo, sepse bazat duhet të jenë të ndryshme"
+        ],
+        answer: "Po, kur bazat janë identike",
+        solution: "Po, është e mundur. Matrica e tranzicionit është e barabartë me matricën identitet kur dy bazat janë identike. Për shembull, nëse B = B' = {[1,0], [0,1]} në R², atëherë matrica e tranzicionit P = I₂, matricë identitet 2×2. Kjo ndodh sepse çdo vektor në bazën B' është i njëjtë me vektorin përkatës në bazën B, prandaj koordinatat e çdo vektori në lidhje me të dyja bazat janë të njëjta."
+      }
     ]
   };
 
@@ -345,6 +421,7 @@ const MatrixExercisesMobile = () => {
           <option value="cryptography">Kriptografia</option>
           <option value="leontief">Modelet Leontief</option>
           <option value="orthogonal">Matricat Ortogonale</option>
+          <option value="coordinates">Ndryshimi i Bazës</option>
         </select>
       </div>
       

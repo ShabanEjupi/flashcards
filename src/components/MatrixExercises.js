@@ -48,6 +48,13 @@ const MatrixExercises = () => {
         >
           Matricat Ortogonale
         </button>
+        {/* Add new button for Coordinate Change exercises */}
+        <button 
+          className={activeCategory === 'coordinates' ? 'active' : ''}
+          onClick={() => setActiveCategory('coordinates')}
+        >
+          Ndryshimi i Bazës
+        </button>
       </div>
       
       {activeCategory === 'idempotent' && (
@@ -567,6 +574,227 @@ const MatrixExercises = () => {
                 <p>Gjithashtu, (A<sup>-1</sup>)(A<sup>-1</sup>)<sup>T</sup> = A<sup>-1</sup>A = I</p>
                 
                 <p>Prandaj, A<sup>-1</sup> është matricë ortogonale.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Add new section for coordinate exercises */}
+      {activeCategory === 'coordinates' && (
+        <div className="category-content">
+          <h3>Koordinatat dhe Ndryshimi i Bazës</h3>
+          <p>Në këtë seksion do të mësojmë si të gjejmë koordinatat e vektorëve në baza të ndryshme dhe si të ndryshojmë mes bazave.</p>
+          
+          <div className="exercise">
+            <h4>Detyra 1:</h4>
+            <p>Ju jepet matrica e koordinatave të një vektori x në bazën jostandarde B = {"{[2,1], [0,1]}"}: </p>
+            <BlockMath math={`x_B = \\begin{bmatrix} 4 \\\\ 1 \\end{bmatrix}`} />
+            <p>Gjeni koordinatat e vektorit x në bazën standarde.</p>
+            
+            <button className="show-solution" onClick={() => toggleSolution(1)}>
+              {showSolutions[1] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[1] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p>Fillimisht shprehim vektorin x si kombinim linear i vektorëve të bazës B:</p>
+                <BlockMath math={`x = 4 \\cdot [2, 1] + 1 \\cdot [0, 1] = [8, 4] + [0, 1] = [8, 5]`} />
+                <p>Pra, koordinatat e vektorit x në bazën standarde janë [8, 5].</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="exercise">
+            <h4>Detyra 2:</h4>
+            <p>Ju jepet matrica e koordinatave të një vektori x në bazën jostandarde B = {"{[1,0], [4,1]}"}: </p>
+            <BlockMath math={`x_B = \\begin{bmatrix} 2 \\\\ 3 \\end{bmatrix}`} />
+            <p>Gjeni koordinatat e vektorit x në bazën standarde.</p>
+            
+            <button className="show-solution" onClick={() => toggleSolution(2)}>
+              {showSolutions[2] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[2] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p>Shprehim vektorin x si kombinim linear i vektorëve të bazës B:</p>
+                <BlockMath math={`x = 2 \\cdot [1, 0] + 3 \\cdot [4, 1] = [2, 0] + [12, 3] = [14, 3]`} />
+                <p>Pra, koordinatat e vektorit x në bazën standarde janë [14, 3].</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="exercise">
+            <h4>Detyrë 7:</h4>
+            <p>Gjeni matricën e koordinatave të vektorit x = [3, 1] në R² në lidhje me bazën:</p>
+            <BlockMath math={`B = \\{[2, 4], [1, 3]\\}`} />
+            
+            <button className="show-solution" onClick={() => toggleSolution(7)}>
+              {showSolutions[7] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[7] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p>Duhet të gjejmë c₁ dhe c₂ të tillë që x = c₁[2,4] + c₂[1,3].</p>
+                <p>Kjo na jep sistemin:</p>
+                <BlockMath math={`\\begin{aligned}
+                2c_1 + c_2 &= 3 \\\\
+                4c_1 + 3c_2 &= 1
+                \\end{aligned}`} />
+                
+                <p>Nga ekuacioni i parë: c₂ = 3 - 2c₁</p>
+                <p>Duke zëvendësuar në ekuacionin e dytë:</p>
+                <BlockMath math={`\\begin{aligned}
+                4c_1 + 3(3 - 2c_1) &= 1 \\\\
+                4c_1 + 9 - 6c_1 &= 1 \\\\
+                -2c_1 &= -8 \\\\
+                c_1 &= 4
+                \\end{aligned}`} />
+                
+                <p>Pastaj c₂ = 3 - 2(4) = -5</p>
+                <p>Pra, matrica e koordinatave e x në lidhje me B është:</p>
+                <BlockMath math={`x_B = \\begin{bmatrix} 4 \\\\ -5 \\end{bmatrix}`} />
+              </div>
+            )}
+          </div>
+          
+          <div className="exercise">
+            <h4>Detyrë 13:</h4>
+            <p>Gjeni matricën e tranzicionit nga B = {"{[1,0], [0,1]}"} në B' = {"{[1,1], [5,6]}"} me dorë.</p>
+            
+            <button className="show-solution" onClick={() => toggleSolution(13)}>
+              {showSolutions[13] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[13] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p>Shprehim çdo vektor në B' si kombinim linear i vektorëve në B:</p>
+                
+                <p>[1, 1] = c₁₁[1, 0] + c₂₁[0, 1] = [c₁₁, c₂₁]</p>
+                <p>Duke krahasuar koeficentët: c₁₁ = 1, c₂₁ = 1</p>
+                
+                <p>[5, 6] = c₁₂[1, 0] + c₂₂[0, 1] = [c₁₂, c₂₂]</p>
+                <p>Duke krahasuar koeficentët: c₁₂ = 5, c₂₂ = 6</p>
+                
+                <p>Matrica e tranzicionit P formohet me këta koeficientë si kolona:</p>
+                <BlockMath math={`P = \\begin{bmatrix} 1 & 5 \\\\ 1 & 6 \\end{bmatrix}`} />
+              </div>
+            )}
+          </div>
+          
+          <div className="exercise">
+            <h4>Detyrë 29:</h4>
+            <p>Duke përdorur Teoremën 4.21:</p>
+            <p>(a) Gjeni matricën e tranzicionit nga B = {"{[2,1,1], [1,0,0], [0,2,1]}"} në B' = {"{[1,1,1], [1,1,0], [0,0,1]}"}</p>
+            <p>(b) Gjeni matricën e tranzicionit nga B' në B</p>
+            <p>(c) Verifikoni që dy matricat e tranzicionit janë inverse të njëra-tjetrës</p>
+            
+            <button className="show-solution" onClick={() => toggleSolution(29)}>
+              {showSolutions[29] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[29] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p>(a) Formojmë matricën e augmentuar [B|B']:</p>
+                <BlockMath math={`\\begin{bmatrix} 
+                2 & 1 & 0 & | & 1 & 1 & 0 \\\\
+                1 & 0 & 2 & | & 1 & 1 & 0 \\\\
+                1 & 0 & 1 & | & 1 & 0 & 1
+                \\end{bmatrix}`} />
+                
+                <p>Duke përdorur eliminimin Gauss-Jordan, arrijmë në formën [I|P]:</p>
+                <BlockMath math={`\\begin{bmatrix} 
+                1 & 0 & 0 & | & 0 & 0 & 1 \\\\
+                0 & 1 & 0 & | & 1 & 2 & -2 \\\\
+                0 & 0 & 1 & | & 0 & -0.5 & 1
+                \\end{bmatrix}`} />
+                
+                <p>Prandaj, matrica e tranzicionit P nga B në B' është:</p>
+                <BlockMath math={`P = \\begin{bmatrix} 
+                0 & 0 & 1 \\\\
+                1 & 2 & -2 \\\\
+                0 & -0.5 & 1
+                \\end{bmatrix}`} />
+                
+                <p>(b) Formojmë matricën e augmentuar [B'|B]:</p>
+                <BlockMath math={`\\begin{bmatrix} 
+                1 & 1 & 0 & | & 2 & 1 & 0 \\\\
+                1 & 1 & 0 & | & 1 & 0 & 2 \\\\
+                1 & 0 & 1 & | & 1 & 0 & 1
+                \\end{bmatrix}`} />
+                
+                <p>Duke përdorur eliminimin Gauss-Jordan, arrijmë në formën [I|P⁻¹]:</p>
+                <BlockMath math={`\\begin{bmatrix} 
+                1 & 0 & 0 & | & 2 & -2 & 4 \\\\
+                0 & 1 & 0 & | & -1 & 3 & -4 \\\\
+                0 & 0 & 1 & | & -1 & 2 & -3
+                \\end{bmatrix}`} />
+                
+                <p>Prandaj, matrica e tranzicionit nga B' në B është:</p>
+                <BlockMath math={`P^{-1} = \\begin{bmatrix} 
+                2 & -2 & 4 \\\\
+                -1 & 3 & -4 \\\\
+                -1 & 2 & -3
+                \\end{bmatrix}`} />
+                
+                <p>(c) Verifikojmë që PP⁻¹ = I:</p>
+                <BlockMath math={`PP^{-1} = \\begin{bmatrix} 
+                0 & 0 & 1 \\\\
+                1 & 2 & -2 \\\\
+                0 & -0.5 & 1
+                \\end{bmatrix} \\begin{bmatrix} 
+                2 & -2 & 4 \\\\
+                -1 & 3 & -4 \\\\
+                -1 & 2 & -3
+                \\end{bmatrix} = \\begin{bmatrix} 
+                1 & 0 & 0 \\\\
+                0 & 1 & 0 \\\\
+                0 & 0 & 1
+                \\end{bmatrix}`} />
+              </div>
+            )}
+          </div>
+          
+          <div className="exercise">
+            <h4>Detyrë 43:</h4>
+            <p>Përcaktoni nëse deklarata e mëposhtme është e vërtetë apo e gabuar. Nëse është e vërtetë, jepni një arsye.</p>
+            <p>(a) Nëse P është matrica e tranzicionit nga baza B në B', atëherë ekuacioni PxB = xB' përfaqëson ndryshimin e bazës nga B në B'.</p>
+            
+            <button className="show-solution" onClick={() => toggleSolution(43)}>
+              {showSolutions[43] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[43] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p><strong>E vërtetë.</strong> Sipas përkufizimit të matricës së tranzicionit, P transformon koordinatat e një vektori në bazën B në koordinatat e tij në bazën B'. Kështu që ekuacioni PxB = xB' përshkruan saktësisht ndryshimin e bazës nga B në B'.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="exercise">
+            <h4>Detyrë 48:</h4>
+            <p>A është e mundur që një matricë tranzicioni të jetë e barabartë me matricën identitet? Ilustroni përgjigjen tuaj me shembuj të përshtatshëm.</p>
+            
+            <button className="show-solution" onClick={() => toggleSolution(48)}>
+              {showSolutions[48] ? 'Fshih Zgjidhjen' : 'Shfaq Zgjidhjen'}
+            </button>
+            
+            {showSolutions[48] && (
+              <div className="solution">
+                <p>Zgjidhja:</p>
+                <p><strong>Po, është e mundur.</strong> Matrica e tranzicionit është e barabartë me matricën identitet kur dy bazat janë identike.</p>
+                
+                <p>Për shembull, nëse B = B' = {"{[1,0], [0,1]}"} në R², atëherë matrica e tranzicionit P = I₂, matricë identitet 2×2.</p>
+                
+                <p>Kjo ndodh sepse çdo vektor në bazën B' është i njëjtë me vektorin përkatës në bazën B, prandaj koordinatat e çdo vektori në lidhje me të dyja bazat janë të njëjta.</p>
+                
+                <p>Në përgjithësi, nëse B = B' = {"{v₁, v₂, ..., vₙ}"}, atëherë P = Iₙ (matricë identitet n×n).</p>
               </div>
             )}
           </div>

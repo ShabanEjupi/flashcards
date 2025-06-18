@@ -11,6 +11,7 @@ import MathModule from './MathModule';
 // Importoni komponentin e ri
 import MatrixExercises from './MatrixExercises';
 import MatrixExercisesMobile from './MatrixExercisesMobile';
+import MachineLearningTest from './MachineLearningTest';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -74,6 +75,12 @@ const App = () => {
           >
             Detyra Matricash
           </button>
+          <button 
+            className={activeTab === 'mltest' ? 'active' : ''} 
+            onClick={() => setActiveTab('mltest')}
+          >
+            ML Test
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -96,6 +103,7 @@ const App = () => {
         {activeTab === 'matrixexercises' && (
           isMobile ? <MatrixExercisesMobile /> : <MatrixExercises />
         )}
+        {activeTab === 'mltest' && <MachineLearningTest />}
       </main>
       <Footer />
     </div>
