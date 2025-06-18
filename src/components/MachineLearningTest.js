@@ -866,76 +866,80 @@ const MachineLearningTest = () => {
       answer: (
         <div>
           <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🧮 Forward Pass në Neural Network</h4>
-            <p>Le të llogarisim output-in hap pas hapi për një rrjet me ReLU activation.</p>
+            <h4>🧮 Neural Network me ReLU Activation</h4>
+            <p>Llogaritja hap-pas-hapi e output për një rrjet neural me funksionin ReLU.</p>
           </div>
 
           <div style={{marginBottom: '20px'}}>
             <h4>📋 Të dhënat e problemit:</h4>
             <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
-              <p><strong>Arkitektura:</strong> 3 → 4 → 2 → 1</p>
               <p><strong>Input:</strong> X = [2, -1, 0.5]</p>
-              <p><strong>Activation:</strong> ReLU për hidden layers, Sigmoid për output</p>
+              <p><strong>Weights (W1):</strong> Hidden layer 3×4</p>
+              <p><strong>Bias (b1):</strong> [0.1, -0.2, 0.3, 0.0]</p>
+              <p><strong>Weights (W2):</strong> Output layer 4×1</p>
+              <p><strong>Bias (b2):</strong> [0.2]</p>
+              <p><strong>Activation:</strong> ReLU për hidden layer, Linear për output</p>
             </div>
           </div>
 
           <div style={{marginBottom: '20px'}}>
-            <h4>🔢 Weights dhe Biases:</h4>
+            <h4>⚖️ Weights dhe Bias:</h4>
             <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
-              <strong>Hidden Layer 1 (3→4):</strong><br/>
-              <BlockMath math={String.raw`W_1 = \begin{bmatrix} 0.5 & -0.2 & 0.1 \\ 0.3 & 0.8 & -0.4 \\ -0.1 & 0.6 & 0.2 \\ 0.7 & -0.3 & 0.9 \end{bmatrix}, \quad b_1 = \begin{bmatrix} 0.1 \\ -0.2 \\ 0.3 \\ 0.0 \end{bmatrix}`} />
+              <p><strong>W1 (3×4):</strong></p>
+              <BlockMath math={"W1 = \\begin{bmatrix} 0.5 & -0.3 & 0.8 & 0.2 \\\\ 0.1 & 0.6 & -0.4 & 0.7 \\\\ -0.2 & 0.4 & 0.3 & -0.1 \\end{bmatrix}"} />
               
-              <strong>Hidden Layer 2 (4→2):</strong><br/>
-              <BlockMath math={String.raw`W_2 = \begin{bmatrix} 0.4 & -0.6 & 0.2 & 0.5 \\ -0.3 & 0.7 & 0.1 & -0.4 \end{bmatrix}, \quad b_2 = \begin{bmatrix} 0.2 \\ -0.1 \end{bmatrix}`} />
-              
-              <strong>Output Layer (2→1):</strong><br/>
-              <BlockMath math={String.raw`W_3 = \begin{bmatrix} 0.8 & -0.5 \end{bmatrix}, \quad b_3 = 0.3`} />
+              <p><strong>W2 (4×1):</strong></p>
+              <BlockMath math={"W2 = \\begin{bmatrix} 0.8 \\\\ -0.5 \\\\ 0.3 \\\\ 0.6 \\end{bmatrix}"} />
             </div>
           </div>
 
           <div style={{marginBottom: '20px'}}>
-            <h4>⚡ Step 1: Hidden Layer 1</h4>
+            <h4>📈 Forward Pass - Hapi 1: Hidden Layer</h4>
             <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
-              <BlockMath math={String.raw`z_1 = W_1 \cdot X + b_1`} />
-              <p>Llogaritjet:</p>
-              <ul style={{textAlign: 'left'}}>
-                <li>z₁₁ = 0.5×2 + (-0.2)×(-1) + 0.1×0.5 + 0.1 = 1.0 + 0.2 + 0.05 + 0.1 = <strong>1.35</strong></li>
-                <li>z₁₂ = 0.3×2 + 0.8×(-1) + (-0.4)×0.5 + (-0.2) = 0.6 - 0.8 - 0.2 - 0.2 = <strong>-0.6</strong></li>
-                <li>z₁₃ = (-0.1)×2 + 0.6×(-1) + 0.2×0.5 + 0.3 = -0.2 - 0.6 + 0.1 + 0.3 = <strong>-0.4</strong></li>
-                <li>z₁₄ = 0.7×2 + (-0.3)×(-1) + 0.9×0.5 + 0.0 = 1.4 + 0.3 + 0.45 + 0 = <strong>2.15</strong></li>
+              <p><strong>Linear transformation:</strong> Z1 = X · W1 + b1</p>
+              
+              <BlockMath math={"Z1 = [2, -1, 0.5] \\cdot \\begin{bmatrix} 0.5 & -0.3 & 0.8 & 0.2 \\\\ 0.1 & 0.6 & -0.4 & 0.7 \\\\ -0.2 & 0.4 & 0.3 & -0.1 \\end{bmatrix} + [0.1, -0.2, 0.3, 0.0]"} />
+              
+              <p><strong>Llogaritja:</strong></p>
+              <ul>
+                <li>Z1[0] = (2×0.5) + (-1×0.1) + 0.5×-0.2 + 0.1 = 1.0 - 0.1 - 0.1 + 0.1 = <strong>0.9</strong></li>
+                <li>Z1[1] = (2×-0.3) + (-1×0.6) + 0.5×0.4 + (-0.2) = -0.6 - 0.6 + 0.2 - 0.2 = <strong>-1.2</strong></li>
+                <li>Z1[2] = (2×0.8) + (-1×-0.4) + 0.5×0.3 + 0.3 = 1.6 + 0.4 + 0.15 + 0.3 = <strong>2.45</strong></li>
+                <li>Z1[3] = (2×0.2) + (-1×0.7) + 0.5×-0.1 + 0.0 = 0.4 - 0.7 - 0.05 + 0.0 = <strong>-0.35</strong></li>
               </ul>
-              <BlockMath math={String.raw`a_1 = ReLU(z_1) = [1.35, 0, 0, 2.15]`} />
+              
+              <p><strong>ReLU activation:</strong> A1 = max(0, Z1)</p>
+              <p>A1 = [max(0, 0.9), max(0, -1.2), max(0, 2.45), max(0, -0.35)] = <strong>[0.9, 0, 2.45, 0]</strong></p>
             </div>
           </div>
 
           <div style={{marginBottom: '20px'}}>
-            <h4>⚡ Step 2: Hidden Layer 2</h4>
+            <h4>📊 Forward Pass - Hapi 2: Output Layer</h4>
             <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-              <BlockMath math={String.raw`z_2 = W_2 \cdot a_1 + b_2`} />
-              <p>Llogaritjet:</p>
-              <ul style={{textAlign: 'left'}}>
-                <li>z₂₁ = 0.4×1.35 + (-0.6)×0 + 0.2×0 + 0.5×2.15 + 0.2 = 0.54 + 1.075 + 0.2 = <strong>1.815</strong></li>
-                <li>z₂₂ = (-0.3)×1.35 + 0.7×0 + 0.1×0 + (-0.4)×2.15 + (-0.1) = -0.405 - 0.86 - 0.1 = <strong>-1.365</strong></li>
-              </ul>
-              <BlockMath math={String.raw`a_2 = ReLU(z_2) = [1.815, 0]`} />
+              <p><strong>Linear transformation:</strong> Z2 = A1 · W2 + b2</p>
+              
+              <BlockMath math={"Z2 = [0.9, 0, 2.45, 0] \\cdot \\begin{bmatrix} 0.8 \\\\ -0.5 \\\\ 0.3 \\\\ 0.6 \\end{bmatrix} + 0.2"} />
+              
+              <p><strong>Llogaritja:</strong></p>
+              <p>Z2 = (0.9×0.8) + (0×-0.5) + (2.45×0.3) + (0×0.6) + 0.2</p>
+              <p>Z2 = 0.72 + 0 + 0.735 + 0 + 0.2 = <strong>1.655</strong></p>
+              
+              <p><strong>Output final (Linear activation):</strong></p>
+              <div style={{textAlign: 'center', backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', marginTop: '15px'}}>
+                <h4 style={{color: '#4caf50'}}>🎯 PËRGJIGJA PËRFUNDIMTARE</h4>
+                <p><strong>Output = 1.655</strong></p>
+              </div>
             </div>
           </div>
 
-          <div style={{marginBottom: '20px'}}>
-            <h4>⚡ Step 3: Output Layer</h4>
-            <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px'}}>
-              <BlockMath math={String.raw`z_3 = W_3 \cdot a_2 + b_3`} />
-              <p>Llogaritja:</p>
-              <ul style={{textAlign: 'left'}}>
-                <li>z₃ = 0.8×1.815 + (-0.5)×0 + 0.3 = 1.452 + 0.3 = <strong>1.752</strong></li>
-              </ul>
-              <BlockMath math={String.raw`output = \sigma(z_3) = \frac{1}{1 + e^{-1.752}} = 0.852`} />
-            </div>
-          </div>
-
-          <div style={{margin: '10px 0', padding: '15px', backgroundColor: '#e8f5e9', borderRadius: '8px', textAlign: 'center'}}>
-            <h4 style={{color: '#4caf50'}}>🎯 PËRGJIGJA PËRFUNDIMTARE</h4>
-            <p><strong>Output = σ(1.752) ≈ 0.852</strong></p>
+          <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px'}}>
+            <h4>💡 Karakteristikat e ReLU</h4>
+            <ul>
+              <li><strong>Formula:</strong> ReLU(x) = max(0, x)</li>
+              <li><strong>Avantazhet:</strong> Eliminon vanishing gradient problem, është i shpejtë</li>
+              <li><strong>Disavantazhet:</strong> "Dead neurons" kur input është negativ</li>
+              <li><strong>Alternative:</strong> Leaky ReLU, ELU, Swish</li>
+            </ul>
           </div>
         </div>
       )
@@ -1613,6 +1617,91 @@ plt.show()`}
 
     {
       id: 19,
+      question: "Llogaritja e Output në Neural Networks me ReLU",
+      answer: (
+        <div>
+          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+            <h4>🧮 Neural Network me ReLU Activation</h4>
+            <p>Llogaritja hap-pas-hapi e output për një rrjet neural me funksionin ReLU.</p>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>📋 Të dhënat e problemit:</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <p><strong>Input:</strong> X = [2, -1, 0.5]</p>
+              <p><strong>Weights (W1):</strong> Hidden layer 3×4</p>
+              <p><strong>Bias (b1):</strong> [0.1, -0.2, 0.3, 0.0]</p>
+              <p><strong>Weights (W2):</strong> Output layer 4×1</p>
+              <p><strong>Bias (b2):</strong> [0.2]</p>
+              <p><strong>Activation:</strong> ReLU për hidden layer, Linear për output</p>
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>⚖️ Weights dhe Bias:</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <p><strong>W1 (3×4):</strong></p>
+              <BlockMath math={"W1 = \\begin{bmatrix} 0.5 & -0.3 & 0.8 & 0.2 \\\\ 0.1 & 0.6 & -0.4 & 0.7 \\\\ -0.2 & 0.4 & 0.3 & -0.1 \\end{bmatrix}"} />
+              
+              <p><strong>W2 (4×1):</strong></p>
+              <BlockMath math={"W2 = \\begin{bmatrix} 0.8 \\\\ -0.5 \\\\ 0.3 \\\\ 0.6 \\end{bmatrix}"} />
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>📈 Forward Pass - Hapi 1: Hidden Layer</h4>
+            <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
+              <p><strong>Linear transformation:</strong> Z1 = X · W1 + b1</p>
+              
+              <BlockMath math={"Z1 = [2, -1, 0.5] \\cdot \\begin{bmatrix} 0.5 & -0.3 & 0.8 & 0.2 \\\\ 0.1 & 0.6 & -0.4 & 0.7 \\\\ -0.2 & 0.4 & 0.3 & -0.1 \\end{bmatrix} + [0.1, -0.2, 0.3, 0.0]"} />
+              
+              <p><strong>Llogaritja:</strong></p>
+              <ul>
+                <li>Z1[0] = (2×0.5) + (-1×0.1) + 0.5×-0.2 + 0.1 = 1.0 - 0.1 - 0.1 + 0.1 = <strong>0.9</strong></li>
+                <li>Z1[1] = (2×-0.3) + (-1×0.6) + 0.5×0.4 + (-0.2) = -0.6 - 0.6 + 0.2 - 0.2 = <strong>-1.2</strong></li>
+                <li>Z1[2] = (2×0.8) + (-1×-0.4) + 0.5×0.3 + 0.3 = 1.6 + 0.4 + 0.15 + 0.3 = <strong>2.45</strong></li>
+                <li>Z1[3] = (2×0.2) + (-1×0.7) + 0.5×-0.1 + 0.0 = 0.4 - 0.7 - 0.05 + 0.0 = <strong>-0.35</strong></li>
+              </ul>
+              
+              <p><strong>ReLU activation:</strong> A1 = max(0, Z1)</p>
+              <p>A1 = [max(0, 0.9), max(0, -1.2), max(0, 2.45), max(0, -0.35)] = <strong>[0.9, 0, 2.45, 0]</strong></p>
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>📊 Forward Pass - Hapi 2: Output Layer</h4>
+            <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
+              <p><strong>Linear transformation:</strong> Z2 = A1 · W2 + b2</p>
+              
+              <BlockMath math={"Z2 = [0.9, 0, 2.45, 0] \\cdot \\begin{bmatrix} 0.8 \\\\ -0.5 \\\\ 0.3 \\\\ 0.6 \\end{bmatrix} + 0.2"} />
+              
+              <p><strong>Llogaritja:</strong></p>
+              <p>Z2 = (0.9×0.8) + (0×-0.5) + (2.45×0.3) + (0×0.6) + 0.2</p>
+              <p>Z2 = 0.72 + 0 + 0.735 + 0 + 0.2 = <strong>1.655</strong></p>
+              
+              <p><strong>Output final (Linear activation):</strong></p>
+              <div style={{textAlign: 'center', backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', marginTop: '15px'}}>
+                <h4 style={{color: '#4caf50'}}>🎯 PËRGJIGJA PËRFUNDIMTARE</h4>
+                <p><strong>Output = 1.655</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px'}}>
+            <h4>💡 Karakteristikat e ReLU</h4>
+            <ul>
+              <li><strong>Formula:</strong> ReLU(x) = max(0, x)</li>
+              <li><strong>Avantazhet:</strong> Eliminon vanishing gradient problem, është i shpejtë</li>
+              <li><strong>Disavantazhet:</strong> "Dead neurons" kur input është negativ</li>
+              <li><strong>Alternative:</strong> Leaky ReLU, ELU, Swish</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 20,
       question: "Çfarë është Overfitting dhe si mund ta parandalojmë?",
       answer: (
         <div>
@@ -1668,7 +1757,7 @@ plt.show()`}
     },
 
     {
-      id: 20,
+      id: 21,
       question: "Tri grafe (tri lakore) për Precision-Recall Analysis",
       answer: (
         <div>
@@ -1806,95 +1895,6 @@ plt.show()`}
               
               <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
                 <h5>4. F1-Score (Balancimi)</h5>
-                <BlockMath math={"\\text{F1} = 2 \\times \\frac{\\text{Precision} \\times \\text{Recall}}{\\text{Precision} + \\text{Recall}}"} />
-                <p><strong>Llogaritja:</strong></p>
-                <p>F1 = 2 × (0.810 × 0.850) / (0.810 + 0.850) = 2 × 0.6885 / 1.660 = <strong>0.829 (82.9%)</strong></p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📊 Interpretimi i Rezultateve</h4>
-            <ul>
-              <li><strong>Accuracy (96.5%):</strong> Modeli është i saktë në 96.5% të rasteve</li>
-              <li><strong>Precision (81.0%):</strong> Nga të gjitha parashikimet pozitive, 81% janë të sakta</li>
-              <li><strong>Recall (85.0%):</strong> Modeli gjen 85% të të gjitha rasteve pozitive</li>
-              <li><strong>F1-Score (82.9%):</strong> Balancë e mirë midis precision dhe recall</li>
-            </ul>
-          </div>
-
-          <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-            <h4>⚖️ Specificity dhe Metrika të Tjera</h4>
-            <div style={{marginTop: '15px'}}>
-              <h5>Specificity (True Negative Rate)</h5>
-              <BlockMath math={"\\text{Specificity} = \\frac{TN}{TN + FP}"} />
-              <p>Specificity = 880 / (880 + 20) = 880/900 = <strong>0.978 (97.8%)</strong></p>
-              
-              <h5>False Positive Rate</h5>
-              <BlockMath math={"\\text{FPR} = \\frac{FP}{FP + TN} = 1 - \\text{Specificity}"} />
-              <p>FPR = 20 / (20 + 880) = <strong>0.022 (2.2%)</strong></p>
-            </div>
-          </div>
-        </div>
-      )
-    }
-  ];
-
-  return (
-    <div className="math-module-container">
-      <h2>Machine Learning Test</h2>
-      <p style={{textAlign: 'center', marginBottom: '30px', fontSize: '18px', color: '#666'}}>
-        Test i plotë për Machine Learning me 10 pyetje të detajuara
-      </p>
-
-      <div className="chapter-navigation">
-        <button 
-          className={showAllQuestions ? '' : 'active'}
-          onClick={() => setShowAllQuestions(false)}
-        >
-          Pyetje të Veçanta
-        </button>
-        <button 
-          className={showAllQuestions ? 'active' : ''}
-          onClick={() => setShowAllQuestions(true)}
-        >
-          Të Gjitha Pyetjet
-        </button>
-      </div>
-
-      {!showAllQuestions && (
-        <div style={{textAlign: 'center', marginBottom: '20px'}}>
-          <div className="navigation">
-            <button 
-              onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-              disabled={currentQuestion === 0}
-            >
-              ← Pyetja e Mëparshme
-            </button>
-            <span style={{margin: '0 20px', fontSize: '18px', fontWeight: 'bold'}}>
-              Pyetja {currentQuestion + 1} nga {questions.length}
-            </span>
-            <button 
-              onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestion + 1))}
-              disabled={currentQuestion === questions.length - 1}
-            >
-              Pyetja e Ardhshme →
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="chapter-content">
-        {showAllQuestions ? (
-          // Show all questions
-          questions.map((q) => (
-            <div key={q.id} className="exercise" style={{marginBottom: '40px'}}>
-              <h3>Pyetja {q.id}: {q.question}</h3>
-              
-              <button 
-                className="show-solution" 
-                onClick={() => toggleAnswer(q.id)}
-                style={{marginBottom: '20px'}}
               >
                 {showAnswers[q.id] ? 'Fshih Përgjigjen' : 'Shfaq Përgjigjen'}
               </button>
