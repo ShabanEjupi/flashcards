@@ -16,7 +16,7 @@ const QuizMode = () => {
     "12. Shpjegoni konceptin e 'cross-validation' dhe pse është i rëndësishëm.",
     "13. Çfarë bën funksioni 'dropout' në një rrjet nervor?",
     "14. Si ndihmon normalizimi i të dhënave në përmirësimin e performancës së modelit?",
-    "15. Çfarë është një 'confusion matrix' dhe si interpretohet ajo?',
+    "15. Çfarë është një 'confusion matrix' dhe si interpretohet ajo?",
     "16. Si funksionon algoritmi i k-nearest neighbors (k-NN)?",
     "17. Çfarë është një 'support vector machine' (SVM) dhe si përdoret për klasifikim?",
     "18. Shpjegoni dallimin midis klasifikimit dhe regresionit në mësimin e makinerive.",

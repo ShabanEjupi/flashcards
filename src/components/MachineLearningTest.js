@@ -906,7 +906,7 @@ const MachineLearningTest = () => {
                 <li>Z1[1] = (2×-0.3) + (-1×0.6) + 0.5×0.4 + (-0.2) = -0.6 - 0.6 + 0.2 - 0.2 = <strong>-1.2</strong></li>
                 <li>Z1[2] = (2×0.8) + (-1×-0.4) + 0.5×0.3 + 0.3 = 1.6 + 0.4 + 0.15 + 0.3 = <strong>2.45</strong></li>
                 <li>Z1[3] = (2×0.2) + (-1×0.7) + 0.5×-0.1 + 0.0 = 0.4 - 0.7 - 0.05 + 0.0 = <strong>-0.35</strong></li>
-              </div>
+              </ul>
 
               <p><strong>ReLU activation:</strong> A1 = max(0, Z1)</p>
               <p>A1 = [max(0, 0.9), max(0, -1.2), max(0, 2.45), max(0, -0.35)] = <strong>[0.9, 0, 2.45, 0]</strong></p>
