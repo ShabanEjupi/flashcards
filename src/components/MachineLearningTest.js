@@ -513,7 +513,7 @@ const MachineLearningTest = () => {
           <div style={{marginBottom: '20px'}}>
             <h4>🏗️ Arkitektura</h4>
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', textAlign: 'center'}}>
-              <div style={{border: '2px solid #2196f3', padding: '15px', borderRadius: '8px'}}>
+              <div style={{border: '2px solid #2196F3', padding: '15px', borderRadius: '8px'}}>
                 <h5>📥 Encoder</h5>
                 <p>Input → Latent Space</p>
                 <div style={{backgroundColor: '#e3f2fd', padding: '10px', borderRadius: '4px', margin: '10px 0'}}>
@@ -531,7 +531,7 @@ const MachineLearningTest = () => {
                 <p>Informacioni esencial</p>
               </div>
 
-              <div style={{border: '2px solid #4caf50', padding: '15px', borderRadius: '8px'}}>
+              <div style={{border: '2px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
                 <h5>📤 Decoder</h5>
                 <p>Latent Space → Output</p>
                 <div style={{backgroundColor: '#e8f5e9', padding: '10px', borderRadius: '4px', margin: '10px 0'}}>
@@ -640,7 +640,7 @@ const MachineLearningTest = () => {
             <h4>⚖️ Peshat dhe Bias-et:</h4>
             
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div style={{border: '1px solid #2196f3', padding: '15px', borderRadius: '8px'}}>
+              <div style={{border: '1px solid #2196F3', padding: '15px', borderRadius: '8px'}}>
                 <h5>Input → Hidden Layer</h5>
                 <div style={{backgroundColor: '#fff', padding: '10px', borderRadius: '4px', fontFamily: 'monospace'}}>
                   W₁ = [[0.1, 0.3, 0.5],<br/>
@@ -649,7 +649,7 @@ const MachineLearningTest = () => {
                 </div>
               </div>
 
-              <div style={{border: '1px solid #4caf50', padding: '15px', borderRadius: '8px'}}>
+              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
                 <h5>Hidden → Output Layer</h5>
                 <div style={{backgroundColor: '#fff', padding: '10px', borderRadius: '4px', fontFamily: 'monospace'}}>
                   W₂ = [[0.7],<br/>
@@ -906,763 +906,8 @@ const MachineLearningTest = () => {
                 <li>Z1[1] = (2×-0.3) + (-1×0.6) + 0.5×0.4 + (-0.2) = -0.6 - 0.6 + 0.2 - 0.2 = <strong>-1.2</strong></li>
                 <li>Z1[2] = (2×0.8) + (-1×-0.4) + 0.5×0.3 + 0.3 = 1.6 + 0.4 + 0.15 + 0.3 = <strong>2.45</strong></li>
                 <li>Z1[3] = (2×0.2) + (-1×0.7) + 0.5×-0.1 + 0.0 = 0.4 - 0.7 - 0.05 + 0.0 = <strong>-0.35</strong></li>
-              </ul>
-              
-              <p><strong>ReLU activation:</strong> A1 = max(0, Z1)</p>
-              <p>A1 = [max(0, 0.9), max(0, -1.2), max(0, 2.45), max(0, -0.35)] = <strong>[0.9, 0, 2.45, 0]</strong></p>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>📊 Forward Pass - Hapi 2: Output Layer</h4>
-            <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-              <p><strong>Linear transformation:</strong> Z2 = A1 · W2 + b2</p>
-              
-              <BlockMath math={"Z2 = [0.9, 0, 2.45, 0] \\cdot \\begin{bmatrix} 0.8 \\\\ -0.5 \\\\ 0.3 \\\\ 0.6 \\end{bmatrix} + 0.2"} />
-              
-              <p><strong>Llogaritja:</strong></p>
-              <p>Z2 = (0.9×0.8) + (0×-0.5) + (2.45×0.3) + (0×0.6) + 0.2</p>
-              <p>Z2 = 0.72 + 0 + 0.735 + 0 + 0.2 = <strong>1.655</strong></p>
-              
-              <p><strong>Output final (Linear activation):</strong></p>
-              <div style={{textAlign: 'center', backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', marginTop: '15px'}}>
-                <h4 style={{color: '#4caf50'}}>🎯 PËRGJIGJA PËRFUNDIMTARE</h4>
-                <p><strong>Output = 1.655</strong></p>
               </div>
-            </div>
-          </div>
 
-          <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px'}}>
-            <h4>💡 Karakteristikat e ReLU</h4>
-            <ul>
-              <li><strong>Formula:</strong> ReLU(x) = max(0, x)</li>
-              <li><strong>Avantazhet:</strong> Eliminon vanishing gradient problem, është i shpejtë</li>
-              <li><strong>Disavantazhet:</strong> "Dead neurons" kur input është negativ</li>
-              <li><strong>Alternative:</strong> Leaky ReLU, ELU, Swish</li>
-            </ul>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      id: 14,
-      question: "Decision Trees - Struktura dhe Funksionimi",
-      answer: (
-        <div>
-          <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🌳 Çfarë është një Decision Tree?</h4>
-            <p>Një model hierarkik që merr vendime duke ndjekur një seri pyetjesh të strukturuara si një pemë.</p>
-          </div>
-
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px'}}>
-            <div style={{border: '2px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
-              <h4 style={{color: '#4CAF50'}}>📊 Komponentët</h4>
-              <ul>
-                <li><strong>Root Node:</strong> Nyja kryesore (fillimi)</li>
-                <li><strong>Internal Nodes:</strong> Pyetjet/testet</li>
-                <li><strong>Branches:</strong> Degët (përgjigjet)</li>
-                <li><strong>Leaf Nodes:</strong> Gjethet (vendimet finale)</li>
-              </ul>
-            </div>
-            
-            <div style={{border: '2px solid #2196F3', padding: '15px', borderRadius: '8px'}}>
-              <h4 style={{color: '#2196F3'}}>⚙️ Si Funksionon</h4>
-              <ol>
-                <li>Fillo nga root node</li>
-                <li>Evaluoj kushtin</li>
-                <li>Ndjek degën përkatëse</li>
-                <li>Përsërit deri në leaf</li>
-                <li>Kthe vendimin final</li>
-              </ol>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🎯 Shembull Praktik: Vendimi për të dalë jashtë</h4>
-            <div style={{fontFamily: 'monospace', backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', marginTop: '15px'}}>
-              <pre>{`
-              Moti i kthjellët?
-                    /       \\
-                  Po          Jo
-                 /              \\
-         Temperatura > 20°C?    Shi?
-            /        \\          /    \\
-          Po          Jo       Po     Jo
-         /            \\       /       \\
-    [Dal jashtë]  [Qëndro]  [Qëndro] [Mund të dalësh]
-              `}</pre>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>📏 Algoritmat e Ndërtimit</h4>
-            
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', margin: '10px 0'}}>
-              <h5>1. Information Gain (ID3)</h5>
-              <BlockMath math={String.raw`IG(S,A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)`} />
-              <p>Ku H(S) është entropy e dataset-it</p>
-            </div>
-
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', margin: '10px 0'}}>
-              <h5>2. Gini Impurity (CART)</h5>
-              <BlockMath math={String.raw`Gini(S) = 1 - \sum_{i=1}^{c} p_i^2`} />
-              <p>Ku p_i është proporcioni i klasës i</p>
-            </div>
-
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', margin: '10px 0'}}>
-              <h5>3. Gain Ratio (C4.5)</h5>
-              <BlockMath math={String.raw`GainRatio(S,A) = \frac{IG(S,A)}{SplitInfo(S,A)}`} />
-              <p>Normalizon Information Gain për të shmangur bias-in</p>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#ffebee', padding: '15px', borderRadius: '8px'}}>
-            <h4>⚠️ Overfitting dhe Pruning</h4>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px'}}>
-              <div>
-                <h5>Shkaqet e Overfitting:</h5>
-                <ul>
-                  <li>Pemë shumë të thella</li>
-                  <li>Pak të dhëna për leaf</li>
-                  <li>Noise në dataset</li>
-                </ul>
-              </div>
-              <div>
-                <h5>Teknikat e Pruning:</h5>
-                <ul>
-                  <li><strong>Pre-pruning:</strong> Ndalo rritjen e hershme</li>
-                  <li><strong>Post-pruning:</strong> Prit degët pas ndërtimit</li>
-                  <li><strong>Min samples split:</strong> Minimum të dhëna për split</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      id: 15,
-      question: "Dendogram dhe Hierarchical Clustering - Agglomerative Algorithm",
-      answer: (
-        <div>
-          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🌲 Çfarë është një Dendogram?</h4>
-            <p>Një diagram i tipit pemë që tregon marrëdhëniet hierarkike midis clusterëve në të dhëna.</p>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>🔄 Agglomerative Clustering Algorithm</h4>
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
-              <ol>
-                <li><strong>Inicialisht:</strong> Çdo pikë është një cluster i veçantë</li>
-                <li><strong>Llogarit:</strong> Distancat midis të gjitha clusterëve</li>
-                <li><strong>Bashko:</strong> Dy clusterat më të afërt</li>
-                <li><strong>Përditëso:</strong> Matricën e distancave</li>
-                <li><strong>Përsërit:</strong> Deri sa të formohet një cluster i vetëm</li>
-              </ol>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>📏 Metodat e Linkage</h4>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
-                <h5>Single Linkage</h5>
-                <p>Distanca = minimum distance midis pikave</p>
-                <BlockMath math={String.raw`d(C_i, C_j) = \min_{x \in C_i, y \in C_j} d(x,y)`} />
-                <p>✅ Gjen clustera të çrregullt<br/>❌ Sensitive ndaj noise</p>
-              </div>
-              
-              <div style={{border: '1px solid #FF9800', padding: '15px', borderRadius: '8px'}}>
-                <h5>Complete Linkage</h5>
-                <p>Distanca = maximum distance midis pikave</p>
-                <BlockMath math={String.raw`d(C_i, C_j) = \max_{x \in C_i, y \in C_j} d(x,y)`} />
-                <p>✅ Kompakt clustera<br/>❌ Sensitive ndaj outliers</p>
-              </div>
-              
-              <div style={{border: '1px solid '#2196F3', padding: '15px', borderRadius: '8px'}}>
-                <h5>Average Linkage</h5>
-                <p>Distanca = mesatarja e të gjitha distancave</p>
-                <BlockMath math={String.raw`d(C_i, C_j) = \frac{1}{|C_i||C_j|} \sum_{x \in C_i, y \in C_j} d(x,y)`} />
-                <p>✅ E balancuar<br/>✅ Rezultate të qëndrueshme</p>
-              </div>
-              
-              <div style={{border: '1px solid '#9C27B0', padding: '15px', borderRadius: '8px'}}>
-                <h5>Ward Linkage</h5>
-                <p>Minimizon variance brenda clusterit</p>
-                <p>✅ Clustera sferë<br/>✅ Shumë efektiv</p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📊 Shembull Hap-pas-Hapi</h4>
-            <p><strong>Të dhënat:</strong> Pikrat A(1,1), B(2,1), C(4,3), D(5,4)</p>
-            
-            <div style={{marginTop: '15px'}}>
-              <strong>Hapi 1:</strong> Llogaritja e distancave<br/>
-              <div style={{fontFamily: 'monospace', backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginTop: '5px'}}>
-                d(A,B) = 1.0, d(A,C) = 3.6, d(A,D) = 5.0<br/>
-                d(B,C) = 2.8, d(B,D) = 4.2, d(C,D) = 1.4
-              </div>
-            </div>
-            
-            <div style={{marginTop: '15px'}}>
-              <strong>Hapi 2:</strong> Bashko A dhe B (distanca më e vogël = 1.0)<br/>
-              <strong>Hapi 3:</strong> Bashko C dhe D (distanca = 1.4)<br/>
-              <strong>Hapi 4:</strong> Bashko (A,B) dhe (C,D)
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>✂️ Si të Formoni Clustera nga Dendogram</h4>
-            <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-              <h5>Metodat e prerjes:</h5>
-              <ol>
-                <li><strong>Distance Threshold:</strong> Prit në një lartësi të caktuar</li>
-                <li><strong>Number of Clusters:</strong> Përcakto numrin e clusterëve të dëshiruar</li>
-                <li><strong>Inconsistency Method:</strong> Bazuar në ndryshimet e mëdha të distancës</li>
-              </ol>
-              
-              <div style={{marginTop: '15px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '4px'}}>
-                <strong>Shembull:</strong> Nëse prisni dendogram-in në lartësinë 2.5, do të keni 2 clustera:<br/>
-                - Cluster 1: {A, B}<br/>
-                - Cluster 2: {C, D}
-              </div>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px'}}>
-            <h4>💡 Avantazhet dhe Disavantazhet</h4>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div>
-                <h5>✅ Avantazhet:</h5>
-                <ul>
-                  <li>Nuk ka nevojë për numrin e clusterëve paraprakisht</li>
-                  <li>Dendogram jep insight të plotë</li>
-                  <li>Deterministic (gjithmonë i njëjti rezultat)</li>
-                  <li>Mund të gjejë clustera të formave të ndryshme</li>
-                </ul>
-              </div>
-              <div>
-                <h5>❌ Disavanthet:</h5>
-                <ul>
-                  <li>Kompleksitet O(n³) - i ngadaltë për dataset të mëdha</li>
-                  <li>Sensitive ndaj noise dhe outliers</li>
-                  <li>Vështirë të trajtojë dataset të mëdha (>1000 pikra)</li>
-                  <li>Nuk mund të "korrigjojë" gabime të hershme</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      id: 16,
-      question: "A mund të bëhet reverse procesi i Dimensionality Reduction dhe pse?",
-      answer: (
-        <div>
-          <div style={{backgroundColor: '#ffebee', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>❓ Pyetja Themelore</h4>
-            <p>A mund të rikuperojmë të dhënat origjinale nga përfaqësimi i reduktuar në dimensione?</p>
-          </div>
-
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px'}}>
-            <div style={{border: '2px solid #f44336', padding: '15px', borderRadius: '8px'}}>
-              <h4 style={{color: '#f44336'}}>❌ Përgjigja e Shkurtër: JO (plotësisht)</h4>
-              <p>Informacioni origjinal <strong>nuk mund të rikuperohet plotësisht</strong> sepse ka humbje të informacionit gjatë reduktimit.</p>
-            </div>
-            
-            <div style={{border: '2px solid '#ff9800', padding: '15px', borderRadius: '8px'}}>
-              <h4 style={{color: '#ff9800'}}>⚠️ Por... Ka përafrësim</h4>
-              <p>Mund të <strong>përafrësojmë</strong> të dhënat origjinale, por jo të na kthejë saktësisht ato që kishim.</p>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>🔍 Analizë për Teknika të Ndryshme</h4>
-            
-            <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', margin: '10px 0'}}>
-              <h5>1. Principal Component Analysis (PCA)</h5>
-              <div style={{backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginTop: '10px'}}>
-                <strong>Forward:</strong> X → Z (reduced dimensions)<br/>
-                <BlockMath math={String.raw`Z = XW \quad \text{(projektion në PC space)}`} />
-                
-                <strong>Reverse:</strong> Z → X̂ (approximation)<br/>
-                <BlockMath math={String.raw`\hat{X} = ZW^T \quad \text{(back-projection)}`} />
-                
-                <div style={{backgroundColor: '#fff3e0', padding: '10px', borderRadius: '4px', marginTop: '10px'}}>
-                  <strong>Shembull:</strong><br/>
-                  Original: [2.1, 3.7, 1.9, 4.2, 0.8] (5D)<br/>
-                  Reduced: [1.2, -0.3] (2D)<br/>
-                  Reconstructed: [2.0, 3.9, 1.7, 4.0, 0.9] (5D) ≈ origjinal
-                </div>
-              </div>
-            </div>
-
-            <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px', margin: '10px 0'}}>
-              <h5>2. Autoencoders</h5>
-              <div style={{backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginTop: '10px'}}>
-                <strong>Encoder:</strong> X → Z (latent space)<br/>
-                <strong>Decoder:</strong> Z → X̂ (reconstruction)
-                
-                <div style={{backgroundColor: '#e8f5e9', padding: '10px', borderRadius: '4px', marginTop: '10px'}}>
-                  <strong>Avantazhi:</strong> Mësojnë reconstruction në mënyrë optimale<br/>
-                  <strong>Disavantazhi:</strong> Prapë ka humbje (reconstruction error)
-                </div>
-              </div>
-            </div>
-
-            <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px', margin: '10px 0'}}>
-              <h5>3. t-SNE dhe UMAP</h5>
-              <div style={{backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginTop: '10px'}}>
-                <strong>Problemi:</strong> Të optimizuara për vizualizim, jo për reconstruction<br/>
-                <strong>Përfundimi:</strong> Reverse është shumë i vështirë ose i pamundur
-                
-                <div style={{backgroundColor: '#ffebee', padding: '10px', borderRadius: '4px', marginTop: '10px', color: '#d32f2f'}}>
-                  <strong>⚠️ Kujdes:</strong> t-SNE nuk ruan distancat globale - reverse nuk është i besueshëm
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📊 Faktori i Humbjes së Informacionit</h4>
-            <BlockMath math={String.raw`\text{Information Loss} = \frac{||\text{Original} - \text{Reconstructed}||^2}{||\text{Original}||^2}`} />
-            
-            <table style={{width: '100%', borderCollapse: 'collapse', marginTop: '15px'}}>
-              <thead>
-                <tr style={{backgroundColor: '#e0e0e0'}}>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Teknika</th>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Reverse Possible?</th>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Quality</th>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Use Case</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>PCA</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>✅ Po</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>⭐⭐⭐</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>Data Compression</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>Autoencoders</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>✅ Po</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>⭐⭐⭐⭐</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>Denoising</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>t-SNE</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>❌ Jo</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>⭐</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>Visualization</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>UMAP</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>⚠️ Limituar</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>⭐⭐</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>Visualization</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-            <h4>🎯 Përfundimi Praktik</h4>
-            <ul>
-              <li><strong>Theoretical:</strong> Informacioni humbet gjatë reduktimit - reverse i plotë është i pamundur</li>
-              <li><strong>Practical:</strong> Mund të përafrësojmë me sukses për shumë aplikime</li>
-              <li><strong>Best Choice:</strong> Autoencoders për reconstruction, PCA për analiza të shpejta</li>
-              <li><strong>Kujdes:</strong> Mos përdorni t-SNE për reconstruction - është për vizualizim!</li>
-            </ul>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      id: 17,
-      question: "Formula për Q-Learning dhe Reinforcement Learning",
-      answer: (
-        <div>
-          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🎯 Q-Learning: Mësimi i Vlerave të Veprimeve</h4>
-            <p>Algoritëm që mëson vlerat e veprimeve (Q-values) për të gjetur strategjinë optimale.</p>
-          </div>
-
-          <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📐 Formula Kryesore e Q-Learning</h4>
-            <div style={{textAlign: 'center', backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', marginTop: '15px'}}>
-              <BlockMath math={String.raw`Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t, a_t) \right]`} />
-            </div>
-            
-            <div style={{marginTop: '20px'}}>
-              <h5>🔤 Shpjegimi i Simboleve:</h5>
-              <ul>
-                <li><strong>Q(s,a):</strong> Q-value (vlera e veprimit a në gjendjen s)</li>
-                <li><strong>α:</strong> Learning rate (0 < α ≤ 1)</li>
-                <li><strong>r:</strong> Reward (shpërblimi i menjëhershëm)</li>
-                <li><strong>γ:</strong> Discount factor (0 ≤ γ < 1)</li>
-                <li><strong>s:</strong> State (gjendje aktuale)</li>
-                <li><strong>a:</strong> Action (veprimi i zgjedhur)</li>
-                <li><strong>s':</strong> Next state (gjendje e ardhshme)</li>
-              </ul>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>🧮 Shembull Hap-pas-Hapi</h4>
-            <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
-              <strong>Skenari:</strong> Robot që mëson të navigojë në një dhomë<br/>
-              <strong>Qëllimi:</strong> Të arrijë në destinacion duke shmangur pengesat
-              
-              <div style={{marginTop: '15px'}}>
-                <strong>Parametrat:</strong><br/>
-                α = 0.1 (learning rate)<br/>
-                γ = 0.9 (discount factor)<br/>
-                Q(s,a) initial = 0 për të gjitha kombinimet
-              </div>
-              
-              <div style={{backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginTop: '15px'}}>
-                <strong>Iteracioni 1:</strong><br/>
-                Current state: s₁ = "pozicioni (1,1)"<br/>
-                Action: a₁ = "lëviz djathtas"<br/>
-                Reward: r = -1 (kosto për lëvizje)<br/>
-                Next state: s₂ = "pozicioni (2,1)"<br/>
-                
-                <div style={{marginTop: '10px'}}>
-                  Q(s₁, "djathtas") = 0 + 0.1 × [-1 + 0.9 × max(Q(s₂, të gjitha veprimet)) - 0]<br/>
-                  Q(s₁, "djathtas") = 0 + 0.1 × [-1 + 0.9 × 0 - 0] = <strong>-0.1</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>⚙️ Komponentët Kryesorë</h4>
-            
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
-                <h5>🎯 Exploration vs Exploitation</h5>
-                <p><strong>ε-greedy strategy:</strong></p>
-                <ul>
-                  <li>Probability ε: explore (random action)</li>
-                  <li>Probability (1-ε): exploit (best known action)</li>
-                </ul>
-                <BlockMath math={String.raw`a = \begin{cases} \text{random action} & \text{if } \text{rand}() < \varepsilon \\ \arg\max_a Q(s,a) & \text{otherwise} \end{cases}`} />
-              </div>
-              
-              <div style={{border: '1px solid '#FF9800', padding: '15px', borderRadius: '8px'}}>
-                <h5>📊 Temporal Difference (TD) Error</h5>
-                <p>Ndryshimi midis vlerës së pritur dhe asaj aktuale:</p>
-                <BlockMath math={String.raw`\delta = r + \gamma \max_{a'} Q(s', a') - Q(s, a)`} />
-                <p>Kjo është pjesa në kllapa në formulën kryesore.</p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🔧 Variante të Q-Learning</h4>
-            
-            <div style={{marginBottom: '15px'}}>
-              <h5>1. Deep Q-Network (DQN)</h5>
-              <p>Përdor neural networks për të aproksimuar Q-function:</p>
-              <BlockMath math={String.raw`Q(s, a; \theta) \approx Q^*(s, a)`} />
-              <p>Ku θ janë parametrat e neural network</p>
-            </div>
-            
-            <div style={{marginBottom: '15px'}}>
-              <h5>2. Double Q-Learning</h5>
-              <p>Përdor dy Q-tabela për të reduktuar overestimation bias:</p>
-              <BlockMath math={String.raw`Q_1(s, a) \leftarrow Q_1(s, a) + \alpha [r + \gamma Q_2(s', \arg\max_{a'} Q_1(s', a')) - Q_1(s, a)]`} />
-            </div>
-            
-            <div>
-              <h5>3. SARSA (State-Action-Reward-State-Action)</h5>
-              <p>On-policy alternative to Q-learning:</p>
-              <BlockMath math={String.raw`Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma Q(s', a') - Q(s, a)]`} />
-              <p>Ku a' është veprimi aktual i zgjedhur (jo max)</p>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-            <h4>💡 Aplikime Praktike</h4>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div>
-                <h5>🎮 Gaming</h5>
-                <ul>
-                  <li>AlphaGo, AlphaStar</li>
-                  <li>Atari games</li>
-                  <li>Chess engines</li>
-                </ul>
-              </div>
-              <div>
-                <h5>🚗 Real World</h5>
-                <ul>
-                  <li>Autonomous vehicles</li>
-                  <li>Trading algorithms</li>
-                  <li>Resource allocation</li>
-                  <li>Robotics navigation</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div style={{marginTop: '15px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '4px'}}>
-              <strong>🔑 Kyç Success Factors:</strong><br/>
-              • Sufficient exploration (ε decay strategy)<br/>
-              • Appropriate learning rate (α)<br/>
-              • Balanced discount factor (γ)<br/>
-              • Enough training iterations
-            </div>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      id: 18,
-      question: "Grafe për Training dhe Validation Set - Ridge Regression Tuning",
-      answer: (
-        <div>
-          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📊 Validation Curves për Ridge Regression</h4>
-            <p>Vizualizimi i performancës së modelit përmes vlerave të ndryshme të koeficientit Ridge (α).</p>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>🎯 Qëllimi i Analizës</h4>
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
-              <ul>
-                <li><strong>Bias-Variance Tradeoff:</strong> Gjeni balancën optimale</li>
-                <li><strong>Hyperparameter Tuning:</strong> Zgjidhni α më të mirë</li>
-                <li><strong>Overfitting Detection:</strong> Identifikoni overfitting dhe underfitting</li>
-                <li><strong>Model Selection:</strong> Krahasoni modele të ndryshme</li>
-              </ul>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📈 Si të Krijoni Grafet</h4>
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', marginTop: '15px'}}>
-              <h5>Python Implementation:</h5>
-              <pre style={{backgroundColor: '#282c34', color: '#abb2bf', padding: '15px', borderRadius: '8px', fontSize: '12px'}}>
-{`import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import validation_curve
-from sklearn.linear_model import Ridge
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-
-# Konfigurimi i pipeline
-pipe = Pipeline([
-    ('scaler', StandardScaler()),
-    ('ridge', Ridge())
-])
-
-# Range i vlerave për alpha
-alpha_range = np.logspace(-4, 2, 50)  # 10^-4 to 10^2
-
-# Llogaritja e validation curves
-train_scores, val_scores = validation_curve(
-    pipe, X, y, 
-    param_name='ridge__alpha', 
-    param_range=alpha_range,
-    cv=5,  # 5-fold cross validation
-    scoring='neg_mean_squared_error'
-)
-
-# Llogaritja e mesatarjeve dhe devijimeve
-train_mean = -train_scores.mean(axis=1)
-train_std = train_scores.std(axis=1)
-val_mean = -val_scores.mean(axis=1)
-val_std = val_scores.std(axis=1)
-
-# Plotting
-plt.figure(figsize=(10, 6))
-plt.semilogx(alpha_range, train_mean, 'o-', color='blue', 
-             label='Training Score')
-plt.fill_between(alpha_range, train_mean - train_std, 
-                 train_mean + train_std, alpha=0.1, color='blue')
-
-plt.semilogx(alpha_range, val_mean, 'o-', color='red', 
-             label='Validation Score')
-plt.fill_between(alpha_range, val_mean - val_std, 
-                 val_mean + val_std, alpha=0.1, color='red')
-
-plt.xlabel('Alpha (Regularization Strength)')
-plt.ylabel('Mean Squared Error')
-plt.title('Validation Curve for Ridge Regression')
-plt.legend()
-plt.grid(True)
-plt.show()`}
-              </pre>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>📊 Interpretimi i Grafeve</h4>
-            
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px'}}>
-              <div style={{border: '2px solid #f44336', padding: '15px', borderRadius: '8px'}}>
-                <h5 style={{color: '#f44336'}}>🔴 α shumë i vogël</h5>
-                <ul style={{fontSize: '14px'}}>
-                  <li>Pak regularization</li>
-                  <li>Training error i ulët</li>
-                  <li>Validation error i lartë</li>
-                  <li><strong>Overfitting!</strong></li>
-                </ul>
-                <div style={{backgroundColor: '#ffebee', padding: '8px', borderRadius: '4px', marginTop: '10px'}}>
-                  Gap i madh midis kurbave
-                </div>
-              </div>
-              
-              <div style={{border: '2px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
-                <h5 style={{color: '#4CAF50'}}>🟢 α optimal</h5>
-                <ul style={{fontSize: '14px'}}>
-                  <li>Balancë e mirë</li>
-                  <li>Validation error minimal</li>
-                  <li>Gap i vogël</li>
-                  <li><strong>Sweet spot!</strong></li>
-                </ul>
-                <div style={{backgroundColor: '#e8f5e9', padding: '8px', borderRadius: '4px', marginTop: '10px'}}>
-                  Punkt ku validation error është minimal
-                </div>
-              </div>
-              
-              <div style={{border: '2px solid '#FF9800', padding: '15px', borderRadius: '8px'}}>
-                <h5 style={{color: '#FF9800'}}>🟡 α shumë i madh</h5>
-                <ul style={{fontSize: '14px'}}>
-                  <li>Shumë regularization</li>
-                  <li>Training error i lartë</li>
-                  <li>Validation error i lartë</li>
-                  <li><strong>Underfitting!</strong></li>
-                </ul>
-                <div style={{backgroundColor: '#fff3e0', padding: '8px', borderRadius: '4px', marginTop: '10px'}}>
-                  Të dyja kurbet janë të larta
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>📋 Shembull Rezultatesh</h4>
-            <table style={{width: '100%', borderCollapse: 'collapse', marginTop: '15px'}}>
-              <thead>
-                <tr style={{backgroundColor: '#e0e0e0'}}>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Alpha (α)</th>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Training MSE</th>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Validation MSE</th>
-                  <th style={{border: '1px solid #ddd', padding: '8px'}}>Interpretim</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.001</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.15</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.45</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px', color: '#f44336'}}>Overfitting</td>
-                </tr>
-                <tr style={{backgroundColor: '#e8f5e9'}}>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}><strong>0.1</strong></td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}><strong>0.22</strong></td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}><strong>0.25</strong></td>
-                  <td style={{border: '1px solid #ddd', padding: '8px', color: '#4CAF50'}}><strong>Optimal!</strong></td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>1.0</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.35</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.38</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px', color: '#FF9800'}}>Balanced</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>100</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.65</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px'}}>0.68</td>
-                  <td style={{border: '1px solid #ddd', padding: '8px', color: '#f44336'}}>Underfitting</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{backgroundColor: '#e8f5e9', padding: '15px', borderRadius: '8px'}}>
-            <h4>🎯 Vendimi Final</h4>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div>
-                <h5>✅ Kritere për Zgjedhjen e α:</h5>
-                <ul>
-                  <li>Gjeni balancën midis bias dhe variance</li>
-                  <li>Shikoni për overfitting ose underfitting</li>
-                  <li>Zgjidhni α që minimizon validation error</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h5>📈 Monitorimi i Performancës:</h5>
-                <ul>
-                  <li>Përdorni validation curves për të vizualizuar performancën</li>
-                  <li>Kontrolloni për stabilitetin e modelit</li>
-                  <li>Sigurohuni që të dhënat e testit të kenë performancë të ngjashme</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      id: 19,
-      question: "Llogaritja e Output në Neural Networks me ReLU",
-      answer: (
-        <div>
-          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
-            <h4>🧮 Neural Network me ReLU Activation</h4>
-            <p>Llogaritja hap-pas-hapi e output për një rrjet neural me funksionin ReLU.</p>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>📋 Të dhënat e problemit:</h4>
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
-              <p><strong>Input:</strong> X = [2, -1, 0.5]</p>
-              <p><strong>Weights (W1):</strong> Hidden layer 3×4</p>
-              <p><strong>Bias (b1):</strong> [0.1, -0.2, 0.3, 0.0]</p>
-              <p><strong>Weights (W2):</strong> Output layer 4×1</p>
-              <p><strong>Bias (b2):</strong> [0.2]</p>
-              <p><strong>Activation:</strong> ReLU për hidden layer, Linear për output</p>
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>⚖️ Weights dhe Bias:</h4>
-            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
-              <p><strong>W1 (3×4):</strong></p>
-              <BlockMath math={"W1 = \\begin{bmatrix} 0.5 & -0.3 & 0.8 & 0.2 \\\\ 0.1 & 0.6 & -0.4 & 0.7 \\\\ -0.2 & 0.4 & 0.3 & -0.1 \\end{bmatrix}"} />
-              
-              <p><strong>W2 (4×1):</strong></p>
-              <BlockMath math={"W2 = \\begin{bmatrix} 0.8 \\\\ -0.5 \\\\ 0.3 \\\\ 0.6 \\end{bmatrix}"} />
-            </div>
-          </div>
-
-          <div style={{marginBottom: '20px'}}>
-            <h4>📈 Forward Pass - Hapi 1: Hidden Layer</h4>
-            <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
-              <p><strong>Linear transformation:</strong> Z1 = X · W1 + b1</p>
-              
-              <BlockMath math={"Z1 = [2, -1, 0.5] \\cdot \\begin{bmatrix} 0.5 & -0.3 & 0.8 & 0.2 \\\\ 0.1 & 0.6 & -0.4 & 0.7 \\\\ -0.2 & 0.4 & 0.3 & -0.1 \\end{bmatrix} + [0.1, -0.2, 0.3, 0.0]"} />
-              
-              <p><strong>Llogaritja:</strong></p>
-              <ul>
-                <li>Z1[0] = (2×0.5) + (-1×0.1) + 0.5×-0.2 + 0.1 = 1.0 - 0.1 - 0.1 + 0.1 = <strong>0.9</strong></li>
-                <li>Z1[1] = (2×-0.3) + (-1×0.6) + 0.5×0.4 + (-0.2) = -0.6 - 0.6 + 0.2 - 0.2 = <strong>-1.2</strong></li>
-                <li>Z1[2] = (2×0.8) + (-1×-0.4) + 0.5×0.3 + 0.3 = 1.6 + 0.4 + 0.15 + 0.3 = <strong>2.45</strong></li>
-                <li>Z1[3] = (2×0.2) + (-1×0.7) + 0.5×-0.1 + 0.0 = 0.4 - 0.7 - 0.05 + 0.0 = <strong>-0.35</strong></li>
-              </ul>
-              
               <p><strong>ReLU activation:</strong> A1 = max(0, Z1)</p>
               <p>A1 = [max(0, 0.9), max(0, -1.2), max(0, 2.45), max(0, -0.35)] = <strong>[0.9, 0, 2.45, 0]</strong></p>
             </div>
@@ -1895,58 +1140,366 @@ plt.show()`}
               
               <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
                 <h5>4. F1-Score (Balancimi)</h5>
-              >
-                {showAnswers[q.id] ? 'Fshih Përgjigjen' : 'Shfaq Përgjigjen'}
-              </button>
-              
-              {showAnswers[q.id] && (
-                <div className="solution" style={{border: '2px solid #4CAF50', borderRadius: '8px', padding: '20px'}}>
-                  {q.answer}
-                </div>
-              )}
-            </div>
-          ))
-        ) : (
-          // Show single question
-          <div className="exercise">
-            <h3>Pyetja {questions[currentQuestion].id}: {questions[currentQuestion].question}</h3>
-            
-            <button 
-              className="show-solution" 
-              onClick={() => toggleAnswer(questions[currentQuestion].id)}
-              style={{marginBottom: '20px'}}
-            >
-              {showAnswers[questions[currentQuestion].id] ? 'Fshih Përgjigjen' : 'Shfaq Përgjigjen'}
-            </button>
-            
-            {showAnswers[questions[currentQuestion].id] && (
-              <div className="solution" style={{border: '2px solid #4CAF50', borderRadius: '8px', padding: '20px'}}>
-                {questions[currentQuestion].answer}
+                <BlockMath math={"\\text{F1} = 2 \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{\\text{Precision} + \\text{Recall}}"}
+                />
+                <p><strong>Llogaritja:</strong></p>
+                <p>F1 = 2 × (0.810 × 0.850) / (0.810 + 0.850) = 0.765</p>
               </div>
-            )}
+            </div>
           </div>
-        )}
+
+          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
+            <h4>📈 Grafiku i Performancës</h4>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+              <div style={{padding: '10px', borderRadius: '8px', backgroundColor: '#f5f5f5'}}>
+                <strong>Precision-Recall Curve:</strong>
+                <BlockMath math={String.raw`\text{Precision-Recall Curve:} \quad P = \frac{TP}{TP+FP}, \quad R = \frac{TP}{TP+FN}`} />
+              </div>
+              
+              <div style={{padding: '10px', borderRadius: '8px', backgroundColor: '#f5f5f5'}}>
+                <strong>ROC Curve:</strong>
+                <BlockMath math={String.raw`\text{ROC Curve:} \quad TPR = \frac{TP}{TP+FN}, \quad FPR = \frac{FP}{FP+TN}`} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 22,
+      question: "Çfarë është Regularization dhe si funksionon?",
+      answer: (
+        <div>
+          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+            <h4>🎯 Regularization në Machine Learning</h4>
+            <p>Teknika për të parandaluar <strong>overfitting</strong> duke shtuar një term penalizimi në funksionin e kostos.</p>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🔍 Si e identifikojmë nevojën për Regularization?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Modeli është shumë kompleks:</strong> P.sh. shumë parametra ose shtresa</li>
+                <li><strong>Overfitting:</strong> Training error shumë i ulët, validation error i lartë</li>
+                <li><strong>Grafiku i Performancës:</strong> Training curve dhe validation curve divergojnë</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🛠️ Si ta aplikojmë Regularization?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Ridge Regression (L2):</strong> Penalizon katrorin e peshave</li>
+                <li><strong>Lasso Regression (L1):</strong> Penalizon vlerën absolute të peshave</li>
+                <li><strong>Elastic Net:</strong> Kombinim i Ridge dhe Lasso</li>
+                <li><strong>Dropout:</strong> Ndalo rastësisht neurone gjatë trajnimit</li>
+                <li><strong>Data augmentation:</strong> Krijoni variacione të reja të të dhënave ekzistuese</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
+            <h4>📈 Shembuj të Regularization dhe Si të Shmangni Overfitting-un</h4>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+              <div style={{border: '1px solid #f44336', padding: '15px', borderRadius: '8px'}}>
+                <h5 style={{color: '#f44336'}}>🔴 Shembulli i 1: Pa Regularization</h5>
+                <p>Modeli mëson detajet dhe zhurmën në të dhëna.</p>
+                <BlockMath math={String.raw`f(x) = w_1x + w_2x^2 + ... + w_nx^n`} />
+                <p><strong>Problemi:</strong> Overfitting dhe performancë e dobët në të dhëna të reja</p>
+              </div>
+              
+              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
+                <h5 style={{color: '#4CAF50'}}>🟢 Shembulli i 2: Me Regularization</h5>
+                <p>Përdorimi i Ridge Regression për të reduktuar overfitting-un.</p>
+                <BlockMath math={String.raw`J(\theta) = MSE + \alpha \sum_{i=1}^{n} \theta_i^2`} />
+                <p><strong>Rezultati:</strong> Modeli më i thjeshtë dhe më i përgjegjshëm</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 23,
+      question: "Çfarë është PCA dhe si funksionon?",
+      answer: (
+        <div>
+          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+            <h4>🎯 Principal Component Analysis (PCA)</h4>
+            <p>Një teknikë për reduktimin e dimensioneve të të dhënave duke ruajtur sa më shumë informacion të jetë e mundur.</p>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🔍 Si e identifikojmë nevojën për PCA?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Të dhëna me shumë dimensione:</strong> P.sh. imazhe, tekste</li>
+                <li><strong>Reduktimi i zhurmës:</strong> Eliminoni variablat e padobishëm</li>
+                <li><strong>Vizualizimi:</strong> Shndërroni të dhënat në një hapësirë më të ulët dimensionale për analiza vizuale</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🛠️ Si ta aplikojmë PCA?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Standardizoni të dhënat:</strong> Sigurohuni që të dhënat të kenë mesatare 0 dhe devijim standard 1</li>
+                <li><strong>LLogaritni Matricën e Korrelacionit:</strong> Gjeni marrëdhëniet midis variablave</li>
+                <li><strong>Gjeni Eigenvalues dhe Eigenvectors:</strong> Përdorni to për të identifikuar komponentët kryesorë</li>
+                <li><strong>Zgjidhni numrin e komponentëve:</strong> Zgjidhni numrin e duhur të komponentëve për të ruajtur informacionin</li>
+                <li><strong>Transformoni të dhënat:</strong> Përdorni komponentët kryesorë për të transformuar të dhënat origjinale</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
+            <h4>📈 Shembuj të PCA në Veprim</h4>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
+                <h5>📊 Shembulli 1: Reduktimi i Dimensioneve</h5>
+                <BlockMath math={String.raw`X = \begin{bmatrix} 
+                  2 & 3 & 1 & 4 \\
+                  1 & 2 & 3 & 2 \\
+                  4 & 1 & 2 & 3 \\
+                  3 & 4 & 1 & 1
+                \end{bmatrix} \rightarrow Y = \begin{bmatrix} 
+                  3.4 & 0.8 \\
+                  0.6 & -1.2 \\
+                  2.2 & 1.5 \\
+                  -0.8 & -1.1
+                \end{bmatrix}`} />
+                <p><strong>Hapat:</strong> Standardizimi → Matrica e Korrelacionit → Eigenvalues & Eigenvectors → Transformimi</p>
+              </div>
+              
+              <div style={{border: '1px solid #FF9800', padding: '15px', borderRadius: '8px'}}>
+                <h5>📉 Shembulli 2: Eliminimi i Zhurmës</h5>
+                <BlockMath math={String.raw`X = \begin{bmatrix} 
+                  2.5 & 3.5 & 1.5 & 4.5 \\
+                  1.5 & 2.5 & 3.5 & 2.5 \\
+                  4.5 & 1.5 & 2.5 & 3.5 \\
+                  3.5 & 4.5 & 1.5 & 1.5
+                \end{bmatrix} \rightarrow Y = \begin{bmatrix} 
+                  3.4 & 0.8 \\
+                  0.6 & -1.2 \\
+                  2.2 & 1.5 \\
+                  -0.8 & -1.1
+                \end{bmatrix}`} />
+                <p><strong>Hapat:</strong> Standardizimi → Matrica e Korrelacionit → Eigenvalues & Eigenvectors (me më pak variabla) → Transformimi</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 24,
+      question: "Çfarë është t-SNE dhe si funksionon?",
+      answer: (
+        <div>
+          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+            <h4>🎯 t-Distributed Stochastic Neighbor Embedding (t-SNE)</h4>
+            <p>Një teknikë për vizualizimin e të dhënave me shumë dimensione duke i reduktuar ato në 2 ose 3 dimensione.</p>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🔍 Si e identifikojmë nevojën për t-SNE?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Të dhëna me shumë dimensione:</strong> P.sh. imazhe, tekste</li>
+                <li><strong>Vizualizimi i clustera:</strong> Dëshironi të shihni grupimet në të dhëna</li>
+                <li><strong>Reduktimi i zhurmës:</strong> Eliminoni variablat e padobishëm</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🛠️ Si ta aplikojmë t-SNE?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Standardizoni të dhënat:</strong> Sigurohuni që të dhënat të kenë mesatare 0 dhe devijim standard 1</li>
+                <li><strong>LLogaritni Matricën e Korrelacionit:</strong> Gjeni marrëdhëniet midis variablave</li>
+                <li><strong>Gjeni Eigenvalues dhe Eigenvectors:</strong> Përdorni to për të identifikuar komponentët kryesorë</li>
+                <li><strong>Transformoni të dhënat:</strong> Përdorni komponentët kryesorë për të transformuar të dhënat origjinale</li>
+                <li><strong>Vizualizoni rezultatin:</strong> Shfaqni të dhënat e transformuara në një grafik</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
+            <h4>📈 Shembuj të t-SNE në Veprim</h4>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
+                <h5>📊 Shembulli 1: Vizualizimi i Clustera</h5>
+                <BlockMath math={String.raw`X = \begin{bmatrix} 
+                  2 & 3 & 1 & 4 \\
+                  1 & 2 & 3 & 2 \\
+                  4 & 1 & 2 & 3 \\
+                  3 & 4 & 1 & 1
+                \end{bmatrix} \rightarrow Y = \begin{bmatrix} 
+                  3.4 & 0.8 \\
+                  0.6 & -1.2 \\
+                  2.2 & 1.5 \\
+                  -0.8 & -1.1
+                \end{bmatrix}`} />
+                <p><strong>Hapat:</strong> Standardizimi → Matrica e Korrelacionit → Eigenvalues & Eigenvectors → Transformimi</p>
+              </div>
+              
+              <div style={{border: '1px solid #FF9800', padding: '15px', borderRadius: '8px'}}>
+                <h5>📉 Shembulli 2: Eliminimi i Zhurmës</h5>
+                <BlockMath math={String.raw`X = \begin{bmatrix} 
+                  2.5 & 3.5 & 1.5 & 4.5 \\
+                  1.5 & 2.5 & 3.5 & 2.5 \\
+                  4.5 & 1.5 & 2.5 & 3.5 \\
+                  3.5 & 4.5 & 1.5 & 1.5
+                \end{bmatrix} \rightarrow Y = \begin{bmatrix} 
+                  3.4 & 0.8 \\
+                  0.6 & -1.2 \\
+                  2.2 & 1.5 \\
+                  -0.8 & -1.1
+                \end{bmatrix}`} />
+                <p><strong>Hapat:</strong> Standardizimi → Matrica e Korrelacionit → Eigenvalues & Eigenvectors (me më pak variabla) → Transformimi</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 25,
+      question: "Çfarë është UMAP dhe si funksionon?",
+      answer: (
+        <div>
+          <div style={{backgroundColor: '#e3f2fd', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+            <h4>🎯 Uniform Manifold Approximation and Projection (UMAP)</h4>
+            <p>Një teknikë për reduktimin e dimensioneve dhe vizualizimin e të dhënave me shumë dimensione.</p>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🔍 Si e identifikojmë nevojën për UMAP?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Të dhëna me shumë dimensione:</strong> P.sh. imazhe, tekste</li>
+                <li><strong>Vizualizimi i clustera:</strong> Dëshironi të shihni grupimet në të dhëna</li>
+                <li><strong>Reduktimi i zhurmës:</strong> Eliminoni variablat e padobishëm</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{marginBottom: '20px'}}>
+            <h4>🛠️ Si ta aplikojmë UMAP?</h4>
+            <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px'}}>
+              <ul>
+                <li><strong>Standardizoni të dhënat:</strong> Sigurohuni që të dhënat të kenë mesatare 0 dhe devijim standard 1</li>
+                <li><strong>LLogaritni Matricën e Korrelacionit:</strong> Gjeni marrëdhëniet midis variablave</li>
+                <li><strong>Gjeni Eigenvalues dhe Eigenvectors:</strong> Përdorni to për të identifikuar komponentët kryesorë</li>
+                <li><strong>Transformoni të dhënat:</strong> Përdorni komponentët kryesorë për të transformuar të dhënat origjinale</li>
+                <li><strong>Vizualizoni rezultatin:</strong> Shfaqni të dhënat e transformuara në një grafik</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{backgroundColor: '#fff3e0', padding: '15px', borderRadius: '8px'}}>
+            <h4>📈 Shembuj të UMAP në Veprim</h4>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+              <div style={{border: '1px solid #4CAF50', padding: '15px', borderRadius: '8px'}}>
+                <h5>📊 Shembulli 1: Vizualizimi i Clustera</h5>
+                <BlockMath math={String.raw`X = \begin{bmatrix} 
+                  2 & 3 & 1 & 4 \\
+                  1 & 2 & 3 & 2 \\
+                  4 & 1 & 2 & 3 \\
+                  3 & 4 & 1 & 1
+                \end{bmatrix} \rightarrow Y = \begin{bmatrix} 
+                  3.4 & 0.8 \\
+                  0.6 & -1.2 \\
+                  2.2 & 1.5 \\
+                  -0.8 & -1.1
+                \end{bmatrix}`} />
+                <p><strong>Hapat:</strong> Standardizimi → Matrica e Korrelacionit → Eigenvalues & Eigenvectors → Transformimi</p>
+              </div>
+              
+              <div style={{border: '1px solid #FF9800', padding: '15px', borderRadius: '8px'}}>
+                <h5>📉 Shembulli 2: Eliminimi i Zhurmës</h5>
+                <BlockMath math={String.raw`X = \begin{bmatrix} 
+                  2.5 & 3.5 & 1.5 & 4.5 \\
+                  1.5 & 2.5 & 3.5 & 2.5 \\
+                  4.5 & 1.5 & 2.5 & 3.5 \\
+                  3.5 & 4.5 & 1.5 & 1.5
+                \end{bmatrix} \rightarrow Y = \begin{bmatrix} 
+                  3.4 & 0.8 \\
+                  0.6 & -1.2 \\
+                  2.2 & 1.5 \\
+                  -0.8 & -1.1
+                \end{bmatrix}`} />
+                <p><strong>Hapat:</strong> Standardizimi → Matrica e Korrelacionit → Eigenvalues & Eigenvectors (me më pak variabla) → Transformimi</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+  ];
+
+  const handleQuestionClick = (id) => {
+    setCurrentQuestion(currentQuestion === id ? null : id);
+  };
+
+  const handleShowAllQuestions = () => {
+    setShowAllQuestions(!showAllQuestions);
+  };
+
+  return (
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '40px' }}>Testi i Machine Learning</h1>
+      
+      <div style={{ marginBottom: '30px' }}>
+        <button 
+          onClick={handleShowAllQuestions} 
+          style={{ 
+            backgroundColor: showAllQuestions ? '#f44336' : '#4CAF50', 
+            color: 'white', 
+            border: 'none', 
+            padding: '10px 20px', 
+            borderRadius: '5px', 
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          {showAllQuestions ? 'Fshih të gjitha përgjigjet' : 'Shiko të gjitha përgjigjet'}
+        </button>
       </div>
 
-      <div style={{marginTop: '40px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px'}}>
-        <h3>📋 Përmbledhje e Temave:</h3>
-        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-          <ul>
-            <li>1. Gradient Descent vs Gradient Ascent</li>
-            <li>2. Decision Trees - Pro dhe Kundër</li>
-            <li>3. Dimension Reduction - PCA & t-SNE</li>
-            <li>4. Supervised vs Unsupervised Learning</li>
-            <li>5. Linearly Separable Data Algorithms</li>
-          </ul>
-          <ul>
-            <li>6. KNN Regression dhe vlera e k</li>
-            <li>7. Feature Scaling për SVM</li>
-            <li>8. Multi-Head Attention në Transformers</li>
-            <li>9. Autoencoders dhe llojet e tyre</li>
-            <li>10. Neural Network Forward Pass</li>
-          </ul>
+      {questions.map(({ id, question, answer }) => (
+        <div key={id} style={{ marginBottom: '30px', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: '#fff' }}>
+          <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>
+            <span 
+              onClick={() => handleQuestionClick(id)} 
+              style={{ 
+                cursor: 'pointer', 
+                color: currentQuestion === id ? '#4CAF50' : '#333',
+                transition: 'color 0.3s'
+              }}
+            >
+              {currentQuestion === id ? '▼' : '►'} {question}
+            </span>
+          </h2>
+
+          {(showAllQuestions || currentQuestion === id) && (
+            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #ddd' }}>
+              {answer}
+              
+              <div style={{ marginTop: '15px', fontSize: '14px', color: '#666' }}>
+                <strong>Shënim:</strong> Ky është një shembull testi për Machine Learning. Përdorni këtë informacion vetëm për qëllime edukative.
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      ))}
     </div>
   );
 };

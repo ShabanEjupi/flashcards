@@ -14,6 +14,12 @@ const MatrixVisualization = ({ matrix, vectors, type = 'transformation' }) => {
       
       const ctx = chartRef.current.getContext('2d');
       
+      // Check for undefined variables and handle them appropriately
+      if (typeof matrix === 'undefined' || typeof vectors === 'undefined') {
+        console.error('Matrix or vectors are undefined');
+        return null;
+      }
+      
       if (type === 'transformation') {
         // Apply matrix transformation to vectors
         const transformedVectors = vectors.map(v => [
