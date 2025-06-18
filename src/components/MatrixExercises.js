@@ -847,4 +847,5 @@ const additionalQuestions = [
   {
     question: "Si të llogariten accuracy, precision, recall dhe balancimi?",
     answer: "Accuracy llogaritet si (TP + TN) / (TP + TN + FP + FN), precision si TP / (TP + FP), recall si TP / (TP + FN), dhe balancimi si 2 * (precision * recall) / (precision + recall)."
+  }
 ];
