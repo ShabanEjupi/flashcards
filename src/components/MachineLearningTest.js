@@ -179,7 +179,7 @@ const MachineLearningTest = () => {
             
             <div style={{textAlign: 'center'}}>
               <h4>🟡 Unsupervised Learning</h4>
-              <div style={{border: '2px solid '#FF9800', padding: '20px', borderRadius: '8px', backgroundColor: '#FFF3E0'}}>
+              <div style={{border: '2px solid #FF9800', padding: '20px', borderRadius: '8px', backgroundColor: '#FFF3E0'}}>
                 <p><strong>Nuk ka target labels</strong></p>
                 <ul style={{textAlign: 'left'}}>
                   <li>K-Means Clustering</li>
@@ -233,13 +233,13 @@ const MachineLearningTest = () => {
               <BlockMath math={String.raw`y = sign(\sum_{i} \alpha_i y_i x_i^T x + b)`} />
             </div>
 
-            <div style={{border: '1px solid '#FF9800', padding: '15px', borderRadius: '8px'}}>
+            <div style={{border: '1px solid #FF9800', padding: '15px', borderRadius: '8px'}}>
               <h5>3. Logistic Regression</h5>
               <p>Me iterime të mjaftueshme në të dhëna separable</p>
               <BlockMath math={String.raw`P(y=1) = \frac{1}{1 + e^{-(w^T x + b)}}`} />
             </div>
 
-            <div style={{border: '1px solid '#9C27B0', padding: '15px', borderRadius: '8px'}}>
+            <div style={{border: '1px solid #9C27B0', padding: '15px', borderRadius: '8px'}}>
               <h5>4. Linear Discriminant Analysis (LDA)</h5>
               <p>Gjen drejtimin optimal për separim</p>
               <BlockMath math={String.raw`y = w^T x > threshold`} />
@@ -523,7 +523,7 @@ const MachineLearningTest = () => {
                 <p>Kompresim progresiv</p>
               </div>
 
-              <div style={{border: '2px solid '#ff9800', padding: '15px', borderRadius: '8px'}}>
+              <div style={{border: '2px solid #FF9800', padding: '15px', borderRadius: '8px'}}>
                 <h5>🎯 Latent Space</h5>
                 <p>Përfaqësimi i kompresuar</p>
                 <div style={{backgroundColor: '#fff3e0', padding: '10px', borderRadius: '4px', margin: '10px 0'}}>
@@ -532,7 +532,7 @@ const MachineLearningTest = () => {
                 <p>Informacioni esencial</p>
               </div>
 
-              <div style={{border: '2px solid '#4caf50', padding: '15px', borderRadius: '8px'}}>
+              <div style={{border: '2px solid #4caf50', padding: '15px', borderRadius: '8px'}}>
                 <h5>📤 Decoder</h5>
                 <p>Latent Space → Output</p>
                 <div style={{backgroundColor: '#e8f5e9', padding: '10px', borderRadius: '4px', margin: '10px 0'}}>
