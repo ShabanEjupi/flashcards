@@ -805,3 +805,46 @@ const MatrixExercises = () => {
 };
 
 export default MatrixExercises;
+
+
+const additionalQuestions = [
+  {
+    question: "Stotastich gradient descent dhe banch stotastich gradient descent qka jon shembuj trajnime?",
+    answer: "Stochastic gradient descent (SGD) është një metodë për optimizimin e funksioneve të humbjes në algoritmet e mësimit të makinerive. Banch stochastic gradient descent është një variant që përdor një grup të vogël të të dhënave për të përditësuar pesha. Shembuj trajnimi përfshijnë përdorimin e SGD në rrjetet nervore për të përshpejtuar procesin e trajnimit.",
+  },
+  {
+    question: "Ridge dhe lasso, çka janë dhe si funksionojnë?",
+    answer: "Ridge dhe lasso janë teknika të rregullimit për të parandaluar mbifitimimin në modelet e regresionit. Ridge përdor një term penalizimi që është proporcional me katrorin e peshave, ndërsa lasso përdor një term penalizimi që është proporcional me vlerat absolute të peshave.",
+  },
+  {
+    question: "Si llogaritet outputi në një rrjet nervor nëse i ka dhënë weights dhe inputin dhe funksionin ReLU?",
+    answer: "Outputi llogaritet duke shumëzuar inputet me peshat përkatëse dhe duke aplikuar funksionin aktivizues ReLU, që është max(0, z), ku z është rezultati i shumës së peshave dhe inputeve.",
+  },
+  {
+    question: "Çfarë është një tree decision dhe si funksionon?",
+    answer: "Një tree decision është një model i mësimit të makinerive që përdor një strukturë të ngjashme me një pemë për të marrë vendime. Çdo degë përfaqëson një pyetje mbi një atribut, dhe çdo gjet është një rezultat ose klasifikim.",
+  },
+  {
+    question: "Si mund të vizatohet një dendogram dhe si formohen klustera në bazë të algoritmit agglomerative?",
+    answer: "Një dendogram vizaton marrëdhëniet midis grupeve të dhënash. Algoritmi agglomerative fillon me çdo pikë të dhënash si një grup të veçantë dhe bashkon ato që janë më të afërta deri sa të formohet një strukturë e plotë. Klustera formohen duke prerë dendogramin në një lartësi të caktuar.",
+  },
+  {
+    question: "A mund të bëhet procesi i reversimit të reduktimit të dimensionalitetit dhe pse?",
+    answer: "Procesi i reversimit të reduktimit të dimensionalitetit është i mundur në disa raste, veçanërisht nëse përdoren teknika si PCA, por informacioni origjinal nuk mund të rikuperohet plotësisht. Kjo ndodh sepse disa informacione humbasin gjatë procesit të reduktimit.",
+  },
+  {
+    question: "Cila është formula për Q learning?",
+    answer: "Formula për Q learning është: Q(s, a) = Q(s, a) + α[r + γ * max(Q(s', a')) - Q(s, a)], ku α është shkalla e mësimit, r është shpërblimi, γ është faktor i zbritjes, dhe s' është stadi i ri.",
+  },
+  {
+    question: "Si të krijoni grafe për training dhe validation set për vlera të ndryshme të koeficienteve ridge?",
+    answer: "Për të krijuar grafe për training dhe validation set, mund të përdorni një cikël për të testuar vlera të ndryshme të koeficienteve ridge dhe të regjistroni performancën për secilën. Pastaj, vizatoni këto të dhëna në një grafik për të krahasuar performancën.",
+  },
+  {
+    question: "Si të krijoni tri grafe ku në boshtin x është precision dhe në boshtin y është recall?",
+    answer: "Për të krijuar tri grafe, mund të përdorni të dhënat e modelit për të llogaritur precision dhe recall për secilin model. Pastaj, vizatoni këto vlera në një grafik për të krahasuar performancën e modeleve të ndryshme.",
+  },
+  {
+    question: "Si të llogariten accuracy, precision, recall dhe balancimi?",
+    answer: "Accuracy llogaritet si (TP + TN) / (TP + TN + FP + FN), precision si TP / (TP + FP), recall si TP / (TP + FN), dhe balancimi si 2 * (precision * recall) / (precision + recall)."
+];

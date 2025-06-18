@@ -12,6 +12,7 @@ import MathModule from './MathModule';
 import MatrixExercises from './MatrixExercises';
 import MatrixExercisesMobile from './MatrixExercisesMobile';
 import MachineLearningTest from './MachineLearningTest';
+import LiveEditor from './LiveEditor';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('flashcards');
@@ -81,6 +82,12 @@ const App = () => {
           >
             ML Test
           </button>
+          <button 
+            className={activeTab === 'liveeditor' ? 'active' : ''} 
+            onClick={() => setActiveTab('liveeditor')}
+          >
+            🚀 Live Editor
+          </button>
         </div>
         
         {activeTab === 'flashcards' && (
@@ -104,6 +111,7 @@ const App = () => {
           isMobile ? <MatrixExercisesMobile /> : <MatrixExercises />
         )}
         {activeTab === 'mltest' && <MachineLearningTest />}
+        {activeTab === 'liveeditor' && <LiveEditor />}
       </main>
       <Footer />
     </div>
