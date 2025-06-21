@@ -320,6 +320,103 @@ const FileConverter = () => {
     });
   };
 
+  // Enhanced DOCX to PDF conversion function
+  const convertDocxToPDFEnhanced = async (file) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        setConversionProgress(30);
+        
+        // Try to use mammoth.js for better DOCX parsing
+        let extractedText = '';
+        
+        try {
+          const mammoth = await import('mammoth');
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          extractedText = result.value;
+        } catch (mammothError) {
+          console.log('Mammoth.js not available, using basic extraction');
+          
+          // Fallback to improved basic extraction
+          const arrayBuffer = await file.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          
+          // Convert to text and clean up
+          const decoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: false });
+          const rawText = decoder.decode(uint8Array);
+          
+          // Look for readable text patterns
+          const textMatches = rawText.match(/[a-zA-ZÀ-ÿ\s\d\.,!?;:\-\(\)]{3,}/g);
+          if (textMatches) {
+            extractedText = textMatches
+              .filter(text => text.trim().length > 2)
+              .join(' ')
+              .replace(/\s+/g, ' ')
+              .trim();
+          }
+        }
+        
+        setConversionProgress(60);
+        
+        // If we still don't have good text, provide a helpful message
+        if (!extractedText || extractedText.length < 10) {
+          extractedText = `
+Document: ${file.name}
+Size: ${(file.size / 1024).toFixed(1)} KB
+
+Note: This DOCX file could not be properly converted to text. 
+This might be because:
+- The file contains mostly images or complex formatting
+- The file is password protected
+- The file structure is not standard
+
+For better results, try:
+1. Opening the file in Microsoft Word and saving as TXT or PDF
+2. Using an online DOCX to PDF converter
+3. Installing mammoth.js library for better DOCX support
+          `;
+        }
+        
+        setConversionProgress(80);
+        
+        // Convert the extracted text to PDF
+        const { jsPDF } = await import('jspdf');
+        const doc = new jsPDF();
+        
+        // Set font and formatting
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+        const maxLineWidth = pageWidth - (margin * 2);
+        
+        // Split text into lines that fit the page
+        const lines = doc.splitTextToSize(extractedText, maxLineWidth);
+        let y = margin;
+        
+        lines.forEach((line) => {
+          if (y > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.text(line, margin, y);
+          y += 7;
+        });
+        
+        setConversionProgress(100);
+        
+        const pdfBlob = doc.output('blob');
+        resolve(pdfBlob);
+        
+      } catch (error) {
+        logger.error('Enhanced DOCX to PDF conversion failed', { error: error.message });
+        reject(new Error(`Failed to convert DOCX to PDF: ${error.message}`));
+      }
+    });
+  };
+
   // Enhanced main conversion function
   const performConversion = async (file, targetFormat) => {
     const fileType = file.type;
