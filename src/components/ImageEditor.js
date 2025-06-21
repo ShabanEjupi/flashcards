@@ -4,27 +4,82 @@ import { logger } from '../utils/logger';
 const ImageEditor = () => {
   const [image, setImage] = useState(null);
   const [editedImage, setEditedImage] = useState(null);
+  const [currentTool, setCurrentTool] = useState('basic');
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Basic adjustments
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
   const [saturation, setSaturation] = useState(100);
-  const [rotation, setRotation] = useState(0);
-  const [filters, setFilters] = useState({
-    grayscale: false,
-    sepia: false,
-    invert: false,
-    blur: 0
+  const [hue, setHue] = useState(0);
+  const [exposure, setExposure] = useState(0);
+  const [highlights, setHighlights] = useState(0);
+  const [shadows, setShadows] = useState(0);
+  const [vibrance, setVibrance] = useState(0);
+  const [warmth, setWarmth] = useState(0);
+  const [tint, setTint] = useState(0);
+  
+  // Filters
+  const [selectedFilter, setSelectedFilter] = useState('none');
+  const [filterIntensity, setFilterIntensity] = useState(100);
+  
+  // Effects
+  const [blur, setBlur] = useState(0);
+  const [sharpen, setSharpen] = useState(0);
+  const [noise, setNoise] = useState(0);
+  const [vignette, setVignette] = useState(0);
+  
+  // Drawing/Annotation
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushSize, setBrushSize] = useState(5);
+  const [brushColor, setBrushColor] = useState('#ff0000');
+  const [brushOpacity, setBrushOpacity] = useState(100);
+  
+  // Text
+  const [textElements, setTextElements] = useState([]);
+  const [selectedText, setSelectedText] = useState(null);
+  const [newText, setNewText] = useState('');
+  const [textStyle, setTextStyle] = useState({
+    fontSize: 24,
+    fontFamily: 'Arial',
+    color: '#000000',
+    bold: false,
+    italic: false,
+    shadow: false
   });
+  
+  // Crop
   const [cropMode, setCropMode] = useState(false);
-  const [cropCoordinates, setCropCoordinates] = useState({ x: 0, y: 0, width: 0, height: 0 });
-  const [historyStack, setHistoryStack] = useState([]);
+  const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  
+  // Stickers/Elements
+  const [stickers, setStickers] = useState([]);
+  
+  // History
+  const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   
   const canvasRef = useRef(null);
+  const originalCanvasRef = useRef(null);
   const imageRef = useRef(null);
-  const cropStartRef = useRef({ x: 0, y: 0 });
-  const isCroppingRef = useRef(false);
   
-  // Load image from file
+  // Predefined filters like PicsArt
+  const filters = {
+    none: { name: 'Original', css: '' },
+    vintage: { name: 'Vintage', css: 'sepia(0.5) contrast(1.2) brightness(1.1)' },
+    bw: { name: 'Black & White', css: 'grayscale(1)' },
+    dramatic: { name: 'Dramatic', css: 'contrast(1.5) brightness(0.9) saturate(1.2)' },
+    warm: { name: 'Warm', css: 'sepia(0.3) brightness(1.1) saturate(1.3)' },
+    cool: { name: 'Cool', css: 'hue-rotate(180deg) saturate(1.2)' },
+    fade: { name: 'Fade', css: 'brightness(1.2) contrast(0.8) saturate(0.8)' },
+    cinema: { name: 'Cinema', css: 'contrast(1.3) brightness(0.9) sepia(0.2)' },
+    retro: { name: 'Retro', css: 'sepia(0.4) saturate(1.4) contrast(1.1)' },
+    sunset: { name: 'Sunset', css: 'sepia(0.6) hue-rotate(20deg) saturate(1.3)' },
+    arctic: { name: 'Arctic', css: 'hue-rotate(200deg) brightness(1.1) contrast(1.2)' },
+    lomo: { name: 'Lomo', css: 'contrast(1.5) brightness(0.8) saturate(1.4)' }
+  };
+  
+  // Load image
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -34,46 +89,47 @@ const ImageEditor = () => {
       const img = new Image();
       img.onload = () => {
         imageRef.current = img;
-        resetSettings();
-        applyChanges(img);
-        addToHistory(img);
+        setImage(event.target.result);
+        resetAllSettings();
+        drawImageToCanvas(img);
+        addToHistory();
       };
       img.src = event.target.result;
-      setImage(event.target.result);
     };
     reader.readAsDataURL(file);
-    logger.info('Image loaded', { fileName: file.name });
   };
   
-  // Reset all editing settings
-  const resetSettings = () => {
+  const resetAllSettings = () => {
     setBrightness(100);
     setContrast(100);
     setSaturation(100);
-    setRotation(0);
-    setFilters({
-      grayscale: false,
-      sepia: false,
-      invert: false,
-      blur: 0
-    });
-    setCropMode(false);
+    setHue(0);
+    setExposure(0);
+    setHighlights(0);
+    setShadows(0);
+    setVibrance(0);
+    setWarmth(0);
+    setTint(0);
+    setSelectedFilter('none');
+    setFilterIntensity(100);
+    setBlur(0);
+    setSharpen(0);
+    setNoise(0);
+    setVignette(0);
+    setTextElements([]);
+    setStickers([]);
   };
   
-  // Apply current settings to image
-  const applyChanges = (sourceImage = null) => {
+  const drawImageToCanvas = (img = imageRef.current) => {
+    if (!img || !canvasRef.current) return;
+    
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    
     const ctx = canvas.getContext('2d');
-    const img = sourceImage || imageRef.current;
-    if (!img) return;
     
-    // Calculate size while maintaining aspect ratio
+    // Calculate canvas size while maintaining aspect ratio
     const maxWidth = 800;
     const maxHeight = 600;
-    let width = img.width;
-    let height = img.height;
+    let { width, height } = img;
     
     if (width > maxWidth || height > maxHeight) {
       const ratio = Math.min(maxWidth / width, maxHeight / height);
@@ -81,420 +137,530 @@ const ImageEditor = () => {
       height *= ratio;
     }
     
-    // Set canvas dimensions
     canvas.width = width;
     canvas.height = height;
     
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Apply all effects
+    ctx.filter = buildCSSFilter();
+    ctx.drawImage(img, 0, 0, width, height);
+    ctx.filter = 'none';
     
-    // Apply rotation if needed
-    if (rotation !== 0) {
-      ctx.save();
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate((rotation * Math.PI) / 180);
-      ctx.drawImage(img, -width / 2, -height / 2, width, height);
-      ctx.restore();
-    } else {
-      ctx.drawImage(img, 0, 0, width, height);
+    // Apply canvas-based effects
+    applyCanvasEffects(ctx, width, height);
+    
+    // Draw text elements
+    drawTextElements(ctx);
+    
+    // Draw stickers
+    drawStickers(ctx);
+    
+    setEditedImage(canvas.toDataURL('image/jpeg', 0.9));
+  };
+  
+  const buildCSSFilter = () => {
+    let filter = '';
+    
+    // Basic adjustments
+    if (brightness !== 100) filter += `brightness(${brightness / 100}) `;
+    if (contrast !== 100) filter += `contrast(${contrast / 100}) `;
+    if (saturation !== 100) filter += `saturate(${saturation / 100}) `;
+    if (hue !== 0) filter += `hue-rotate(${hue}deg) `;
+    if (blur > 0) filter += `blur(${blur}px) `;
+    
+    // Apply preset filter
+    if (selectedFilter !== 'none') {
+      const intensity = filterIntensity / 100;
+      const filterCSS = filters[selectedFilter].css;
+      if (intensity < 1) {
+        // Blend with original
+        filter += filterCSS.replace(/\(([\d.]+)\)/g, (match, value) => {
+          const numValue = parseFloat(value);
+          const blended = 1 + (numValue - 1) * intensity;
+          return `(${blended})`;
+        });
+      } else {
+        filter += filterCSS + ' ';
+      }
     }
     
-    // Apply filters
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return filter.trim();
+  };
+  
+  const applyCanvasEffects = (ctx, width, height) => {
+    const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
     
-    // Apply brightness/contrast/saturation
-    const brightnessValue = brightness / 100;
-    const contrastValue = contrast / 100;
-    const saturationValue = saturation / 100;
-    
+    // Apply exposure, highlights, shadows, vibrance, warmth, tint
     for (let i = 0; i < data.length; i += 4) {
-      // RGB values
       let r = data[i];
       let g = data[i + 1];
       let b = data[i + 2];
       
-      // Apply brightness
-      r *= brightnessValue;
-      g *= brightnessValue;
-      b *= brightnessValue;
-      
-      // Apply contrast
-      const factor = (259 * (contrastValue * 255 + 255)) / (255 * (259 - contrastValue * 255));
-      r = factor * (r - 128) + 128;
-      g = factor * (g - 128) + 128;
-      b = factor * (b - 128) + 128;
-      
-      // Apply saturation
-      const gray = 0.2989 * r + 0.5870 * g + 0.1140 * b;
-      r = gray + saturationValue * (r - gray);
-      g = gray + saturationValue * (g - gray);
-      b = gray + saturationValue * (b - gray);
-      
-      // Apply grayscale
-      if (filters.grayscale) {
-        const grayValue = 0.2989 * r + 0.5870 * g + 0.1140 * b;
-        r = g = b = grayValue;
+      // Exposure
+      if (exposure !== 0) {
+        const exposureFactor = Math.pow(2, exposure / 100);
+        r = Math.min(255, r * exposureFactor);
+        g = Math.min(255, g * exposureFactor);
+        b = Math.min(255, b * exposureFactor);
       }
       
-      // Apply sepia
-      if (filters.sepia) {
-        const newR = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
-        const newG = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
-        const newB = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
-        r = newR;
-        g = newG;
-        b = newB;
+      // Highlights and Shadows
+      const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+      if (highlights !== 0) {
+        const highlightFactor = highlights / 100;
+        if (luminance > 128) {
+          const factor = 1 - highlightFactor * (luminance - 128) / 127;
+          r *= factor;
+          g *= factor;
+          b *= factor;
+        }
       }
       
-      // Apply invert
-      if (filters.invert) {
-        r = 255 - r;
-        g = 255 - g;
-        b = 255 - b;
+      if (shadows !== 0) {
+        const shadowFactor = shadows / 100;
+        if (luminance < 128) {
+          const factor = 1 + shadowFactor * (128 - luminance) / 128;
+          r = Math.min(255, r * factor);
+          g = Math.min(255, g * factor);
+          b = Math.min(255, b * factor);
+        }
       }
       
-      // Clamp values
-      data[i] = Math.max(0, Math.min(255, r));
-      data[i + 1] = Math.max(0, Math.min(255, g));
-      data[i + 2] = Math.max(0, Math.min(255, b));
+      // Warmth and Tint
+      if (warmth !== 0) {
+        const warmthFactor = warmth / 100;
+        r = Math.min(255, r + warmthFactor * 20);
+        b = Math.max(0, b - warmthFactor * 20);
+      }
+      
+      if (tint !== 0) {
+        const tintFactor = tint / 100;
+        g = Math.min(255, Math.max(0, g + tintFactor * 20));
+        r = Math.max(0, r - Math.abs(tintFactor) * 10);
+      }
+      
+      // Vibrance (selective saturation)
+      if (vibrance !== 0) {
+        const vibranceFactor = vibrance / 100;
+        const max = Math.max(r, g, b);
+        const avg = (r + g + b) / 3;
+        const amt = ((Math.abs(max - avg) * 2 / 255) * vibranceFactor) / 3;
+        
+        if (r !== max) r += (max - r) * amt;
+        if (g !== max) g += (max - g) * amt;
+        if (b !== max) b += (max - b) * amt;
+      }
+      
+      data[i] = Math.min(255, Math.max(0, r));
+      data[i + 1] = Math.min(255, Math.max(0, g));
+      data[i + 2] = Math.min(255, Math.max(0, b));
     }
     
     ctx.putImageData(imageData, 0, 0);
     
-    // Apply blur (if any)
-    if (filters.blur > 0) {
-      ctx.filter = `blur(${filters.blur}px)`;
-      ctx.drawImage(canvas, 0, 0);
-      ctx.filter = 'none';
+    // Apply vignette
+    if (vignette > 0) {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY);
+      
+      const gradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, maxRadius
+      );
+      
+      gradient.addColorStop(0, `rgba(0,0,0,0)`);
+      gradient.addColorStop(1, `rgba(0,0,0,${vignette / 100 * 0.8})`);
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
     }
-    
-    // Convert canvas to data URL for preview
-    setEditedImage(canvas.toDataURL('image/jpeg', 0.9));
   };
   
-  // Start crop operation
-  const startCrop = (e) => {
-    if (!cropMode || !canvasRef.current) return;
+  const drawTextElements = (ctx) => {
+    textElements.forEach(text => {
+      ctx.save();
+      ctx.font = `${text.style.bold ? 'bold ' : ''}${text.style.italic ? 'italic ' : ''}${text.style.fontSize}px ${text.style.fontFamily}`;
+      ctx.fillStyle = text.style.color;
+      ctx.globalAlpha = text.opacity || 1;
+      
+      if (text.style.shadow) {
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+      }
+      
+      ctx.fillText(text.content, text.x, text.y);
+      ctx.restore();
+    });
+  };
+  
+  const drawStickers = (ctx) => {
+    stickers.forEach(sticker => {
+      if (sticker.image) {
+        ctx.save();
+        ctx.globalAlpha = sticker.opacity || 1;
+        ctx.drawImage(sticker.image, sticker.x, sticker.y, sticker.width, sticker.height);
+        ctx.restore();
+      }
+    });
+  };
+  
+  const addTextElement = () => {
+    if (!newText.trim()) return;
     
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    
-    cropStartRef.current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+    const textElement = {
+      id: Date.now(),
+      content: newText,
+      x: 50,
+      y: 100,
+      style: { ...textStyle },
+      opacity: 1
     };
     
-    isCroppingRef.current = true;
+    setTextElements([...textElements, textElement]);
+    setNewText('');
+    drawImageToCanvas();
   };
   
-  // Update crop selection while dragging
-  const updateCrop = (e) => {
-    if (!isCroppingRef.current || !canvasRef.current) return;
+  const addToHistory = () => {
+    if (!canvasRef.current) return;
     
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const currentX = e.clientX - rect.left;
-    const currentY = e.clientY - rect.top;
-    
-    const width = Math.abs(currentX - cropStartRef.current.x);
-    const height = Math.abs(currentY - cropStartRef.current.y);
-    const x = Math.min(currentX, cropStartRef.current.x);
-    const y = Math.min(currentY, cropStartRef.current.y);
-    
-    setCropCoordinates({ x, y, width, height });
-    
-    // Redraw with crop overlay
-    applyChanges();
-    const ctx = canvas.getContext('2d');
-    
-    // Draw semi-transparent overlay
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Clear the crop area
-    ctx.clearRect(x, y, width, height);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, width, height);
-  };
-  
-  // Complete the crop operation
-  const endCrop = () => {
-    if (!isCroppingRef.current || !canvasRef.current) return;
-    
-    isCroppingRef.current = false;
-    
-    const { x, y, width, height } = cropCoordinates;
-    if (width < 10 || height < 10) {
-      // Too small to crop
-      return;
-    }
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
-    // Get the image data from the selected area
-    const imageData = ctx.getImageData(x, y, width, height);
-    
-    // Create a new canvas for the cropped image
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = width;
-    tempCanvas.height = height;
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.putImageData(imageData, 0, 0);
-    
-    // Create a new image from the cropped canvas
-    const img = new Image();
-    img.onload = () => {
-      imageRef.current = img;
-      setCropMode(false);
-      applyChanges(img);
-      addToHistory(img);
-    };
-    img.src = tempCanvas.toDataURL('image/jpeg');
-  };
-  
-  // Cancel crop mode
-  const cancelCrop = () => {
-    setCropMode(false);
-    isCroppingRef.current = false;
-    applyChanges();
-  };
-  
-  // Apply a filter
-  const toggleFilter = (filterName) => {
-    const newFilters = { ...filters, [filterName]: !filters[filterName] };
-    setFilters(newFilters);
-  };
-  
-  // Set blur amount
-  const setBlurAmount = (amount) => {
-    setFilters({ ...filters, blur: amount });
-  };
-  
-  // Add current state to history
-  const addToHistory = (img) => {
-    // If we're not at the end of the history, truncate it
-    const newHistory = historyIndex < historyStack.length - 1
-      ? historyStack.slice(0, historyIndex + 1)
-      : [...historyStack];
-    
-    newHistory.push(img.src);
-    setHistoryStack(newHistory);
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(canvasRef.current.toDataURL());
+    setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   };
   
-  // Undo to previous state
   const undo = () => {
-    if (historyIndex <= 0) return;
-    
-    const newIndex = historyIndex - 1;
-    setHistoryIndex(newIndex);
-    
-    const img = new Image();
-    img.onload = () => {
-      imageRef.current = img;
-      resetSettings();
-      applyChanges(img);
-    };
-    img.src = historyStack[newIndex];
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+      loadFromHistory(historyIndex - 1);
+    }
   };
   
-  // Redo to next state
   const redo = () => {
-    if (historyIndex >= historyStack.length - 1) return;
-    
-    const newIndex = historyIndex + 1;
-    setHistoryIndex(newIndex);
-    
-    const img = new Image();
-    img.onload = () => {
-      imageRef.current = img;
-      resetSettings();
-      applyChanges(img);
-    };
-    img.src = historyStack[newIndex];
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+      loadFromHistory(historyIndex + 1);
+    }
   };
   
-  // Download the edited image
+  const loadFromHistory = (index) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      setEditedImage(canvas.toDataURL());
+    };
+    img.src = history[index];
+  };
+  
   const downloadImage = () => {
     if (!editedImage) return;
     
-    const a = document.createElement('a');
-    a.href = editedImage;
-    a.download = 'edited-image.jpg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    logger.info('Image downloaded');
+    const link = document.createElement('a');
+    link.download = 'edited-image.jpg';
+    link.href = editedImage;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
   
-  // Apply changes whenever settings change
+  // Re-render when any setting changes
   useEffect(() => {
     if (imageRef.current) {
-      applyChanges();
+      drawImageToCanvas();
     }
-  }, [brightness, contrast, saturation, rotation, filters]);
+  }, [brightness, contrast, saturation, hue, exposure, highlights, shadows, vibrance, warmth, tint, selectedFilter, filterIntensity, blur, sharpen, noise, vignette]);
+  
+  const stickerEmojis = ['😀', '😍', '🔥', '💯', '✨', '🌟', '❤️', '👍', '🎉', '🌈'];
+  
+  const addSticker = (emoji) => {
+    const sticker = {
+      id: Date.now(),
+      content: emoji,
+      x: 100,
+      y: 100,
+      width: 50,
+      height: 50,
+      opacity: 1,
+      type: 'emoji'
+    };
+    
+    setStickers([...stickers, sticker]);
+    drawImageToCanvas();
+  };
   
   return (
     <div className="image-editor-container">
-      <h2>Image Editor</h2>
-      
-      <div className="editor-workspace">
-        <div className="editor-tools">
-          <div className="tool-section">
-            <h3>Image</h3>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleImageUpload} 
-              className="file-input"
-            />
-            
-            <div className="history-buttons">
-              <button onClick={undo} disabled={historyIndex <= 0}>Undo</button>
-              <button onClick={redo} disabled={historyIndex >= historyStack.length - 1}>Redo</button>
-            </div>
-          </div>
-          
-          <div className="tool-section">
-            <h3>Adjustments</h3>
-            <div className="slider-control">
-              <label>Brightness: {brightness}%</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="200" 
-                value={brightness} 
-                onChange={(e) => setBrightness(parseInt(e.target.value))} 
-              />
-            </div>
-            
-            <div className="slider-control">
-              <label>Contrast: {contrast}%</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="200" 
-                value={contrast} 
-                onChange={(e) => setContrast(parseInt(e.target.value))} 
-              />
-            </div>
-            
-            <div className="slider-control">
-              <label>Saturation: {saturation}%</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="200" 
-                value={saturation} 
-                onChange={(e) => setSaturation(parseInt(e.target.value))} 
-              />
-            </div>
-            
-            <div className="slider-control">
-              <label>Rotation: {rotation}°</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="359" 
-                value={rotation} 
-                onChange={(e) => setRotation(parseInt(e.target.value))} 
-              />
-            </div>
-          </div>
-          
-          <div className="tool-section">
-            <h3>Filters</h3>
-            <div className="filter-buttons">
-              <button 
-                className={filters.grayscale ? 'active' : ''} 
-                onClick={() => toggleFilter('grayscale')}
-              >
-                Grayscale
-              </button>
-              <button 
-                className={filters.sepia ? 'active' : ''} 
-                onClick={() => toggleFilter('sepia')}
-              >
-                Sepia
-              </button>
-              <button 
-                className={filters.invert ? 'active' : ''} 
-                onClick={() => toggleFilter('invert')}
-              >
-                Invert
-              </button>
-            </div>
-            
-            <div className="slider-control">
-              <label>Blur: {filters.blur}px</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="20" 
-                value={filters.blur} 
-                onChange={(e) => setBlurAmount(parseInt(e.target.value))} 
-              />
-            </div>
-          </div>
-          
-          <div className="tool-section">
-            <h3>Transform</h3>
-            <div className="transform-buttons">
-              <button 
-                className={cropMode ? 'active' : ''} 
-                onClick={() => setCropMode(!cropMode)}
-              >
-                {cropMode ? 'Cancel Crop' : 'Crop'}
-              </button>
-              
-              {cropMode && (
-                <button onClick={endCrop}>Apply Crop</button>
-              )}
-            </div>
-          </div>
-          
-          <div className="tool-section">
-            <h3>Export</h3>
-            <button onClick={downloadImage} disabled={!editedImage}>
-              Download Image
-            </button>
-          </div>
-        </div>
-        
-        <div className="editor-canvas-container">
-          {!image && (
-            <div className="upload-prompt">
-              <p>Upload an image to begin editing</p>
-            </div>
-          )}
-          
-          {image && (
-            <canvas 
-              ref={canvasRef}
-              className="editor-canvas"
-              onMouseDown={cropMode ? startCrop : null}
-              onMouseMove={cropMode ? updateCrop : null}
-              onMouseUp={cropMode ? endCrop : null}
-              onMouseLeave={cropMode ? cancelCrop : null}
-            />
-          )}
+      <div className="editor-header">
+        <h2>🎨 PicsArt-style Image Editor</h2>
+        <div className="header-actions">
+          <button onClick={undo} disabled={historyIndex <= 0}>↶ Undo</button>
+          <button onClick={redo} disabled={historyIndex >= history.length - 1}>↷ Redo</button>
+          <button onClick={downloadImage} disabled={!editedImage} className="download-btn">
+            📥 Download
+          </button>
         </div>
       </div>
       
-      <div className="editor-tips">
-        <h3>Image Processing Tips</h3>
-        <ul>
-          <li>Use the <strong>Brightness</strong> slider to adjust image exposure</li>
-          <li>Increase <strong>Contrast</strong> to make the image pop more</li>
-          <li>Reduce <strong>Saturation</strong> for a more muted look, or increase for vivid colors</li>
-          <li>The <strong>Grayscale</strong> filter converts your image to black and white</li>
-          <li>Use <strong>Crop</strong> to remove unwanted parts of your image</li>
-          <li>You can <strong>Undo/Redo</strong> your changes with the history buttons</li>
-        </ul>
+      <div className="editor-workspace">
+        <div className="tool-sidebar">
+          <div className="tool-tabs">
+            <button 
+              className={currentTool === 'basic' ? 'active' : ''} 
+              onClick={() => setCurrentTool('basic')}
+            >
+              🔧 Basic
+            </button>
+            <button 
+              className={currentTool === 'filters' ? 'active' : ''} 
+              onClick={() => setCurrentTool('filters')}
+            >
+              🎭 Filters
+            </button>
+            <button 
+              className={currentTool === 'effects' ? 'active' : ''} 
+              onClick={() => setCurrentTool('effects')}
+            >
+              ✨ Effects
+            </button>
+            <button 
+              className={currentTool === 'text' ? 'active' : ''} 
+              onClick={() => setCurrentTool('text')}
+            >
+              📝 Text
+            </button>
+            <button 
+              className={currentTool === 'stickers' ? 'active' : ''} 
+              onClick={() => setCurrentTool('stickers')}
+            >
+              😀 Stickers
+            </button>
+          </div>
+          
+          <div className="tool-content">
+            {currentTool === 'basic' && (
+              <div className="basic-tools">
+                <h3>Basic Adjustments</h3>
+                
+                <div className="slider-group">
+                  <label>Brightness: {brightness}%</label>
+                  <input type="range" min="0" max="200" value={brightness} 
+                         onChange={(e) => setBrightness(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Contrast: {contrast}%</label>
+                  <input type="range" min="0" max="200" value={contrast} 
+                         onChange={(e) => setContrast(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Saturation: {saturation}%</label>
+                  <input type="range" min="0" max="200" value={saturation} 
+                         onChange={(e) => setSaturation(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Hue: {hue}°</label>
+                  <input type="range" min="-180" max="180" value={hue} 
+                         onChange={(e) => setHue(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Exposure: {exposure}</label>
+                  <input type="range" min="-100" max="100" value={exposure} 
+                         onChange={(e) => setExposure(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Highlights: {highlights}</label>
+                  <input type="range" min="-100" max="100" value={highlights} 
+                         onChange={(e) => setHighlights(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Shadows: {shadows}</label>
+                  <input type="range" min="-100" max="100" value={shadows} 
+                         onChange={(e) => setShadows(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Vibrance: {vibrance}</label>
+                  <input type="range" min="-100" max="100" value={vibrance} 
+                         onChange={(e) => setVibrance(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Warmth: {warmth}</label>
+                  <input type="range" min="-100" max="100" value={warmth} 
+                         onChange={(e) => setWarmth(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Tint: {tint}</label>
+                  <input type="range" min="-100" max="100" value={tint} 
+                         onChange={(e) => setTint(Number(e.target.value))} />
+                </div>
+              </div>
+            )}
+            
+            {currentTool === 'filters' && (
+              <div className="filters-tools">
+                <h3>Filters</h3>
+                <div className="filter-grid">
+                  {Object.entries(filters).map(([key, filter]) => (
+                    <div 
+                      key={key} 
+                      className={`filter-option ${selectedFilter === key ? 'active' : ''}`}
+                      onClick={() => setSelectedFilter(key)}
+                    >
+                      <div className="filter-preview" style={{ filter: filter.css }}>
+                        <div className="preview-square"></div>
+                      </div>
+                      <span>{filter.name}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {selectedFilter !== 'none' && (
+                  <div className="slider-group">
+                    <label>Filter Intensity: {filterIntensity}%</label>
+                    <input type="range" min="0" max="100" value={filterIntensity} 
+                           onChange={(e) => setFilterIntensity(Number(e.target.value))} />
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {currentTool === 'effects' && (
+              <div className="effects-tools">
+                <h3>Effects</h3>
+                
+                <div className="slider-group">
+                  <label>Blur: {blur}px</label>
+                  <input type="range" min="0" max="20" value={blur} 
+                         onChange={(e) => setBlur(Number(e.target.value))} />
+                </div>
+                
+                <div className="slider-group">
+                  <label>Vignette: {vignette}%</label>
+                  <input type="range" min="0" max="100" value={vignette} 
+                         onChange={(e) => setVignette(Number(e.target.value))} />
+                </div>
+              </div>
+            )}
+            
+            {currentTool === 'text' && (
+              <div className="text-tools">
+                <h3>Add Text</h3>
+                
+                <div className="text-input-group">
+                  <input 
+                    type="text" 
+                    placeholder="Enter text..." 
+                    value={newText}
+                    onChange={(e) => setNewText(e.target.value)}
+                  />
+                  <button onClick={addTextElement} disabled={!newText.trim()}>
+                    Add Text
+                  </button>
+                </div>
+                
+                <div className="text-style-controls">
+                  <div className="slider-group">
+                    <label>Font Size: {textStyle.fontSize}px</label>
+                    <input type="range" min="12" max="72" value={textStyle.fontSize} 
+                           onChange={(e) => setTextStyle({...textStyle, fontSize: Number(e.target.value)})} />
+                  </div>
+                  
+                  <div className="color-group">
+                    <label>Color:</label>
+                    <input type="color" value={textStyle.color} 
+                           onChange={(e) => setTextStyle({...textStyle, color: e.target.value})} />
+                  </div>
+                  
+                  <div className="font-controls">
+                    <select value={textStyle.fontFamily} 
+                            onChange={(e) => setTextStyle({...textStyle, fontFamily: e.target.value})}>
+                      <option value="Arial">Arial</option>
+                      <option value="Helvetica">Helvetica</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Verdana">Verdana</option>
+                    </select>
+                  </div>
+                  
+                  <div className="style-buttons">
+                    <button 
+                      className={textStyle.bold ? 'active' : ''} 
+                      onClick={() => setTextStyle({...textStyle, bold: !textStyle.bold})}
+                    >
+                      <strong>B</strong>
+                    </button>
+                    <button 
+                      className={textStyle.italic ? 'active' : ''} 
+                      onClick={() => setTextStyle({...textStyle, italic: !textStyle.italic})}
+                    >
+                      <em>I</em>
+                    </button>
+                    <button 
+                      className={textStyle.shadow ? 'active' : ''} 
+                      onClick={() => setTextStyle({...textStyle, shadow: !textStyle.shadow})}
+                    >
+                      Shadow
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {currentTool === 'stickers' && (
+              <div className="stickers-tools">
+                <h3>Stickers</h3>
+                <div className="sticker-grid">
+                  {stickerEmojis.map(emoji => (
+                    <button 
+                      key={emoji} 
+                      className="sticker-btn" 
+                      onClick={() => addSticker(emoji)}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="canvas-area">
+          {!image ? (
+            <div className="upload-area">
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleImageUpload}
+                id="image-upload"
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="image-upload" className="upload-btn">
+                📸 Upload Image
+              </label>
+              <p>Select an image to start editing</p>
+            </div>
+          ) : (
+            <div className="canvas-container">
+              <canvas ref={canvasRef} className="main-canvas" />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
