@@ -2045,3 +2045,73 @@ footer {
     border-color: #555;
   }
 }
+
+.quality-section {
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.quality-controls {
+  margin-top: 10px;
+}
+
+.quality-controls label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.quality-controls input[type="range"] {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.progress-section {
+  margin: 15px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width 0.3s ease;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.feature-card {
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #4CAF50;
+}
+
+.feature-card h4 {
+  margin-top: 0;
+  color: #35424a;
+}
+
+.feature-card ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.feature-card li {
+  margin-bottom: 5px;
+}

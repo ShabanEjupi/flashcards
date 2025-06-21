@@ -662,6 +662,9 @@ const ImageEditor = () => {
           )}
         </div>
       </div>
+      
+      {/* TODO: Implement advanced photo editing features similar to PicsArt, including filters, effects, and drawing tools.
+          This will involve enhancing the current ImageEditor component to support more functionalities. */}
     </div>
   );
 };
