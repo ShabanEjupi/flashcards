@@ -293,6 +293,33 @@ const FileConverter = () => {
     });
   };
 
+  // Enhanced DOCX conversion with mammoth.js (after installing the library)
+  const convertDocxToTextWithMammoth = async (file) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Dynamic import to avoid bundling issues
+        const mammoth = await import('mammoth');
+        
+        const arrayBuffer = await file.arrayBuffer();
+        
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        
+        if (result.value) {
+          const formattedText = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${result.value}\n\n${'='.repeat(50)}\nExtracted using Mammoth.js - High quality text extraction`;
+          
+          const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
+          resolve(textBlob);
+        } else {
+          throw new Error('No text content found in the DOCX file');
+        }
+        
+      } catch (error) {
+        logger.error('Mammoth DOCX conversion failed', { error: error.message });
+        reject(new Error(`Failed to convert DOCX: ${error.message}`));
+      }
+    });
+  };
+
   // Enhanced main conversion function
   const performConversion = async (file, targetFormat) => {
     const fileType = file.type;
