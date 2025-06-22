@@ -394,11 +394,10 @@ const ImageEditor = () => {
     setStickers([...stickers, sticker]);
     drawImageToCanvas();
   };
-  
-  return (
+    return (
     <div className="image-editor-container">
       <div className="editor-header">
-        <h2>🎨 PicsArt-style Image Editor</h2>
+        <h2>🎨 Image Editor</h2>
         <div className="header-actions">
           <button onClick={undo} disabled={historyIndex <= 0}>↶ Undo</button>
           <button onClick={redo} disabled={historyIndex >= history.length - 1}>↷ Redo</button>
