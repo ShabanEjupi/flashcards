@@ -64,260 +64,286 @@ const FileConverter = () => {
     setError(null);
   };
 
+  // Add error handling for file conversion
+  const handleFileConversionError = (error) => {
+    console.error('File conversion error:', error);
+    setError('There was an error converting the file. Please try again.');
+  };
+
   // Image conversion with quality preservation
   const convertImage = async (file, targetFormat) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+    try {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Preserve original dimensions for better quality
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            
+            // Use high-quality rendering
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            // Draw image
+            ctx.drawImage(img, 0, 0);
+            
+            // Convert with quality settings
+            const quality = targetFormat === 'jpg' ? qualitySettings.imageQuality : 1.0;
+            const mimeType = targetFormat === 'jpg' ? 'image/jpeg' : `image/${targetFormat}`;
+            
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Failed to convert image'));
+              }
+            }, mimeType, quality);
+          };
           
-          // Preserve original dimensions for better quality
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          
-          // Use high-quality rendering
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          
-          // Draw image
-          ctx.drawImage(img, 0, 0);
-          
-          // Convert with quality settings
-          const quality = targetFormat === 'jpg' ? qualitySettings.imageQuality : 1.0;
-          const mimeType = targetFormat === 'jpg' ? 'image/jpeg' : `image/${targetFormat}`;
-          
-          canvas.toBlob((blob) => {
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to convert image'));
-            }
-          }, mimeType, quality);
+          img.onerror = () => reject(new Error('Failed to load image'));
+          img.src = event.target.result;
         };
         
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = event.target.result;
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+    } catch (error) {
+      handleFileConversionError(error);
+    }
   };
 
   // Text to PDF conversion
   const convertTextToPDF = async (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          // Import jsPDF dynamically
-          const { jsPDF } = await import('jspdf');
-          
-          const text = event.target.result;
-          const doc = new jsPDF();
-          
-          // Set font and size for better quality
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'normal');
-          
-          // Split text into lines that fit the page width
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const pageHeight = doc.internal.pageSize.getHeight();
-          const margin = 20;
-          const maxLineWidth = pageWidth - (margin * 2);
-          
-          const lines = doc.splitTextToSize(text, maxLineWidth);
-          let y = margin;
-          
-          lines.forEach((line) => {
-            if (y > pageHeight - margin) {
-              doc.addPage();
-              y = margin;
-            }
-            doc.text(line, margin, y);
-            y += 7; // Line height
-          });
-          
-          // Generate blob
-          const pdfBlob = doc.output('blob');
-          resolve(pdfBlob);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read text file'));
-      reader.readAsText(file);
-    });
+    try {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            // Import jsPDF dynamically
+            const { jsPDF } = await import('jspdf');
+            
+            const text = event.target.result;
+            const doc = new jsPDF();
+            
+            // Set font and size for better quality
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            
+            // Split text into lines that fit the page width
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 20;
+            const maxLineWidth = pageWidth - (margin * 2);
+            
+            const lines = doc.splitTextToSize(text, maxLineWidth);
+            let y = margin;
+            
+            lines.forEach((line) => {
+              if (y > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+              }
+              doc.text(line, margin, y);
+              y += 7; // Line height
+            });
+            
+            // Generate blob
+            const pdfBlob = doc.output('blob');
+            resolve(pdfBlob);
+          } catch (error) {
+            reject(error);
+          }
+        };
+        
+        reader.onerror = () => reject(new Error('Failed to read text file'));
+        reader.readAsText(file);
+      });
+    } catch (error) {
+      handleFileConversionError(error);
+    }
   };
 
   // HTML to PDF conversion
   const convertHtmlToPDF = async (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const html = event.target.result;
-          
-          // Create a temporary div to render HTML
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = html;
-          tempDiv.style.width = '800px';
-          tempDiv.style.padding = '20px';
-          tempDiv.style.fontFamily = 'Arial, sans-serif';
-          tempDiv.style.position = 'absolute';
-          tempDiv.style.left = '-9999px';
-          document.body.appendChild(tempDiv);
-          
-          // Import html2canvas and jsPDF
-          const html2canvas = (await import('html2canvas')).default;
-          const { jsPDF } = await import('jspdf');
-          
-          const canvas = await html2canvas(tempDiv, {
-            scale: 2, // Higher scale for better quality
-            useCORS: true,
-            allowTaint: true
-          });
-          
-          document.body.removeChild(tempDiv);
-          
-          const imgData = canvas.toDataURL('image/png');
-          const doc = new jsPDF();
-          
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const pageHeight = doc.internal.pageSize.getHeight();
-          const imgWidth = pageWidth - 20;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          
-          doc.addImage(imgData, 'PNG', 10, 10, imgWidth, Math.min(imgHeight, pageHeight - 20));
-          
-          const pdfBlob = doc.output('blob');
-          resolve(pdfBlob);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read HTML file'));
-      reader.readAsText(file);
-    });
+    try {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const html = event.target.result;
+            
+            // Create a temporary div to render HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            tempDiv.style.width = '800px';
+            tempDiv.style.padding = '20px';
+            tempDiv.style.fontFamily = 'Arial, sans-serif';
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            document.body.appendChild(tempDiv);
+            
+            // Import html2canvas and jsPDF
+            const html2canvas = (await import('html2canvas')).default;
+            const { jsPDF } = await import('jspdf');
+            
+            const canvas = await html2canvas(tempDiv, {
+              scale: 2, // Higher scale for better quality
+              useCORS: true,
+              allowTaint: true
+            });
+            
+            document.body.removeChild(tempDiv);
+            
+            const imgData = canvas.toDataURL('image/png');
+            const doc = new jsPDF();
+            
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const imgWidth = pageWidth - 20;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            doc.addImage(imgData, 'PNG', 10, 10, imgWidth, Math.min(imgHeight, pageHeight - 20));
+            
+            const pdfBlob = doc.output('blob');
+            resolve(pdfBlob);
+          } catch (error) {
+            reject(error);
+          }
+        };
+        
+        reader.onerror = () => reject(new Error('Failed to read HTML file'));
+        reader.readAsText(file);
+      });
+    } catch (error) {
+      handleFileConversionError(error);
+    }
   };
 
   // Add DOCX to text conversion function
   const convertDocxToText = async (file) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // For DOCX files, we'll use a simple approach to extract text
-        // This is a basic implementation - for production, you'd want to use a library like mammoth.js
-        
-        const arrayBuffer = await file.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        
-        // Convert to string and try to extract readable text
-        // This is a simplified approach that looks for text patterns in the DOCX file
-        let text = '';
-        
-        // DOCX files are ZIP archives, so we'll try to extract text content
-        // For a more robust solution, you would use a proper DOCX parser
+    try {
+      return new Promise(async (resolve, reject) => {
         try {
-          const textDecoder = new TextDecoder('utf-8', { fatal: false });
-          const rawText = textDecoder.decode(uint8Array);
+          // For DOCX files, we'll use a simple approach to extract text
+          // This is a basic implementation - for production, you'd want to use a library like mammoth.js
           
-          // Extract text content using regex patterns
-          // Look for text between XML tags that typically contain document content
-          const textMatches = rawText.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
+          const arrayBuffer = await file.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
           
-          if (textMatches) {
-            text = textMatches
-              .map(match => match.replace(/<w:t[^>]*>([^<]*)<\/w:t>/, '$1'))
-              .join(' ')
-              .replace(/\s+/g, ' ')
-              .trim();
-          }
+          // Convert to string and try to extract readable text
+          // This is a simplified approach that looks for text patterns in the DOCX file
+          let text = '';
           
-          // If no text found with the above method, try alternative extraction
-          if (!text || text.length < 10) {
-            // Look for any readable text patterns
-            const readableText = rawText.match(/[a-zA-Z\s]{10,}/g);
-            if (readableText) {
-              text = readableText
-                .filter(t => t.trim().length > 5)
+          // DOCX files are ZIP archives, so we'll try to extract text content
+          // For a more robust solution, you would use a proper DOCX parser
+          try {
+            const textDecoder = new TextDecoder('utf-8', { fatal: false });
+            const rawText = textDecoder.decode(uint8Array);
+            
+            // Extract text content using regex patterns
+            // Look for text between XML tags that typically contain document content
+            const textMatches = rawText.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
+            
+            if (textMatches) {
+              text = textMatches
+                .map(match => match.replace(/<w:t[^>]*>([^<]*)<\/w:t>/, '$1'))
                 .join(' ')
                 .replace(/\s+/g, ' ')
                 .trim();
             }
-          }
-          
-        } catch (decodeError) {
-          console.log('UTF-8 decode failed, trying alternative approach');
-          
-          // Fallback: extract any readable ASCII text
-          let extractedText = '';
-          for (let i = 0; i < uint8Array.length - 1; i++) {
-            const char = String.fromCharCode(uint8Array[i]);
-            if (char.match(/[a-zA-Z0-9\s\.,!?;:\-\(\)]/)) {
-              extractedText += char;
-            } else if (extractedText.length > 0 && !extractedText.endsWith(' ')) {
-              extractedText += ' ';
+            
+            // If no text found with the above method, try alternative extraction
+            if (!text || text.length < 10) {
+              // Look for any readable text patterns
+              const readableText = rawText.match(/[a-zA-Z\s]{10,}/g);
+              if (readableText) {
+                text = readableText
+                  .filter(t => t.trim().length > 5)
+                  .join(' ')
+                  .replace(/\s+/g, ' ')
+                  .trim();
+              }
             }
+            
+          } catch (decodeError) {
+            console.log('UTF-8 decode failed, trying alternative approach');
+            
+            // Fallback: extract any readable ASCII text
+            let extractedText = '';
+            for (let i = 0; i < uint8Array.length - 1; i++) {
+              const char = String.fromCharCode(uint8Array[i]);
+              if (char.match(/[a-zA-Z0-9\s\.,!?;:\-\(\)]/)) {
+                extractedText += char;
+              } else if (extractedText.length > 0 && !extractedText.endsWith(' ')) {
+                extractedText += ' ';
+              }
+            }
+            
+            // Clean up the extracted text
+            text = extractedText
+              .replace(/\s+/g, ' ')
+              .split(' ')
+              .filter(word => word.length > 0)
+              .join(' ')
+              .trim();
           }
           
-          // Clean up the extracted text
-          text = extractedText
-            .replace(/\s+/g, ' ')
-            .split(' ')
-            .filter(word => word.length > 0)
-            .join(' ')
-            .trim();
+          // If still no meaningful text, provide a message
+          if (!text || text.length < 5) {
+            text = `Extracted content from ${file.name}\n\nNote: This is a simplified text extraction from a DOCX file. For better results, please use a dedicated DOCX to TXT converter or open the file in Microsoft Word and save as TXT.\n\nFile size: ${(file.size / 1024).toFixed(1)} KB\nFile type: ${file.type}`;
+          } else {
+            // Add some formatting to the extracted text
+            text = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${text}\n\n${'='.repeat(50)}\nNote: This text was extracted from a DOCX file using basic parsing. Some formatting and special characters may be lost.`;
+          }
+          
+          // Create blob with the extracted text
+          const textBlob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+          resolve(textBlob);
+          
+        } catch (error) {
+          logger.error('DOCX to text conversion failed', { error: error.message });
+          reject(new Error(`Failed to convert DOCX to text: ${error.message}`));
         }
-        
-        // If still no meaningful text, provide a message
-        if (!text || text.length < 5) {
-          text = `Extracted content from ${file.name}\n\nNote: This is a simplified text extraction from a DOCX file. For better results, please use a dedicated DOCX to TXT converter or open the file in Microsoft Word and save as TXT.\n\nFile size: ${(file.size / 1024).toFixed(1)} KB\nFile type: ${file.type}`;
-        } else {
-          // Add some formatting to the extracted text
-          text = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${text}\n\n${'='.repeat(50)}\nNote: This text was extracted from a DOCX file using basic parsing. Some formatting and special characters may be lost.`;
-        }
-        
-        // Create blob with the extracted text
-        const textBlob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        resolve(textBlob);
-        
-      } catch (error) {
-        logger.error('DOCX to text conversion failed', { error: error.message });
-        reject(new Error(`Failed to convert DOCX to text: ${error.message}`));
-      }
-    });
+      });
+    } catch (error) {
+      handleFileConversionError(error);
+    }
   };
 
   // Enhanced DOCX conversion with mammoth.js (after installing the library)
   const convertDocxToTextWithMammoth = async (file) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Dynamic import to avoid bundling issues
-        const mammoth = await import('mammoth');
-        
-        const arrayBuffer = await file.arrayBuffer();
-        
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        
-        if (result.value) {
-          const formattedText = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${result.value}\n\n${'='.repeat(50)}\nExtracted using Mammoth.js - High quality text extraction`;
+    try {
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Dynamic import to avoid bundling issues
+          const mammoth = await import('mammoth');
           
-          const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
-          resolve(textBlob);
-        } else {
-          throw new Error('No text content found in the DOCX file');
+          const arrayBuffer = await file.arrayBuffer();
+          
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          
+          if (result.value) {
+            const formattedText = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${result.value}\n\n${'='.repeat(50)}\nExtracted using Mammoth.js - High quality text extraction`;
+            
+            const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
+            resolve(textBlob);
+          } else {
+            throw new Error('No text content found in the DOCX file');
+          }
+          
+        } catch (error) {
+          logger.error('Mammoth DOCX conversion failed', { error: error.message });
+          reject(new Error(`Failed to convert DOCX: ${error.message}`));
         }
-        
-      } catch (error) {
-        logger.error('Mammoth DOCX conversion failed', { error: error.message });
-        reject(new Error(`Failed to convert DOCX: ${error.message}`));
-      }
-    });
+      });
+    } catch (error) {
+      handleFileConversionError(error);
+    }
   };
 
   // Enhanced DOCX to PDF conversion function
@@ -417,7 +443,88 @@ For better results, try:
     });
   };
 
-  // Enhanced main conversion function
+  // Replace the convertTextToDocx function with this improved version
+  const convertTextToDocx = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const text = event.target.result;
+          
+          // Try to use the docx library if available
+          try {
+            const docx = await import('docx');
+            const { Document, Paragraph, TextRun, Packer } = docx;
+            
+            // Split text into paragraphs
+            const textLines = text.split(/\r?\n/);
+            
+            // Create paragraphs for each line
+            const paragraphs = textLines.map(line => 
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: line || " ", // Empty line if no text
+                    font: "Calibri",
+                    size: 24, // 12pt font (size is in half-points)
+                  })
+                ],
+              })
+            );
+            
+            // Create document
+            const doc = new Document({
+              sections: [{
+                properties: {},
+                children: paragraphs,
+              }],
+            });
+            
+            // Generate blob
+            const buffer = await Packer.toBuffer(doc);
+            const docxBlob = new Blob([buffer], { 
+              type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+            });
+            
+            resolve(docxBlob);
+            
+          } catch (docxError) {
+            console.log('docx library not available, using fallback method');
+            
+            // Fallback: Create a simple RTF file that Word can open
+            const rtfContent = createRTFContent(text);
+            
+            const rtfBlob = new Blob([rtfContent], { 
+              type: 'application/rtf' 
+            });
+            
+            resolve(rtfBlob);
+          }
+          
+        } catch (error) {
+          reject(new Error(`Failed to convert text to DOCX: ${error.message}`));
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read text file'));
+      reader.readAsText(file);
+    });
+  };
+
+  // Helper function to create RTF content as fallback
+  const createRTFContent = (text) => {
+    // RTF (Rich Text Format) is readable by Word and other word processors
+    const rtfHeader = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}';
+    const rtfContent = text
+      .split(/\r?\n/)
+      .map(line => line.replace(/[{}\\]/g, '\\$&')) // Escape RTF special characters
+      .join('\\par\n');
+    const rtfFooter = '}';
+    
+    return `${rtfHeader}\n${rtfContent}\n${rtfFooter}`;
+  };
+
+  // Enhanced performConversion function
   const performConversion = async (file, targetFormat) => {
     const fileType = file.type;
     const fileName = file.name.toLowerCase();
@@ -435,7 +542,7 @@ For better results, try:
       else if (fileType === 'text/plain' && targetFormat === 'pdf') {
         convertedBlob = await convertTextToPDF(file);
       }
-      // Text to DOCX - ADD THIS MISSING CONVERSION
+      // Text to DOCX - FIXED VERSION
       else if (fileType === 'text/plain' && targetFormat === 'docx') {
         setConversionProgress(50);
         convertedBlob = await convertTextToDocx(file);
@@ -444,7 +551,7 @@ For better results, try:
       else if (fileType === 'text/html' && targetFormat === 'pdf') {
         convertedBlob = await convertHtmlToPDF(file);
       }
-      // DOCX to TXT - NEW CONVERSION TYPE
+      // DOCX to TXT
       else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && targetFormat === 'txt') {
         setConversionProgress(50);
         convertedBlob = await convertDocxToText(file);
@@ -553,62 +660,6 @@ For better results, try:
       link.click();
       document.body.removeChild(link);
     }
-  };
-
-  // Implement conversion from text/plain to docx
-  const convertTextToDocx = async (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          // For now, we'll create a simple HTML structure and save as DOCX-compatible format
-          const text = event.target.result;
-          
-          // Create a simple Word-compatible HTML document
-          const htmlContent = `
-          <!DOCTYPE html>
-          <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-                xmlns:w='urn:schemas-microsoft-com:office:word' 
-                xmlns='http://www.w3.org/TR/REC-html40'>
-          <head>
-            <meta charset="utf-8">
-            <title>Converted Document</title>
-            <!--[if gte mso 9]>
-            <xml>
-              <w:WordDocument>
-                <w:View>Print</w:View>
-                <w:Zoom>90</w:Zoom>
-                <w:DoNotPromptForConvert/>
-                <w:DoNotShowInsertionsAndDeletions/>
-              </w:WordDocument>
-            </xml>
-            <![endif]-->
-            <style>
-              body { font-family: 'Calibri', sans-serif; font-size: 11pt; margin: 1in; }
-              p { margin: 0 0 12pt 0; }
-            </style>
-          </head>
-          <body>
-            ${text.split('\n').map(line => `<p>${line || '&nbsp;'}</p>`).join('')}
-          </body>
-          </html>
-        `;
-        
-          // Create blob with Word-compatible HTML
-          const docxBlob = new Blob([htmlContent], { 
-            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-          });
-          
-          resolve(docxBlob);
-          
-        } catch (error) {
-          reject(new Error(`Failed to convert text to DOCX: ${error.message}`));
-        }
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read text file'));
-      reader.readAsText(file);
-    });
   };
 
   return (
