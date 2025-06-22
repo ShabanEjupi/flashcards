@@ -590,83 +590,7 @@ ${htmlContent}
       });
     } catch (error) {
       handleFileConversionError(error);
-    }
-  };// Primary PDF to DOCX conversion using pdf-parse
-  const convertPdfToDocxPrimary = async (file) => {
-    try {
-      const pdfParse = await import('pdf-parse');
-      
-      return new Promise(async (resolve, reject) => {
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const data = await pdfParse.default(arrayBuffer);
-          
-          if (data.text && data.text.trim().length > 10) {
-            const formattedText = `Document: ${file.name}
-Conversion Method: pdf-parse (High Quality)
-Creation Date: ${new Date().toLocaleString()}
-Total Pages: ${data.numpages}
-
-${'='.repeat(80)}
-
-${data.text}
-
-${'='.repeat(80)}
-Extraction completed: ${new Date().toLocaleString()}
-Note: Text extracted using pdf-parse library for highest quality`;
-            
-            // Create a temporary text file and convert to DOCX
-            const tempTextFile = new File([formattedText], 'temp.txt', { type: 'text/plain' });
-            const docxBlob = await convertTextToDocx(tempTextFile);
-            resolve(docxBlob);
-          } else {
-            throw new Error('No readable text found in PDF');
-          }
-        } catch (error) {
-          logger.error('pdf-parse conversion failed', { error: error.message });
-          reject(new Error(`Failed to convert PDF using pdf-parse: ${error.message}`));
-        }
-      });
-    } catch (error) {
-      throw new Error('pdf-parse library not available');
-    }
-  };
-
-  // Primary PDF to TXT conversion using pdf-parse
-  const convertPdfToTextPrimary = async (file) => {
-    try {
-      const pdfParse = await import('pdf-parse');
-      
-      return new Promise(async (resolve, reject) => {
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const data = await pdfParse.default(arrayBuffer);
-          
-          if (data.text && data.text.trim().length > 10) {
-            const formattedText = `Content extracted from PDF: ${file.name}
-${'='.repeat(60)}
-
-${data.text}
-
-${'='.repeat(60)}
-Extracted using pdf-parse (High Quality)
-Total Pages: ${data.numpages}
-Created: ${new Date().toLocaleString()}`;
-            
-            const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
-            resolve(textBlob);
-          } else {
-            throw new Error('No readable text found in PDF');
-          }
-        } catch (error) {
-          logger.error('pdf-parse text conversion failed', { error: error.message });
-          reject(new Error(`Failed to convert PDF to text using pdf-parse: ${error.message}`));
-        }
-      });
-    } catch (error) {
-      throw new Error('pdf-parse library not available');
-    }
-  };
+    }  };
 
   // Enhanced PDF to DOCX conversion using pdfjs-dist with better worker handling
   const convertPdfToDocx = async (file) => {
@@ -1088,48 +1012,36 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
       else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && targetFormat === 'txt') {
         setConversionProgress(50);
         convertedBlob = await convertDocxToText(file);
-      }      // PDF TO DOCX - Enhanced conversion with multiple fallbacks
+      }      // PDF TO DOCX - Enhanced conversion with PDF.js
       else if (fileType === 'application/pdf' && targetFormat === 'docx') {
         setConversionProgress(50);
         try {
-          // Try pdf-parse first (highest quality)
-          convertedBlob = await convertPdfToDocxPrimary(file);
-        } catch (pdfParseError) {
-          console.warn('pdf-parse conversion failed, trying PDF.js:', pdfParseError);
+          // Try PDF.js with worker
+          convertedBlob = await convertPdfToDocx(file);
+        } catch (pdfJsError) {
+          console.warn('PDF.js with worker failed, trying alternative method:', pdfJsError);
           try {
-            // Try PDF.js with worker
-            convertedBlob = await convertPdfToDocx(file);
-          } catch (pdfJsError) {
-            console.warn('PDF.js with worker failed, trying alternative method:', pdfJsError);
-            try {
-              // Try PDF.js alternative method
-              convertedBlob = await convertPdfToDocxAlternative(file);
-            } catch (altError) {
-              console.warn('Alternative PDF conversion failed, trying simple extraction:', altError);
-              // Final fallback: simple text extraction
-              const textBlob = await convertPdfToTextSimple(file);
-              const tempTextFile = new File([textBlob], 'temp.txt', { type: 'text/plain' });
-              convertedBlob = await convertTextToDocx(tempTextFile);
-            }
+            // Try PDF.js alternative method
+            convertedBlob = await convertPdfToDocxAlternative(file);
+          } catch (altError) {
+            console.warn('Alternative PDF conversion failed, trying simple extraction:', altError);
+            // Final fallback: simple text extraction
+            const textBlob = await convertPdfToTextSimple(file);
+            const tempTextFile = new File([textBlob], 'temp.txt', { type: 'text/plain' });
+            convertedBlob = await convertTextToDocx(tempTextFile);
           }
         }
       }
-      // PDF TO TXT - Enhanced conversion with multiple fallbacks
+      // PDF TO TXT - Enhanced conversion with PDF.js
       else if (fileType === 'application/pdf' && targetFormat === 'txt') {
         setConversionProgress(50);
         try {
-          // Try pdf-parse first (highest quality)
-          convertedBlob = await convertPdfToTextPrimary(file);
-        } catch (pdfParseError) {
-          console.warn('pdf-parse text conversion failed, trying PDF.js:', pdfParseError);
-          try {
-            // Try PDF.js with worker
-            convertedBlob = await convertPdfToText(file);
-          } catch (pdfJsError) {
-            console.warn('PDF.js text conversion failed, trying simple method:', pdfJsError);
-            // Final fallback: simple text extraction
-            convertedBlob = await convertPdfToTextSimple(file);
-          }
+          // Try PDF.js with worker
+          convertedBlob = await convertPdfToText(file);
+        } catch (pdfJsError) {
+          console.warn('PDF.js text conversion failed, trying simple method:', pdfJsError);
+          // Final fallback: simple text extraction
+          convertedBlob = await convertPdfToTextSimple(file);
         }
       }
       // Image to PDF
@@ -2042,7 +1954,7 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
           </div>          <div className="feature-item">
             <h4>📄 Enhanced PDF to DOCX Conversion</h4>
             <ul>
-              <li><strong>Primary:</strong> pdf-parse library for highest quality extraction</li>
+              <li><strong>Primary:</strong> PDF.js for browser-compatible extraction</li>
               <li><strong>Fallback 1:</strong> PDF.js with worker for complex PDFs</li>
               <li><strong>Fallback 2:</strong> PDF.js alternative method without worker</li>
               <li><strong>Fallback 3:</strong> Simple text extraction for basic PDFs</li>
