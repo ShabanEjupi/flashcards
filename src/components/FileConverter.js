@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { logger } from '../utils/logger';
 
-const FileConverter = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
+const FileConverter = () => {  const [selectedFile, setSelectedFile] = useState(null);
   const [targetFormat, setTargetFormat] = useState('pdf');
   const [isConverting, setIsConverting] = useState(false);
   const [convertedFile, setConvertedFile] = useState(null);
@@ -12,6 +11,12 @@ const FileConverter = () => {
     imageQuality: 0.9,
     pdfQuality: 'high',
     compressionLevel: 'medium'
+  });
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryOptions, setRecoveryOptions] = useState({
+    textRecovery: true,
+    forceExtraction: false,
+    zipRepair: true
   });
   const fileFormats = {
     pdf: { 
@@ -40,22 +45,7 @@ const FileConverter = () => {
       mimeTypes: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/html', 'application/rtf', 'application/pdf']
     }
   };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file size (max 50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        setError('File size too large. Maximum size is 50MB.');
-        return;
-      }
-      
-      setSelectedFile(file);
-      setConvertedFile(null);
-      setError(null);
-      setConversionProgress(0);
-    }
-  };
+  const handleFileChange = handleFileChangeWithRecovery;
 
   const handleFormatChange = (e) => {
     setTargetFormat(e.target.value);
@@ -537,8 +527,7 @@ ${htmlContent}
       handleFileConversionError(error);
     }
   };
-
-  // Enhanced DOCX to text conversion using mammoth
+  // Enhanced DOCX to text conversion using mammoth with recovery options
   const convertDocxToText = async (file) => {
     try {
       const mammoth = await import('mammoth');
@@ -546,10 +535,47 @@ ${htmlContent}
       return new Promise(async (resolve, reject) => {
         try {
           const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer });
+          
+          // First, try standard conversion
+          let result;
+          try {
+            result = await mammoth.extractRawText({ arrayBuffer });
+          } catch (standardError) {
+            logger.warn('Standard DOCX conversion failed, attempting recovery', { error: standardError.message });
+            
+            // If standard conversion fails, try recovery mode
+            try {
+              const recoveryResult = await recoverWithMammoth(file);
+              if (recoveryResult.success) {
+                result = { value: recoveryResult.data, messages: recoveryResult.warnings };
+              } else {
+                // If mammoth recovery fails, try force extraction
+                const forceResult = await forceTextExtraction(file);
+                if (forceResult.success) {
+                  result = { 
+                    value: forceResult.data, 
+                    messages: [`Recovery mode: Force extraction (${forceResult.confidence}% confidence)`] 
+                  };
+                } else {
+                  throw standardError; // Throw original error if all recovery attempts fail
+                }
+              }
+            } catch (recoveryError) {
+              logger.error('All DOCX recovery methods failed', { 
+                originalError: standardError.message, 
+                recoveryError: recoveryError.message 
+              });
+              throw new Error(`Document appears corrupted. Original error: ${standardError.message}. Recovery failed: ${recoveryError.message}`);
+            }
+          }
           
           if (result.value && result.value.trim().length > 0) {
-            const formattedText = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${result.value}\n\n${'='.repeat(50)}\nExtracted using Mammoth.js - High quality text extraction`;
+            let recoveryInfo = '';
+            if (result.messages && result.messages.length > 0) {
+              recoveryInfo = `\n\nRecovery Information:\n${result.messages.join('\n')}`;
+            }
+            
+            const formattedText = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${result.value}\n\n${'='.repeat(50)}\nExtracted using Mammoth.js - High quality text extraction${recoveryInfo}`;
             
             const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
             resolve(textBlob);
@@ -558,14 +584,14 @@ ${htmlContent}
           }
           
         } catch (error) {
-          logger.error('Mammoth DOCX conversion failed', { error: error.message });
+          logger.error('DOCX conversion completely failed', { error: error.message });
           reject(new Error(`Failed to convert DOCX: ${error.message}`));
         }
       });
     } catch (error) {
       handleFileConversionError(error);
     }
-  };  // Primary PDF to DOCX conversion using pdf-parse
+  };// Primary PDF to DOCX conversion using pdf-parse
   const convertPdfToDocxPrimary = async (file) => {
     try {
       const pdfParse = await import('pdf-parse');
@@ -1155,7 +1181,6 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
       throw new Error(`Conversion failed: ${error.message}`);
     }
   };
-
   const handleConversion = async () => {
     if (!selectedFile) {
       setError('Please select a file to convert');
@@ -1167,7 +1192,85 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
     setConversionProgress(0);
 
     try {
-      const convertedBlob = await performConversion(selectedFile, targetFormat);
+      let convertedBlob;
+      
+      // Check if this is a potentially corrupted DOCX file
+      if (selectedFile.name.toLowerCase().endsWith('.docx') && 
+          (targetFormat === 'txt' || targetFormat === 'pdf')) {
+        
+        try {
+          // First attempt normal conversion
+          convertedBlob = await performConversion(selectedFile, targetFormat);
+        } catch (conversionError) {
+          // If normal conversion fails and this looks like a corruption error
+          if (conversionError.message.includes('corrupted') || 
+              conversionError.message.includes('unreadable') ||
+              conversionError.message.includes('Invalid') ||
+              conversionError.message.includes('error trying to open')) {
+            
+            logger.warn('Standard conversion failed, attempting recovery', { 
+              error: conversionError.message,
+              filename: selectedFile.name 
+            });
+            
+            // Attempt recovery
+            const recoveryResult = await recoverCorruptedDocument(selectedFile);
+            
+            if (recoveryResult && recoveryResult.success) {
+              // Convert the recovered text to the target format
+              const recoveredText = recoveryResult.data;
+              
+              if (targetFormat === 'txt') {
+                convertedBlob = new Blob([recoveredText], { type: 'text/plain;charset=utf-8' });
+              } else if (targetFormat === 'pdf') {
+                // Convert recovered text to PDF
+                const jsPDF = (await import('jspdf')).default;
+                const pdf = new jsPDF();
+                
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 20;
+                const maxLineWidth = pageWidth - 2 * margin;
+                
+                pdf.setFont("helvetica", "normal");
+                pdf.setFontSize(12);
+                
+                // Add title
+                pdf.setFontSize(16);
+                pdf.text(`Recovered: ${selectedFile.name}`, margin, margin);
+                
+                pdf.setFontSize(10);
+                pdf.text(`Recovery method: ${recoveryResult.method}`, margin, margin + 15);
+                
+                // Add content
+                pdf.setFontSize(12);
+                const lines = pdf.splitTextToSize(recoveredText, maxLineWidth);
+                let currentY = margin + 35;
+                
+                lines.forEach(line => {
+                  if (currentY > pageHeight - margin) {
+                    pdf.addPage();
+                    currentY = margin;
+                  }
+                  pdf.text(line, margin, currentY);
+                  currentY += 6;
+                });
+                
+                convertedBlob = pdf.output('blob');
+              }
+              
+              setError(`⚠️ Document was recovered using ${recoveryResult.method}. Original file may have been corrupted.`);
+            } else {
+              throw conversionError; // Re-throw original error if recovery fails
+            }
+          } else {
+            throw conversionError; // Re-throw if not a corruption error
+          }
+        }
+      } else {
+        // Normal conversion for non-DOCX files or other conversions
+        convertedBlob = await performConversion(selectedFile, targetFormat);
+      }
       
       const fileName = `${selectedFile.name.split('.')[0]}.${targetFormat}`;
       const fileUrl = URL.createObjectURL(convertedBlob);
@@ -1182,7 +1285,19 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
       logger.info(`Successfully converted ${selectedFile.name} to ${targetFormat}`);
     } catch (err) {
       logger.error('File conversion failed', { error: err.message });
-      setError(err.message);
+      
+      // Provide helpful error messages for common issues
+      let userFriendlyError = err.message;
+      
+      if (err.message.includes('corrupted') || err.message.includes('unreadable')) {
+        userFriendlyError = `The document appears to be corrupted. Try enabling "Advanced Recovery Mode" below and use the recovery tools.`;
+      } else if (err.message.includes('permissions')) {
+        userFriendlyError = `File access issue. Try uploading the file again or check if the file is open in another application.`;
+      } else if (err.message.includes('memory') || err.message.includes('disk space')) {
+        userFriendlyError = `Insufficient system resources. Try closing other applications or use a smaller file.`;
+      }
+      
+      setError(userFriendlyError);
     } finally {
       setIsConverting(false);
       setConversionProgress(0);
@@ -1197,6 +1312,438 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+  };
+  // Document Recovery System for corrupted files
+  const [recoveryResults, setRecoveryResults] = useState(null);
+
+  // Enhanced DOCX Recovery System
+  const recoverCorruptedDocument = async (file) => {
+    setRecoveryResults(null);
+    const recoveryMethods = [];
+    
+    try {
+      // Method 1: Try mammoth with error tolerance
+      if (recoveryOptions.textRecovery) {
+        try {
+          const result = await recoverWithMammoth(file);
+          if (result.success) {
+            recoveryMethods.push({
+              method: 'Mammoth Text Recovery',
+              success: true,
+              data: result.data,
+              warnings: result.warnings
+            });
+          }
+        } catch (error) {
+          recoveryMethods.push({
+            method: 'Mammoth Text Recovery',
+            success: false,
+            error: error.message
+          });
+        }
+      }
+
+      // Method 2: ZIP extraction (DOCX is essentially a ZIP file)
+      if (recoveryOptions.zipExtraction) {
+        try {
+          const result = await recoverViaZipExtraction(file);
+          if (result.success) {
+            recoveryMethods.push({
+              method: 'ZIP Extraction Recovery',
+              success: true,
+              data: result.data,
+              extractedFiles: result.files
+            });
+          }
+        } catch (error) {
+          recoveryMethods.push({
+            method: 'ZIP Extraction Recovery',
+            success: false,
+            error: error.message
+          });
+        }
+      }
+
+      // Method 3: Force binary reading
+      if (recoveryOptions.forceExtraction) {
+        try {
+          const result = await forceTextExtraction(file);
+          if (result.success) {
+            recoveryMethods.push({
+              method: 'Force Binary Extraction',
+              success: true,
+              data: result.data,
+              confidence: result.confidence
+            });
+          }
+        } catch (error) {
+          recoveryMethods.push({
+            method: 'Force Binary Extraction',
+            success: false,
+            error: error.message
+          });
+        }
+      }
+
+      setRecoveryResults({
+        totalMethods: recoveryMethods.length,
+        successfulMethods: recoveryMethods.filter(m => m.success).length,
+        methods: recoveryMethods,
+        bestResult: recoveryMethods.find(m => m.success) || null
+      });
+
+      return recoveryMethods.find(m => m.success);
+
+    } catch (error) {
+      logger.error('Document recovery failed', { error: error.message });
+      throw new Error(`All recovery methods failed: ${error.message}`);
+    }
+  };
+
+  // Document Recovery Functions
+  const recoverWithMammoth = async (file) => {
+    try {
+      const mammoth = await import('mammoth');
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Try different mammoth options for recovery
+      const recoveryOptions = [
+        { includeDefaultStyleMap: true, includeEmbeddedStyleMap: true },
+        { includeDefaultStyleMap: false, includeEmbeddedStyleMap: false },
+        { convertImage: mammoth.images.imgElement(function(image) { return {}; }) },
+        { ignoreEmptyParagraphs: false },
+        { preserveEmptyParagraphs: true }
+      ];
+
+      for (const options of recoveryOptions) {
+        try {
+          const result = await mammoth.extractRawText({ arrayBuffer }, options);
+          if (result.value && result.value.trim().length > 0) {
+            return {
+              success: true,
+              data: result.value,
+              warnings: result.messages?.map(m => m.message) || [],
+              method: 'mammoth-recovery'
+            };
+          }
+        } catch (optionError) {
+          continue;
+        }
+      }
+      
+      return { success: false, error: 'All mammoth recovery options failed' };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const forceTextExtraction = async (file) => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      // Convert to string and try to extract readable text
+      let text = '';
+      let confidence = 0;
+      
+      // Method 1: Direct byte-to-string conversion with filtering
+      try {
+        const rawText = Array.from(uint8Array)
+          .map(byte => String.fromCharCode(byte))
+          .join('');
+        
+        // Extract readable ASCII text
+        const readableText = rawText.match(/[\x20-\x7E\n\r\t]+/g);
+        if (readableText) {
+          text = readableText
+            .filter(chunk => chunk.length > 3)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          confidence = Math.min(90, text.length / 10);
+        }
+      } catch (e) {
+        confidence = 0;
+      }
+
+      // Method 2: Look for XML content (DOCX is a ZIP with XML)
+      if (confidence < 50) {
+        try {
+          const JSZip = await import('jszip');
+          const zip = await JSZip.default.loadAsync(arrayBuffer);
+          
+          // Try to extract from document.xml
+          if (zip.files['word/document.xml']) {
+            const xmlContent = await zip.files['word/document.xml'].async('string');
+            // Extract text from XML tags
+            const textContent = xmlContent
+              .replace(/<[^>]*>/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim();
+            
+            if (textContent.length > text.length) {
+              text = textContent;
+              confidence = Math.min(95, text.length / 8);
+            }
+          }
+        } catch (zipError) {
+          // Not a valid ZIP/DOCX, continue with current text
+        }
+      }
+
+      // Method 3: Unicode text extraction
+      if (confidence < 30) {
+        try {
+          const decoder = new TextDecoder('utf-8', { fatal: false });
+          const decodedText = decoder.decode(uint8Array);
+          const cleanText = decodedText
+            .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          if (cleanText.length > text.length) {
+            text = cleanText;
+            confidence = Math.min(80, text.length / 12);
+          }
+        } catch (e) {
+          // Fallback to current text
+        }
+      }
+
+      return {
+        success: text.length > 10,
+        data: text,
+        confidence: Math.round(confidence),
+        method: 'force-extraction'
+      };
+      
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const repairCorruptedDocx = async (file) => {
+    try {
+      setConversionProgress(10);
+      logger.info('Attempting to repair corrupted DOCX file', { fileName: file.name });
+      
+      // Step 1: Try to read as ZIP and repair
+      const JSZip = await import('jszip');
+      const arrayBuffer = await file.arrayBuffer();
+      
+      setConversionProgress(25);
+      
+      try {
+        const zip = await JSZip.default.loadAsync(arrayBuffer, { 
+          checkCRC32: false,
+          createFolders: true
+        });
+        
+        setConversionProgress(40);
+        
+        // Try to extract the main document content
+        let documentXml = '';
+        const documentFiles = [
+          'word/document.xml',
+          'document.xml',
+          'content.xml'
+        ];
+        
+        for (const fileName of documentFiles) {
+          if (zip.files[fileName]) {
+            try {
+              documentXml = await zip.files[fileName].async('string');
+              break;
+            } catch (e) {
+              continue;
+            }
+          }
+        }
+        
+        setConversionProgress(60);
+        
+        if (documentXml) {
+          // Extract text content from XML
+          const textContent = extractTextFromDocumentXml(documentXml);
+          
+          if (textContent && textContent.trim().length > 0) {
+            setConversionProgress(80);
+            
+            // Create a new clean DOCX file
+            const repairedDocx = await createCleanDocxFromText(textContent, file.name);
+            
+            setConversionProgress(100);
+            return {
+              success: true,
+              blob: repairedDocx,
+              message: 'Document successfully repaired and content recovered'
+            };
+          }
+        }
+      } catch (zipError) {
+        logger.warn('ZIP repair failed, trying alternative methods', { error: zipError.message });
+      }
+      
+      // Step 2: Try force text extraction as fallback
+      setConversionProgress(70);
+      const forceResult = await forceTextExtraction(file);
+      
+      if (forceResult.success && forceResult.confidence > 30) {
+        const repairedDocx = await createCleanDocxFromText(forceResult.data, file.name);
+        setConversionProgress(100);
+        
+        return {
+          success: true,
+          blob: repairedDocx,
+          message: `Document partially recovered with ${forceResult.confidence}% confidence`
+        };
+      }
+      
+      setConversionProgress(0);
+      return {
+        success: false,
+        message: 'Unable to recover document content'
+      };
+      
+    } catch (error) {
+      setConversionProgress(0);
+      logger.error('Document repair failed', { error: error.message });
+      return {
+        success: false,
+        message: `Repair failed: ${error.message}`
+      };
+    }
+  };
+
+  const extractTextFromDocumentXml = (xmlContent) => {
+    try {
+      // Remove XML tags and extract text content
+      let text = xmlContent
+        .replace(/<w:p[^>]*>/g, '\n')  // Paragraph breaks
+        .replace(/<w:br[^>]*>/g, '\n') // Line breaks
+        .replace(/<w:tab[^>]*>/g, '\t') // Tabs
+        .replace(/<[^>]*>/g, '')       // Remove all XML tags
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/\n\s*\n/g, '\n\n')   // Clean multiple newlines
+        .replace(/[ \t]+/g, ' ')       // Clean multiple spaces
+        .trim();
+      
+      return text;
+    } catch (error) {
+      logger.error('Failed to extract text from XML', { error: error.message });
+      return '';
+    }
+  };
+
+  const createCleanDocxFromText = async (text, originalFileName) => {
+    try {
+      // Use the existing convertTextToDocx function
+      const textFile = new File([text], 'recovered-content.txt', { type: 'text/plain' });
+      const docxBlob = await convertTextToDocx(textFile);
+      
+      return docxBlob;
+    } catch (error) {
+      logger.error('Failed to create clean DOCX', { error: error.message });
+      throw error;
+    }
+  };
+
+  const handleCorruptedFile = async (file) => {
+    setError(null);
+    setIsConverting(true);
+    setConversionProgress(0);
+    
+    try {
+      logger.info('Attempting to recover corrupted document', { fileName: file.name });
+      
+      const repairResult = await repairCorruptedDocx(file);
+      
+      if (repairResult.success) {
+        setConvertedFile({
+          blob: repairResult.blob,
+          name: `recovered-${file.name}`,
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        });
+        setError(null);
+        logger.info('Document recovery successful', { fileName: file.name });
+        
+        // Show success message with repair info
+        setError(`✅ ${repairResult.message}`);
+      } else {
+        setError(`❌ Recovery failed: ${repairResult.message}`);
+        logger.error('Document recovery failed', { fileName: file.name, message: repairResult.message });
+      }
+    } catch (error) {
+      setError(`❌ Recovery error: ${error.message}`);
+      logger.error('Document recovery error', { error: error.message });
+    } finally {
+      setIsConverting(false);
+      setConversionProgress(0);
+    }
+  };
+
+  // Enhanced error detection for corrupted files
+  const detectCorruptedFile = async (file) => {
+    try {
+      if (!file.name.toLowerCase().endsWith('.docx')) {
+        return false;
+      }
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      // Check for ZIP signature (DOCX files are ZIP archives)
+      const hasZipSignature = uint8Array[0] === 0x50 && uint8Array[1] === 0x4B;
+      
+      if (!hasZipSignature) {
+        return true; // Definitely corrupted if no ZIP signature
+      }
+      
+      // Try to read as ZIP
+      try {
+        const JSZip = await import('jszip');
+        const zip = await JSZip.default.loadAsync(arrayBuffer, { checkCRC32: true });
+        
+        // Check for essential DOCX files
+        const requiredFiles = ['[Content_Types].xml', 'word/document.xml'];
+        const missingFiles = requiredFiles.filter(fileName => !zip.files[fileName]);
+        
+        return missingFiles.length > 0;
+      } catch (zipError) {
+        return true; // Corrupted if can't read as ZIP
+      }
+    } catch (error) {
+      return true; // Assume corrupted if can't analyze
+    }
+  };
+
+  // Enhanced file change handler with corruption detection
+  const handleFileChangeWithRecovery = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        setError('File size too large. Maximum size is 50MB.');
+        return;
+      }
+      
+      setSelectedFile(file);
+      setConvertedFile(null);
+      setError(null);
+      setConversionProgress(0);
+      
+      // Check if the file appears to be corrupted
+      if (file.name.toLowerCase().endsWith('.docx')) {
+        const isCorrupted = await detectCorruptedFile(file);
+        if (isCorrupted) {
+          setError(`⚠️ This file appears to be corrupted. You can try to recover it using the "Recover Document" button below.`);
+        }
+      }
     }
   };
 
@@ -1260,8 +1807,7 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
             </div>
           </div>
         )}
-        
-        <div className="action-section">
+          <div className="action-section">
           <button 
             onClick={handleConversion} 
             disabled={!selectedFile || isConverting}
@@ -1269,6 +1815,17 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
           >
             {isConverting ? `Converting... ${conversionProgress}%` : 'Convert File'}
           </button>
+          
+          {selectedFile && selectedFile.name.toLowerCase().endsWith('.docx') && (
+            <button 
+              onClick={() => handleCorruptedFile(selectedFile)} 
+              disabled={isConverting}
+              className="recovery-button"
+              title="Try to recover content from corrupted Word document"
+            >
+              {isConverting ? 'Recovering...' : '🔧 Recover Document'}
+            </button>
+          )}
         </div>
 
         {isConverting && (
@@ -1281,9 +1838,12 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
             </div>
           </div>
         )}
-        
-        {error && (
-          <div className="error-message">
+          {error && (
+          <div className={`error-message ${
+            error.includes('✅') ? 'success' : 
+            error.includes('⚠️') ? 'warning' : 
+            ''
+          }`}>
             {error}
           </div>
         )}
@@ -1301,8 +1861,136 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
                 Download Converted File
               </button>
             </div>
+          </div>        )}
+      </div>
+
+      {/* Document Recovery Section */}
+      <div className="recovery-section">
+        <h3>🔧 Document Recovery Tools</h3>
+        <p>Use these tools if you encounter corrupted Word documents or conversion errors.</p>
+        
+        <div className="recovery-toggle">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={recoveryMode} 
+              onChange={(e) => setRecoveryMode(e.target.checked)}
+            />
+            Enable Advanced Recovery Mode
+          </label>
+        </div>
+
+        {recoveryMode && (
+          <div className="recovery-options">
+            <h4>Recovery Methods</h4>
+            <div className="recovery-methods">
+              <label>
+                <input 
+                  type="checkbox" 
+                  checked={recoveryOptions.textRecovery} 
+                  onChange={(e) => setRecoveryOptions(prev => ({
+                    ...prev, 
+                    textRecovery: e.target.checked
+                  }))}
+                />
+                Smart Text Recovery (Recommended)
+              </label>
+              
+              <label>
+                <input 
+                  type="checkbox" 
+                  checked={recoveryOptions.forceExtraction} 
+                  onChange={(e) => setRecoveryOptions(prev => ({
+                    ...prev, 
+                    forceExtraction: e.target.checked
+                  }))}
+                />
+                Force Binary Text Extraction
+              </label>
+              
+              <label>
+                <input 
+                  type="checkbox" 
+                  checked={recoveryOptions.zipExtraction} 
+                  onChange={(e) => setRecoveryOptions(prev => ({
+                    ...prev, 
+                    zipExtraction: e.target.checked
+                  }))}
+                />
+                ZIP Structure Analysis (Advanced)
+              </label>
+            </div>
+
+            {selectedFile && selectedFile.name.toLowerCase().endsWith('.docx') && (
+              <button 
+                onClick={() => recoverCorruptedDocument(selectedFile)}
+                className="recovery-button"
+                disabled={isConverting}
+              >
+                🔧 Attempt Document Recovery
+              </button>
+            )}
+
+            {recoveryResults && (
+              <div className="recovery-results">
+                <h4>Recovery Results</h4>
+                <div className="recovery-summary">
+                  <p><strong>Methods Attempted:</strong> {recoveryResults.totalMethods}</p>
+                  <p><strong>Successful:</strong> {recoveryResults.successfulMethods}</p>
+                </div>
+                
+                {recoveryResults.methods.map((method, index) => (
+                  <div key={index} className={`recovery-method ${method.success ? 'success' : 'failed'}`}>
+                    <h5>{method.method}</h5>
+                    {method.success ? (
+                      <div>
+                        <p className="success">✅ Recovery successful!</p>
+                        {method.confidence && <p>Confidence: {method.confidence}%</p>}
+                        {method.warnings && method.warnings.length > 0 && (
+                          <div className="warnings">
+                            <strong>Warnings:</strong>
+                            <ul>
+                              {method.warnings.map((warning, i) => (
+                                <li key={i}>{warning}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <button 
+                          onClick={() => {
+                            const blob = new Blob([method.data], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `recovered-${selectedFile.name.replace('.docx', '.txt')}`;
+                            link.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="download-recovery-button"
+                        >
+                          Download Recovered Text
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="failed">❌ Failed: {method.error}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
+
+        <div className="recovery-tips">
+          <h4>💡 Recovery Tips</h4>
+          <ul>
+            <li><strong>Corrupted Word documents:</strong> Enable all recovery methods for best results</li>
+            <li><strong>"Unreadable content" error:</strong> Try Smart Text Recovery first</li>
+            <li><strong>File won't open:</strong> Use Force Binary Extraction as last resort</li>
+            <li><strong>GitHub recovery codes:</strong> These tools can extract text from damaged files</li>
+            <li><strong>File permissions error:</strong> Upload the file to this tool instead of opening directly</li>
+          </ul>
+        </div>
       </div>
       
       <div className="converter-features">
