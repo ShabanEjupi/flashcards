@@ -294,8 +294,7 @@ const FileConverter = () => {
       reader.onerror = () => reject(new Error('Failed to read text file'));
       reader.readAsText(file, 'UTF-8');
     });
-  };
-  // Enhanced HTML conversion that opens perfectly in Microsoft Word
+  };  // Enhanced HTML conversion that opens perfectly in Microsoft Word
   const convertTextToHTML = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -317,7 +316,7 @@ const FileConverter = () => {
                               (trimmedLine.match(/^[A-Z\s]+$/) || trimmedLine.endsWith(':') || 
                                (index < lines.length - 1 && lines[index + 1].trim() === ''));
               
-              // Escape HTML special characters
+              // Escape HTML special characters and handle Unicode properly
               const escapedLine = trimmedLine
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -333,13 +332,14 @@ const FileConverter = () => {
             }
           });
           
-          // Create comprehensive HTML content that Word recognizes
-          const fullHtmlContent = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" 
-      xmlns:w="urn:schemas-microsoft-com:office:word" 
-      xmlns="http://www.w3.org/TR/REC-html40">
+          // Create comprehensive HTML content that Word recognizes with proper encoding
+          const fullHtmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:o="urn:schemas-microsoft-com:office:office" 
+      xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="ProgId" content="Word.Document">
     <meta name="Generator" content="Enhanced File Converter">
     <meta name="Originator" content="Microsoft Word">
@@ -349,6 +349,8 @@ const FileConverter = () => {
         <w:WordDocument>
             <w:View>Print</w:View>
             <w:Zoom>100</w:Zoom>
+            <w:DoNotPromptForConvert/>
+            <w:DoNotShowInsertionsAndDeletions/>
         </w:WordDocument>
     </xml>
     <![endif]-->
@@ -359,44 +361,51 @@ const FileConverter = () => {
         }
         div.Section1 { page: Section1; }
         body { 
-            font-family: Calibri, Arial, sans-serif; 
-            font-size: 11pt; 
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 12pt; 
             line-height: 1.5; 
             margin: 0;
-            padding: 0;
+            padding: 20pt;
+            background: white;
         }
         h1 { 
             color: #2F5496; 
-            font-size: 16pt; 
+            font-size: 18pt; 
             text-align: center; 
             margin-bottom: 24pt; 
             font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
         }
         h2 { 
             color: #666666; 
-            font-size: 11pt; 
+            font-size: 12pt; 
             text-align: center; 
             margin-bottom: 12pt; 
             font-style: italic;
+            font-family: 'Times New Roman', Times, serif;
         }
         h3 { 
             color: #1F4E79; 
-            font-size: 13pt; 
+            font-size: 14pt; 
             margin-top: 24pt; 
             margin-bottom: 12pt; 
             font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
         }
         p { 
-            margin: 0 0 6pt 0; 
-            text-align: left;
+            margin: 0 0 12pt 0; 
+            text-align: justify;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
         }
         .footer {
             margin-top: 36pt;
             padding-top: 12pt;
             border-top: 1px solid #cccccc;
             color: #888888;
-            font-size: 9pt;
+            font-size: 10pt;
             text-align: center;
+            font-family: 'Times New Roman', Times, serif;
         }
     </style>
 </head>
@@ -415,8 +424,9 @@ ${htmlContent}
 </body>
 </html>`;
           
-          const htmlBlob = new Blob([fullHtmlContent], { 
-            type: 'application/msword' // This MIME type makes Word open it perfectly
+          // Create blob with proper encoding for Word compatibility
+          const htmlBlob = new Blob(['\ufeff' + fullHtmlContent], { 
+            type: 'application/vnd.ms-word;charset=utf-8'
           });
           
           console.log('✅ Successfully converted to HTML format (Word-compatible)');
@@ -555,14 +565,104 @@ ${htmlContent}
     } catch (error) {
       handleFileConversionError(error);
     }
-  };  // Enhanced PDF to DOCX conversion using pdfjs-dist
+  };  // Primary PDF to DOCX conversion using pdf-parse
+  const convertPdfToDocxPrimary = async (file) => {
+    try {
+      const pdfParse = await import('pdf-parse');
+      
+      return new Promise(async (resolve, reject) => {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const data = await pdfParse.default(arrayBuffer);
+          
+          if (data.text && data.text.trim().length > 10) {
+            const formattedText = `Document: ${file.name}
+Conversion Method: pdf-parse (High Quality)
+Creation Date: ${new Date().toLocaleString()}
+Total Pages: ${data.numpages}
+
+${'='.repeat(80)}
+
+${data.text}
+
+${'='.repeat(80)}
+Extraction completed: ${new Date().toLocaleString()}
+Note: Text extracted using pdf-parse library for highest quality`;
+            
+            // Create a temporary text file and convert to DOCX
+            const tempTextFile = new File([formattedText], 'temp.txt', { type: 'text/plain' });
+            const docxBlob = await convertTextToDocx(tempTextFile);
+            resolve(docxBlob);
+          } else {
+            throw new Error('No readable text found in PDF');
+          }
+        } catch (error) {
+          logger.error('pdf-parse conversion failed', { error: error.message });
+          reject(new Error(`Failed to convert PDF using pdf-parse: ${error.message}`));
+        }
+      });
+    } catch (error) {
+      throw new Error('pdf-parse library not available');
+    }
+  };
+
+  // Primary PDF to TXT conversion using pdf-parse
+  const convertPdfToTextPrimary = async (file) => {
+    try {
+      const pdfParse = await import('pdf-parse');
+      
+      return new Promise(async (resolve, reject) => {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const data = await pdfParse.default(arrayBuffer);
+          
+          if (data.text && data.text.trim().length > 10) {
+            const formattedText = `Content extracted from PDF: ${file.name}
+${'='.repeat(60)}
+
+${data.text}
+
+${'='.repeat(60)}
+Extracted using pdf-parse (High Quality)
+Total Pages: ${data.numpages}
+Created: ${new Date().toLocaleString()}`;
+            
+            const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
+            resolve(textBlob);
+          } else {
+            throw new Error('No readable text found in PDF');
+          }
+        } catch (error) {
+          logger.error('pdf-parse text conversion failed', { error: error.message });
+          reject(new Error(`Failed to convert PDF to text using pdf-parse: ${error.message}`));
+        }
+      });
+    } catch (error) {
+      throw new Error('pdf-parse library not available');
+    }
+  };
+
+  // Enhanced PDF to DOCX conversion using pdfjs-dist with better worker handling
   const convertPdfToDocx = async (file) => {
     try {
       const pdfjsLib = await import('pdfjs-dist');
       
-      // Configure PDF.js worker
+      // Try multiple worker configurations
       if (typeof window !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        try {
+          // First try: Use a more stable worker URL
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+        } catch (workerError) {
+          console.warn('Primary worker failed, trying alternative:', workerError);
+          try {
+            // Second try: Use cdnjs
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+          } catch (workerError2) {
+            console.warn('CDN worker failed, disabling worker:', workerError2);
+            // Disable worker as fallback
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+          }
+        }
       }
       
       return new Promise(async (resolve, reject) => {
@@ -572,7 +672,8 @@ ${htmlContent}
             data: arrayBuffer,
             useWorkerFetch: false,
             isEvalSupported: false,
-            useSystemFonts: true
+            useSystemFonts: true,
+            disableWorker: true // Disable worker to avoid issues
           }).promise;
           
           let fullText = `Document: ${file.name}
@@ -654,15 +755,14 @@ Note: Text extracted using PDF.js library for maximum browser compatibility`;
       handleFileConversionError(error);
       throw new Error('PDF conversion libraries are not available in this environment');
     }
-  };
-  // Improved fallback PDF to DOCX conversion using pdfjs-dist
+  };  // Improved fallback PDF to DOCX conversion using pdfjs-dist
   const convertPdfToDocxFallback = async (file) => {
     try {
       const pdfjsLib = await import('pdfjs-dist');
       
-      // Configure PDF.js worker
+      // Disable worker to avoid compatibility issues
       if (typeof window !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
       }
       
       return new Promise(async (resolve, reject) => {
@@ -672,7 +772,8 @@ Note: Text extracted using PDF.js library for maximum browser compatibility`;
             data: arrayBuffer,
             useWorkerFetch: false,
             isEvalSupported: false,
-            useSystemFonts: true
+            useSystemFonts: true,
+            disableWorker: true
           }).promise;
           
           let fullText = `Document: ${file.name}
@@ -759,9 +860,9 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
     try {
       const pdfjsLib = await import('pdfjs-dist');
       
-      // Configure PDF.js worker
+      // Disable worker to avoid compatibility issues
       if (typeof window !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
       }
       
       return new Promise(async (resolve, reject) => {
@@ -771,7 +872,8 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
             data: arrayBuffer,
             useWorkerFetch: false,
             isEvalSupported: false,
-            useSystemFonts: true
+            useSystemFonts: true,
+            disableWorker: true
           }).promise;
           
           let fullText = `Content extracted from PDF: ${file.name}\n${'='.repeat(60)}\n\n`;
@@ -811,9 +913,9 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
     try {
       const pdfjsLib = await import('pdfjs-dist');
       
-      // Configure PDF.js worker
+      // Disable worker to avoid compatibility issues
       if (typeof window !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
       }
       
       return new Promise(async (resolve, reject) => {
@@ -823,7 +925,8 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
             data: arrayBuffer,
             useWorkerFetch: false,
             isEvalSupported: false,
-            useSystemFonts: true
+            useSystemFonts: true,
+            disableWorker: true
           }).promise;
           
           let fullText = `Content extracted from PDF: ${file.name}\n${'='.repeat(60)}\n\n`;
