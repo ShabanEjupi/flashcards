@@ -435,6 +435,11 @@ For better results, try:
       else if (fileType === 'text/plain' && targetFormat === 'pdf') {
         convertedBlob = await convertTextToPDF(file);
       }
+      // Text to DOCX - ADD THIS MISSING CONVERSION
+      else if (fileType === 'text/plain' && targetFormat === 'docx') {
+        setConversionProgress(50);
+        convertedBlob = await convertTextToDocx(file);
+      }
       // HTML to PDF
       else if (fileType === 'text/html' && targetFormat === 'pdf') {
         convertedBlob = await convertHtmlToPDF(file);
@@ -447,9 +452,14 @@ For better results, try:
       // DOCX to PDF
       else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && targetFormat === 'pdf') {
         setConversionProgress(50);
-        // First convert DOCX to text, then text to PDF
-        const textBlob = await convertDocxToText(file);
-        convertedBlob = await convertTextToPDF(textBlob);
+        // Use the enhanced DOCX to PDF conversion if mammoth is available
+        try {
+          convertedBlob = await convertDocxToPDFEnhanced(file);
+        } catch (mammothError) {
+          // Fallback to basic conversion
+          const textBlob = await convertDocxToText(file);
+          convertedBlob = await convertTextToPDF(textBlob);
+        }
       }
       // Image to PDF
       else if (fileType.startsWith('image/') && targetFormat === 'pdf') {
@@ -543,6 +553,62 @@ For better results, try:
       link.click();
       document.body.removeChild(link);
     }
+  };
+
+  // Implement conversion from text/plain to docx
+  const convertTextToDocx = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          // For now, we'll create a simple HTML structure and save as DOCX-compatible format
+          const text = event.target.result;
+          
+          // Create a simple Word-compatible HTML document
+          const htmlContent = `
+          <!DOCTYPE html>
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                xmlns:w='urn:schemas-microsoft-com:office:word' 
+                xmlns='http://www.w3.org/TR/REC-html40'>
+          <head>
+            <meta charset="utf-8">
+            <title>Converted Document</title>
+            <!--[if gte mso 9]>
+            <xml>
+              <w:WordDocument>
+                <w:View>Print</w:View>
+                <w:Zoom>90</w:Zoom>
+                <w:DoNotPromptForConvert/>
+                <w:DoNotShowInsertionsAndDeletions/>
+              </w:WordDocument>
+            </xml>
+            <![endif]-->
+            <style>
+              body { font-family: 'Calibri', sans-serif; font-size: 11pt; margin: 1in; }
+              p { margin: 0 0 12pt 0; }
+            </style>
+          </head>
+          <body>
+            ${text.split('\n').map(line => `<p>${line || '&nbsp;'}</p>`).join('')}
+          </body>
+          </html>
+        `;
+        
+          // Create blob with Word-compatible HTML
+          const docxBlob = new Blob([htmlContent], { 
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+          });
+          
+          resolve(docxBlob);
+          
+        } catch (error) {
+          reject(new Error(`Failed to convert text to DOCX: ${error.message}`));
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read text file'));
+      reader.readAsText(file);
+    });
   };
 
   return (

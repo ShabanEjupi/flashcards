@@ -1506,6 +1506,17 @@ footer {
   cursor: not-allowed;
 }
 
+/* Fix the vendor prefix warning at line 1693 */
+.style-buttons button:disabled,
+.text-input-group button:disabled,
+.upload-btn:disabled {
+  -webkit-appearance: none;
+  appearance: none; /* Add the standard property */
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .error-message {
   padding: 10px 15px;
   background-color: #ffebee;
