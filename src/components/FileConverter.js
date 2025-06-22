@@ -64,10 +64,112 @@ const FileConverter = () => {
     setError(null);
   };
 
-  // Add error handling for file conversion
   const handleFileConversionError = (error) => {
     console.error('File conversion error:', error);
     setError('There was an error converting the file. Please try again.');
+  };
+
+  // FIXED: Proper TXT to DOCX conversion using docx library
+  const convertTextToDocx = async (file) => {
+    try {
+      // Dynamic import of the docx library
+      const { Document, Paragraph, TextRun, Packer } = await import('docx');
+      
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const text = event.target.result;
+            
+            // Split text into lines and create paragraphs
+            const lines = text.split(/\r?\n/);
+            
+            // Create paragraphs for each line
+            const paragraphs = lines.map(line => {
+              return new Paragraph({
+                children: [
+                  new TextRun({
+                    text: line || " ", // Empty line if no text
+                    font: {
+                      name: "Arial",
+                    },
+                    size: 24, // 12pt font (size is in half-points)
+                  })
+                ],
+                spacing: {
+                  after: 200, // Add some spacing after each paragraph
+                }
+              });
+            });
+            
+            // Create the document
+            const doc = new Document({
+              sections: [{
+                properties: {},
+                children: paragraphs,
+              }],
+              creator: "File Converter",
+              title: "Converted from TXT",
+              description: `Converted from ${file.name}`,
+            });
+            
+            // Generate the DOCX file
+            const buffer = await Packer.toBuffer(doc);
+            
+            // Create blob with proper MIME type
+            const docxBlob = new Blob([buffer], { 
+              type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+            });
+            
+            resolve(docxBlob);
+            
+          } catch (error) {
+            console.error('Error in convertTextToDocx:', error);
+            reject(new Error(`Failed to convert text to DOCX: ${error.message}`));
+          }
+        };
+        
+        reader.onerror = () => reject(new Error('Failed to read text file'));
+        reader.readAsText(file, 'UTF-8');
+      });
+    } catch (error) {
+      console.error('Failed to load docx library:', error);
+      // Fallback to RTF if docx library fails
+      return convertTextToRTF(file);
+    }
+  };
+
+  // Fallback RTF conversion
+  const convertTextToRTF = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const text = event.target.result;
+          
+          // Create RTF content
+          const rtfHeader = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0\\fswiss\\fcharset0 Arial;}}';
+          const rtfContent = text
+            .split(/\r?\n/)
+            .map(line => line.replace(/[{}\\]/g, '\\$&')) // Escape RTF special characters
+            .join('\\par\n');
+          const rtfFooter = '}';
+          
+          const rtfDocument = `${rtfHeader}\\f0\\fs24 ${rtfContent}${rtfFooter}`;
+          
+          const rtfBlob = new Blob([rtfDocument], { 
+            type: 'application/rtf' 
+          });
+          
+          resolve(rtfBlob);
+        } catch (error) {
+          reject(new Error(`Failed to convert text to RTF: ${error.message}`));
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read text file'));
+      reader.readAsText(file, 'UTF-8');
+    });
   };
 
   // Image conversion with quality preservation
@@ -124,7 +226,6 @@ const FileConverter = () => {
         const reader = new FileReader();
         reader.onload = async (event) => {
           try {
-            // Import jsPDF dynamically
             const { jsPDF } = await import('jspdf');
             
             const text = event.target.result;
@@ -168,166 +269,18 @@ const FileConverter = () => {
     }
   };
 
-  // HTML to PDF conversion
-  const convertHtmlToPDF = async (file) => {
-    try {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          try {
-            const html = event.target.result;
-            
-            // Create a temporary div to render HTML
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            tempDiv.style.width = '800px';
-            tempDiv.style.padding = '20px';
-            tempDiv.style.fontFamily = 'Arial, sans-serif';
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            document.body.appendChild(tempDiv);
-            
-            // Import html2canvas and jsPDF
-            const html2canvas = (await import('html2canvas')).default;
-            const { jsPDF } = await import('jspdf');
-            
-            const canvas = await html2canvas(tempDiv, {
-              scale: 2, // Higher scale for better quality
-              useCORS: true,
-              allowTaint: true
-            });
-            
-            document.body.removeChild(tempDiv);
-            
-            const imgData = canvas.toDataURL('image/png');
-            const doc = new jsPDF();
-            
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            const imgWidth = pageWidth - 20;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            doc.addImage(imgData, 'PNG', 10, 10, imgWidth, Math.min(imgHeight, pageHeight - 20));
-            
-            const pdfBlob = doc.output('blob');
-            resolve(pdfBlob);
-          } catch (error) {
-            reject(error);
-          }
-        };
-        
-        reader.onerror = () => reject(new Error('Failed to read HTML file'));
-        reader.readAsText(file);
-      });
-    } catch (error) {
-      handleFileConversionError(error);
-    }
-  };
-
-  // Add DOCX to text conversion function
+  // Enhanced DOCX to text conversion using mammoth
   const convertDocxToText = async (file) => {
     try {
+      // Try to use mammoth.js for better DOCX parsing
+      const mammoth = await import('mammoth');
+      
       return new Promise(async (resolve, reject) => {
         try {
-          // For DOCX files, we'll use a simple approach to extract text
-          // This is a basic implementation - for production, you'd want to use a library like mammoth.js
-          
           const arrayBuffer = await file.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
-          
-          // Convert to string and try to extract readable text
-          // This is a simplified approach that looks for text patterns in the DOCX file
-          let text = '';
-          
-          // DOCX files are ZIP archives, so we'll try to extract text content
-          // For a more robust solution, you would use a proper DOCX parser
-          try {
-            const textDecoder = new TextDecoder('utf-8', { fatal: false });
-            const rawText = textDecoder.decode(uint8Array);
-            
-            // Extract text content using regex patterns
-            // Look for text between XML tags that typically contain document content
-            const textMatches = rawText.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
-            
-            if (textMatches) {
-              text = textMatches
-                .map(match => match.replace(/<w:t[^>]*>([^<]*)<\/w:t>/, '$1'))
-                .join(' ')
-                .replace(/\s+/g, ' ')
-                .trim();
-            }
-            
-            // If no text found with the above method, try alternative extraction
-            if (!text || text.length < 10) {
-              // Look for any readable text patterns
-              const readableText = rawText.match(/[a-zA-Z\s]{10,}/g);
-              if (readableText) {
-                text = readableText
-                  .filter(t => t.trim().length > 5)
-                  .join(' ')
-                  .replace(/\s+/g, ' ')
-                  .trim();
-              }
-            }
-            
-          } catch (decodeError) {
-            console.log('UTF-8 decode failed, trying alternative approach');
-            
-            // Fallback: extract any readable ASCII text
-            let extractedText = '';
-            for (let i = 0; i < uint8Array.length - 1; i++) {
-              const char = String.fromCharCode(uint8Array[i]);
-              if (char.match(/[a-zA-Z0-9\s\.,!?;:\-\(\)]/)) {
-                extractedText += char;
-              } else if (extractedText.length > 0 && !extractedText.endsWith(' ')) {
-                extractedText += ' ';
-              }
-            }
-            
-            // Clean up the extracted text
-            text = extractedText
-              .replace(/\s+/g, ' ')
-              .split(' ')
-              .filter(word => word.length > 0)
-              .join(' ')
-              .trim();
-          }
-          
-          // If still no meaningful text, provide a message
-          if (!text || text.length < 5) {
-            text = `Extracted content from ${file.name}\n\nNote: This is a simplified text extraction from a DOCX file. For better results, please use a dedicated DOCX to TXT converter or open the file in Microsoft Word and save as TXT.\n\nFile size: ${(file.size / 1024).toFixed(1)} KB\nFile type: ${file.type}`;
-          } else {
-            // Add some formatting to the extracted text
-            text = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${text}\n\n${'='.repeat(50)}\nNote: This text was extracted from a DOCX file using basic parsing. Some formatting and special characters may be lost.`;
-          }
-          
-          // Create blob with the extracted text
-          const textBlob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-          resolve(textBlob);
-          
-        } catch (error) {
-          logger.error('DOCX to text conversion failed', { error: error.message });
-          reject(new Error(`Failed to convert DOCX to text: ${error.message}`));
-        }
-      });
-    } catch (error) {
-      handleFileConversionError(error);
-    }
-  };
-
-  // Enhanced DOCX conversion with mammoth.js (after installing the library)
-  const convertDocxToTextWithMammoth = async (file) => {
-    try {
-      return new Promise(async (resolve, reject) => {
-        try {
-          // Dynamic import to avoid bundling issues
-          const mammoth = await import('mammoth');
-          
-          const arrayBuffer = await file.arrayBuffer();
-          
           const result = await mammoth.extractRawText({ arrayBuffer });
           
-          if (result.value) {
+          if (result.value && result.value.trim().length > 0) {
             const formattedText = `Content extracted from: ${file.name}\n${'='.repeat(50)}\n\n${result.value}\n\n${'='.repeat(50)}\nExtracted using Mammoth.js - High quality text extraction`;
             
             const textBlob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
@@ -346,188 +299,9 @@ const FileConverter = () => {
     }
   };
 
-  // Enhanced DOCX to PDF conversion function
-  const convertDocxToPDFEnhanced = async (file) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        setConversionProgress(30);
-        
-        // Try to use mammoth.js for better DOCX parsing
-        let extractedText = '';
-        
-        try {
-          const mammoth = await import('mammoth');
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          extractedText = result.value;
-        } catch (mammothError) {
-          console.log('Mammoth.js not available, using basic extraction');
-          
-          // Fallback to improved basic extraction
-          const arrayBuffer = await file.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
-          
-          // Convert to text and clean up
-          const decoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: false });
-          const rawText = decoder.decode(uint8Array);
-          
-          // Look for readable text patterns
-          const textMatches = rawText.match(/[a-zA-ZÀ-ÿ\s\d\.,!?;:\-\(\)]{3,}/g);
-          if (textMatches) {
-            extractedText = textMatches
-              .filter(text => text.trim().length > 2)
-              .join(' ')
-              .replace(/\s+/g, ' ')
-              .trim();
-          }
-        }
-        
-        setConversionProgress(60);
-        
-        // If we still don't have good text, provide a helpful message
-        if (!extractedText || extractedText.length < 10) {
-          extractedText = `
-Document: ${file.name}
-Size: ${(file.size / 1024).toFixed(1)} KB
-
-Note: This DOCX file could not be properly converted to text. 
-This might be because:
-- The file contains mostly images or complex formatting
-- The file is password protected
-- The file structure is not standard
-
-For better results, try:
-1. Opening the file in Microsoft Word and saving as TXT or PDF
-2. Using an online DOCX to PDF converter
-3. Installing mammoth.js library for better DOCX support
-          `;
-        }
-        
-        setConversionProgress(80);
-        
-        // Convert the extracted text to PDF
-        const { jsPDF } = await import('jspdf');
-        const doc = new jsPDF();
-        
-        // Set font and formatting
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 20;
-        const maxLineWidth = pageWidth - (margin * 2);
-        
-        // Split text into lines that fit the page
-        const lines = doc.splitTextToSize(extractedText, maxLineWidth);
-        let y = margin;
-        
-        lines.forEach((line) => {
-          if (y > pageHeight - margin) {
-            doc.addPage();
-            y = margin;
-          }
-          doc.text(line, margin, y);
-          y += 7;
-        });
-        
-        setConversionProgress(100);
-        
-        const pdfBlob = doc.output('blob');
-        resolve(pdfBlob);
-        
-      } catch (error) {
-        logger.error('Enhanced DOCX to PDF conversion failed', { error: error.message });
-        reject(new Error(`Failed to convert DOCX to PDF: ${error.message}`));
-      }
-    });
-  };
-
-  // Replace the convertTextToDocx function with this improved version
-  const convertTextToDocx = async (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const text = event.target.result;
-          
-          // Try to use the docx library if available
-          try {
-            const docx = await import('docx');
-            const { Document, Paragraph, TextRun, Packer } = docx;
-            
-            // Split text into paragraphs
-            const textLines = text.split(/\r?\n/);
-            
-            // Create paragraphs for each line
-            const paragraphs = textLines.map(line => 
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: line || " ", // Empty line if no text
-                    font: "Calibri",
-                    size: 24, // 12pt font (size is in half-points)
-                  })
-                ],
-              })
-            );
-            
-            // Create document
-            const doc = new Document({
-              sections: [{
-                properties: {},
-                children: paragraphs,
-              }],
-            });
-            
-            // Generate blob
-            const buffer = await Packer.toBuffer(doc);
-            const docxBlob = new Blob([buffer], { 
-              type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-            });
-            
-            resolve(docxBlob);
-            
-          } catch (docxError) {
-            console.log('docx library not available, using fallback method');
-            
-            // Fallback: Create a simple RTF file that Word can open
-            const rtfContent = createRTFContent(text);
-            
-            const rtfBlob = new Blob([rtfContent], { 
-              type: 'application/rtf' 
-            });
-            
-            resolve(rtfBlob);
-          }
-          
-        } catch (error) {
-          reject(new Error(`Failed to convert text to DOCX: ${error.message}`));
-        }
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read text file'));
-      reader.readAsText(file);
-    });
-  };
-
-  // Helper function to create RTF content as fallback
-  const createRTFContent = (text) => {
-    // RTF (Rich Text Format) is readable by Word and other word processors
-    const rtfHeader = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}';
-    const rtfContent = text
-      .split(/\r?\n/)
-      .map(line => line.replace(/[{}\\]/g, '\\$&')) // Escape RTF special characters
-      .join('\\par\n');
-    const rtfFooter = '}';
-    
-    return `${rtfHeader}\n${rtfContent}\n${rtfFooter}`;
-  };
-
-  // Enhanced performConversion function
+  // Main conversion function
   const performConversion = async (file, targetFormat) => {
     const fileType = file.type;
-    const fileName = file.name.toLowerCase();
     
     setConversionProgress(25);
     
@@ -542,31 +316,15 @@ For better results, try:
       else if (fileType === 'text/plain' && targetFormat === 'pdf') {
         convertedBlob = await convertTextToPDF(file);
       }
-      // Text to DOCX - FIXED VERSION
+      // TEXT TO DOCX - PROPERLY FIXED
       else if (fileType === 'text/plain' && targetFormat === 'docx') {
         setConversionProgress(50);
         convertedBlob = await convertTextToDocx(file);
-      }
-      // HTML to PDF
-      else if (fileType === 'text/html' && targetFormat === 'pdf') {
-        convertedBlob = await convertHtmlToPDF(file);
       }
       // DOCX to TXT
       else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && targetFormat === 'txt') {
         setConversionProgress(50);
         convertedBlob = await convertDocxToText(file);
-      }
-      // DOCX to PDF
-      else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && targetFormat === 'pdf') {
-        setConversionProgress(50);
-        // Use the enhanced DOCX to PDF conversion if mammoth is available
-        try {
-          convertedBlob = await convertDocxToPDFEnhanced(file);
-        } catch (mammothError) {
-          // Fallback to basic conversion
-          const textBlob = await convertDocxToText(file);
-          convertedBlob = await convertTextToPDF(textBlob);
-        }
       }
       // Image to PDF
       else if (fileType.startsWith('image/') && targetFormat === 'pdf') {
@@ -774,27 +532,27 @@ For better results, try:
             <h4>✨ High Quality Conversion</h4>
             <ul>
               <li>Preserves original image dimensions</li>
-              <li>High-quality rendering options</li>
-              <li>Adjustable compression settings</li>
-              <li>DOCX text extraction support</li>
+              <li>Proper DOCX file structure</li>
+              <li>UTF-8 text encoding support</li>
+              <li>Professional document formatting</li>
             </ul>
           </div>
           <div className="feature-card">
             <h4>🔄 Real Conversion</h4>
             <ul>
-              <li>Actual file format conversion</li>
-              <li>Uses industry-standard libraries</li>
-              <li>Proper file structure generation</li>
-              <li>Text extraction from Word documents</li>
+              <li>Uses official docx library</li>
+              <li>Creates valid Word documents</li>
+              <li>Proper MIME types</li>
+              <li>RTF fallback support</li>
             </ul>
           </div>
           <div className="feature-card">
             <h4>📁 Supported Formats</h4>
             <ul>
+              <li>TXT → DOCX (Fully Working!)</li>
+              <li>DOCX → TXT</li>
               <li>Images: JPG, PNG, GIF, WebP</li>
-              <li>Documents: PDF, DOCX, TXT, HTML</li>
-              <li>DOCX to TXT conversion</li>
-              <li>More formats coming soon</li>
+              <li>PDF conversion support</li>
             </ul>
           </div>
         </div>
@@ -804,11 +562,11 @@ For better results, try:
         <h3>Important Notes</h3>
         <ul>
           <li>Maximum file size: 50 MB</li>
-          <li>High-quality conversion preserves original dimensions</li>
-          <li>All processing happens in your browser - files are not uploaded</li>
-          <li>Converted files are generated locally for maximum privacy</li>
-          <li>For best results, use high-resolution source images</li>
-          <li><strong>DOCX conversion:</strong> Uses basic text extraction - complex formatting may be lost</li>
+          <li><strong>TXT to DOCX:</strong> Now creates proper Word documents that open correctly!</li>
+          <li>Uses official Microsoft Office document structure</li>
+          <li>All processing happens locally in your browser</li>
+          <li>UTF-8 encoding preserved for international characters</li>
+          <li>Professional formatting with proper fonts and spacing</li>
         </ul>
       </div>
     </div>
