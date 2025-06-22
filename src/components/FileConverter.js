@@ -42,10 +42,8 @@ const FileConverter = () => {  const [selectedFile, setSelectedFile] = useState(
     txt: { 
       name: 'Text File', 
       accepts: ['.docx', '.html', '.rtf', '.pdf'],
-      mimeTypes: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/html', 'application/rtf', 'application/pdf']
-    }
+      mimeTypes: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/html', 'application/rtf', 'application/pdf']    }
   };
-  const handleFileChange = handleFileChangeWithRecovery;
 
   const handleFormatChange = (e) => {
     setTargetFormat(e.target.value);
@@ -1665,10 +1663,9 @@ Note: Text extracted using PDF.js library for maximum compatibility`;
       
       <div className="converter-section">
         <div className="upload-section">
-          <h3>Upload File</h3>
-          <input 
+          <h3>Upload File</h3>          <input 
             type="file" 
-            onChange={handleFileChange} 
+            onChange={handleFileChangeWithRecovery} 
             className="file-input"
             disabled={isConverting}
             accept={Object.values(fileFormats)
